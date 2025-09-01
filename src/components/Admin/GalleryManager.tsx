@@ -289,57 +289,18 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
           >
-            <Upload size={48} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Faça upload das suas fotos
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Arraste e solte as imagens aqui ou clique no botão para selecionar
-            </p>
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileInputChange}
-                className="hidden"
-              />
-              <span className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <Upload size={20} />
-                Selecionar Fotos
-              </span>
-            </label>
+            <div className="text-center">
+              <Upload size={48} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Faça upload das suas fotos
+              </h3>
+              <p className="text-gray-600">
+                Arraste e solte as imagens aqui ou use o botão "Upload Fotos" acima
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Current Cover Photo */}
-            {gallery.coverPhotoId && (
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <Star size={16} className="text-yellow-500" />
-                  Foto de Capa Atual
-                </h3>
-                <div className="flex items-center gap-4">
-                  {(() => {
-                    const coverPhoto = gallery.photos.find(p => p.id === gallery.coverPhotoId);
-                    return coverPhoto ? (
-                      <>
-                        <img
-                          src={coverPhoto.thumbnail}
-                          alt={coverPhoto.filename}
-                          className="w-16 h-16 object-cover rounded-lg"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-900">{coverPhoto.filename}</p>
-                          <p className="text-sm text-gray-600">Esta foto aparecerá como capa para os clientes</p>
-                        </div>
-                      </>
-                    ) : null;
-                  })()}
-                </div>
-              </div>
-            )}
-            
             <AdminPhotoGrid
               photos={gallery.photos}
               onPhotoClick={handlePhotoClickForCover}
