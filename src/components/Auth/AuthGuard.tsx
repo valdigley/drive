@@ -56,7 +56,7 @@ export function AuthGuard({ children, requiredPermission }: AuthGuardProps) {
           
           <div className="space-y-4">
             <Button
-              onClick={() => window.location.href = 'https://fotografo.site/login'}
+              onClick={() => window.location.href = 'https://your-main-site.com/login'}
               className="w-full flex items-center justify-center gap-2"
             >
               <ExternalLink size={16} />

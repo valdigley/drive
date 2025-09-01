@@ -21,7 +21,7 @@ class AuthService {
     window.addEventListener('message', (event) => {
       // Validate origin for security (replace with your actual domain)
       const allowedOrigins = [
-        'https://fotografo.site',
+        'https://your-main-site.com',
         'http://localhost:3000', // For development
         'http://localhost:5173', // For development
       ];
@@ -103,7 +103,7 @@ class AuthService {
 
   private redirectToLogin() {
     // Redirect to your main site's login page
-    const loginUrl = 'https://fotografo.site/login';
+    const loginUrl = 'https://your-main-site.com/login';
     const returnUrl = encodeURIComponent(window.location.href);
     window.location.href = `${loginUrl}?return=${returnUrl}`;
   }
