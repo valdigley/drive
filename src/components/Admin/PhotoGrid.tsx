@@ -45,7 +45,7 @@ export function PhotoGrid({
 
   const handleDownload = (photo: Photo, e: React.MouseEvent) => {
     e.stopPropagation();
-    downloadFile(photo.url, photo.filename, photo.r2Key);
+    downloadFile(photo.url, photo.filename, photo.r2Key, state.currentGallery?.id);
   };
 
   const handleDeletePhoto = async (photoId: string, e: React.MouseEvent) => {

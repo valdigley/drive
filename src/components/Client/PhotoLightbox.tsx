@@ -66,7 +66,7 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
   };
 
   const handleDownload = () => {
-    downloadFile(currentPhoto.url, currentPhoto.filename, currentPhoto.r2Key);
+    downloadFile(currentPhoto.url, currentPhoto.filename, currentPhoto.r2Key, state.currentGallery?.id);
   };
 
   return (

@@ -8,6 +8,7 @@ import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
+import { setGlobalDispatch } from './utils/fileUtils';
 
 function App() {
   const { state, dispatch } = useAppContext();

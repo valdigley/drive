@@ -28,7 +28,7 @@ export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
       r2Key: photo.r2Key,
     }));
     
-    await downloadMultipleFiles(files);
+    await downloadMultipleFiles(files, currentGallery.id);
     onClose();
   };
 
