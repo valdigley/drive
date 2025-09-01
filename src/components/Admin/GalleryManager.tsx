@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Star, Trash2 } from 'lucide-react';
+import { Upload, ArrowLeft, Star, Trash2, Calendar, Save } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
+import { Input } from '../UI/Input';
 import { LoadingSpinner } from '../UI/LoadingSpinner';
 import { PhotoGrid } from '../Client/PhotoGrid';
 import { PhotoGrid as AdminPhotoGrid } from './PhotoGrid';
 import { PhotoLightbox } from '../Client/PhotoLightbox';
 import { galleryService } from '../../services/galleryService';
-import { isValidImageFile } from '../../utils/fileUtils';
+import { isValidImageFile, formatDate } from '../../utils/fileUtils';
 import { Gallery } from '../../types';
 import { r2Service } from '../../services/r2Service';
 
@@ -28,6 +29,9 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingGallery, setDeletingGallery] = useState(false);
+  const [editingExpiration, setEditingExpiration] = useState(false);
+  const [newExpirationDays, setNewExpirationDays] = useState('');
+  const [savingExpiration, setSavingExpiration] = useState(false);
 
   const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
 
@@ -191,6 +195,52 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
     }
   };
 
+  const handleEditExpiration = () => {
+    if (gallery?.expirationDate) {
+      const daysFromNow = Math.ceil((gallery.expirationDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+      setNewExpirationDays(Math.max(1, daysFromNow).toString());
+    } else {
+      setNewExpirationDays('30');
+    }
+    setEditingExpiration(true);
+  };
+
+  const handleSaveExpiration = async () => {
+    if (!gallery) return;
+    
+    const days = parseInt(newExpirationDays);
+    if (isNaN(days) || days < 1 || days > 365) {
+      alert('O prazo deve ser entre 1 e 365 dias');
+      return;
+    }
+
+    setSavingExpiration(true);
+    try {
+      const newExpirationDate = new Date();
+      newExpirationDate.setDate(newExpirationDate.getDate() + days);
+      
+      const updatedGallery = {
+        ...gallery,
+        expirationDate: newExpirationDate,
+      };
+      
+      await galleryService.saveGallery(updatedGallery);
+      dispatch({ type: 'UPDATE_GALLERY', payload: updatedGallery });
+      setFullGallery(updatedGallery);
+      setEditingExpiration(false);
+    } catch (error) {
+      console.error('Error updating expiration:', error);
+      alert('Erro ao atualizar prazo de expiração');
+    } finally {
+      setSavingExpiration(false);
+    }
+  };
+
+  const handleCancelEditExpiration = () => {
+    setEditingExpiration(false);
+    setNewExpirationDays('');
+  };
+
   const handlePhotoClickForCover = (photo: any, index: number) => {
     if (selectingCover) {
       handleSetCoverPhoto(photo.id);
@@ -279,7 +329,79 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       )}
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Gallery Info and Expiration */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Informações da Galeria</h3>
+              <div className="space-y-2 text-sm text-gray-600">
+                <p><span className="font-medium">Cliente:</span> {gallery.clientName}</p>
+                <p><span className="font-medium">Criada em:</span> {formatDate(gallery.createdDate)}</p>
+                <p><span className="font-medium">Acessos:</span> {gallery.accessCount}</p>
+                <p><span className="font-medium">Downloads:</span> {gallery.downloadCount}</p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Prazo de Expiração</h3>
+              {editingExpiration ? (
+                <div className="space-y-3">
+                  <Input
+                    label="Dias até expirar"
+                    type="number"
+                    value={newExpirationDays}
+                    onChange={(e) => setNewExpirationDays(e.target.value)}
+                    min="1"
+                    max="365"
+                    placeholder="Ex: 30"
+                    icon={<Calendar />}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={handleSaveExpiration}
+                      disabled={savingExpiration}
+                      className="flex items-center gap-1"
+                    >
+                      {savingExpiration ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Save size={16} />
+                      )}
+                      Salvar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={handleCancelEditExpiration}
+                      disabled={savingExpiration}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">Expira em:</span>{' '}
+                    {gallery.expirationDate ? formatDate(gallery.expirationDate) : 'Sem expiração'}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleEditExpiration}
+                    className="flex items-center gap-1"
+                  >
+                    <Calendar size={16} />
+                    Editar Prazo
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {gallery.photos.length === 0 ? (
           <div
             className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
