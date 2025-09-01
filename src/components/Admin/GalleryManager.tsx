@@ -287,6 +287,27 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       .sort((a, b) => (photoFavoriteCount[b.id] || 0) - (photoFavoriteCount[a.id] || 0));
   };
 
+  const getFavoritedPhotosText = () => {
+    const favoritedPhotos = getMostFavoritedPhotos();
+    if (favoritedPhotos.length === 0) return '';
+    
+    return favoritedPhotos
+      .map(photo => {
+        // Remove extensão do arquivo para ficar apenas o nome
+        const nameWithoutExtension = photo.filename.replace(/\.[^/.]+$/, '');
+        return nameWithoutExtension;
+      })
+      .join(' OR ');
+  };
+
+  const handleCopyFavorites = () => {
+    const text = getFavoritedPhotosText();
+    if (text) {
+      navigator.clipboard.writeText(text);
+      alert('Lista de fotos favoritadas copiada!');
+    }
+  };
+
   const handlePhotoClickForCover = (photo: any, index: number) => {
     if (selectingCover) {
       handleSetCoverPhoto(photo.id);
@@ -393,13 +414,32 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Atividade dos Clientes</h3>
               <div className="space-y-2 text-sm text-gray-600">
                 <p><span className="font-medium">Total de favoritos:</span> {getTotalFavorites()}</p>
-                <p><span className="font-medium">Fotos mais favoritadas:</span></p>
-                <div className="ml-4 space-y-1">
-                  {getMostFavoritedPhotos().slice(0, 3).map((photo, index) => (
-                    <p key={photo.id} className="text-xs">
-                      {index + 1}. {photo.filename.substring(0, 20)}...
-                    </p>
-                  ))}
+                <div>
+                  <p className="font-medium mb-2">Fotos favoritadas:</p>
+                  {getFavoritedPhotosText() ? (
+                    <div className="bg-gray-50 border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-500">Clique para copiar:</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={handleCopyFavorites}
+                          className="text-xs px-2 py-1 h-auto"
+                        >
+                          Copiar
+                        </Button>
+                      </div>
+                      <code 
+                        className="text-xs bg-white p-2 rounded border block cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={handleCopyFavorites}
+                        title="Clique para copiar"
+                      >
+                        {getFavoritedPhotosText()}
+                      </code>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 italic">Nenhuma foto favoritada ainda</p>
+                  )}
                 </div>
               </div>
             </div>
