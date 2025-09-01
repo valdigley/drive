@@ -124,9 +124,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     case 'TOGGLE_PRINT_CART':
       if (!state.clientSession) return state;
-      const updatedPrintCart = state.clientSession.printCart?.includes(action.payload.photoId)
-        ? state.clientSession.printCart.filter(id => id !== action.payload.photoId)
-        : [...(state.clientSession.printCart || []), action.payload.photoId];
+      const currentPrintCart = state.clientSession.printCart || [];
+      const updatedPrintCart = currentPrintCart.includes(action.payload.photoId)
+        ? currentPrintCart.filter(id => id !== action.payload.photoId)
+        : [...currentPrintCart, action.payload.photoId];
       
       const updatedSessionWithPrintCart = {
         ...state.clientSession,
@@ -134,7 +135,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
       
       // Salvar no localStorage
-      const printCartSessionKey = `gallery_session_${state.clientSession.galleryId}_${Date.now()}`;
+      const printCartSessionKey = `gallery_session_${state.clientSession.galleryId}`;
       localStorage.setItem(printCartSessionKey, JSON.stringify(updatedSessionWithPrintCart));
       
       return {

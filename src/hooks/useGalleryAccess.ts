@@ -72,14 +72,18 @@ export function useGalleryAccess(galleryId: string) {
   }, [galleryId, state.galleries, dispatch]);
 
   const initializeClientSession = async (gallery: Gallery) => {
-    const sessionId = `gallery_session_${gallery.id}_${Date.now()}`;
+    const sessionId = `gallery_session_${gallery.id}`;
     
     // Carregar sessão existente do localStorage se houver
     const existingSession = localStorage.getItem(sessionId);
     let session: ClientSession;
     
     if (existingSession) {
-      session = JSON.parse(existingSession);
+      const parsedSession = JSON.parse(existingSession);
+      session = {
+        ...parsedSession,
+        printCart: parsedSession.printCart || [],
+      };
       session.accessedAt = new Date();
     } else {
       session = {
