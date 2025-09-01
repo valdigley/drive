@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Star, Trash2, Calendar, Save } from 'lucide-react';
+import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
@@ -343,6 +343,19 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
               </div>
 
               <div className="flex items-center gap-3">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => {
+                    const link = `${window.location.origin}/gallery/${galleryId}`;
+                    window.open(link, '_blank');
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink size={16} />
+                  Ver Galeria
+                </Button>
+                
                 <label className="cursor-pointer">
                   <input
                     type="file"
