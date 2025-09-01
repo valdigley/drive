@@ -84,7 +84,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatsCard
             title="Total de Galerias"
             value={adminStats.totalGalleries}
@@ -114,20 +114,13 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
           />
         </div>
 
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-6">
+        <div>
+          <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Suas Galerias</h2>
-            <div className="flex items-center gap-4">
-              <select className="rounded-md border-gray-300 text-sm">
-                <option>Todas as galerias</option>
-                <option>Ativas</option>
-                <option>Expiradas</option>
-              </select>
-            </div>
           </div>
 
           {galleries.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-8">
               <Camera size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 Nenhuma galeria criada ainda
@@ -135,7 +128,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               <p className="text-gray-600 mb-6">
                 Comece criando sua primeira galeria para compartilhar fotos com seus clientes.
               </p>
-              <div className="flex gap-3 justify-center">
+              <div className="flex gap-2 justify-center">
                 <Button onClick={() => setShowCreateModal(true)}>
                   <Plus size={20} className="mr-2" />
                   Criar Nova Galeria
@@ -146,7 +139,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {galleries.map((gallery) => (
                 <GalleryCard 
                   key={gallery.id} 
