@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  photoshare:
+    build: .
+    container_name: photoshare-app
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - photoshare-network
+
+networks:
+  photoshare-network:
+    driver: bridge
