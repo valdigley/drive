@@ -7,6 +7,7 @@ import { ClientGallery } from './components/Client/ClientGallery';
 import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
+import { setGlobalDispatch } from './utils/fileUtils';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
 
 function App() {
