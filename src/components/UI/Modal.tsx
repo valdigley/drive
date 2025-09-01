@@ -60,6 +60,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
             {children}
           </div>
         </div>
+        </div>
       </div>
     </div>
   );
