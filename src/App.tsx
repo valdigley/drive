@@ -8,7 +8,6 @@ import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
-import { setGlobalDispatch } from './utils/fileUtils';
 
 function App() {
   const { state, dispatch } = useAppContext();
@@ -19,6 +18,11 @@ function App() {
   const [accessGranted, setAccessGranted] = useState<boolean>(false);
   const [initializing, setInitializing] = useState(true);
   const [loadingGallery, setLoadingGallery] = useState(false);
+
+  // Set global dispatch for download counter
+  useEffect(() => {
+    setGlobalDispatch(dispatch);
+  }, [dispatch]);
 
   // Apply theme to document
   useEffect(() => {
