@@ -72,13 +72,33 @@ export function useGalleryAccess(galleryId: string) {
   }, [galleryId, state.galleries, dispatch]);
 
   const initializeClientSession = async (gallery: Gallery) => {
-    const session: ClientSession = {
+    const sessionId = `gallery_session_${gallery.id}_${Date.now()}`;
+    
+    // Carregar sessão existente do localStorage se houver
+    const existingSession = localStorage.getItem(sessionId);
+    let session: ClientSession;
+    
+    if (existingSession) {
+      session = JSON.parse(existingSession);
+      session.accessedAt = new Date();
+    } else {
+      session = {
+        galleryId: gallery.id,
+        accessedAt: new Date(),
+        favorites: [],
+        selectedPhotos: [],
+        downloads: 0,
+      };
+    }
+    
+    // Salvar sessão no localStorage
+    localStorage.setItem(sessionId, JSON.stringify({
       galleryId: gallery.id,
       accessedAt: new Date(),
-      favorites: [],
-      selectedPhotos: [],
-      downloads: 0,
-    };
+      favorites: session.favorites,
+      selectedPhotos: session.selectedPhotos,
+      downloads: session.downloads,
+    }));
     
     dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
     

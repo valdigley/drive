@@ -241,6 +241,52 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
     setNewExpirationDays('');
   };
 
+  const getTotalFavorites = () => {
+    // Em uma implementação real, isso viria do banco de dados
+    // Por enquanto, simulamos baseado no localStorage das sessões
+    let totalFavorites = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('gallery_session_')) {
+        try {
+          const session = JSON.parse(localStorage.getItem(key) || '{}');
+          if (session.galleryId === galleryId && session.favorites) {
+            totalFavorites += session.favorites.length;
+          }
+        } catch (error) {
+          // Ignore invalid session data
+        }
+      }
+    }
+    return totalFavorites;
+  };
+
+  const getMostFavoritedPhotos = () => {
+    const photoFavoriteCount: Record<string, number> = {};
+    
+    // Contar favoritos por foto
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('gallery_session_')) {
+        try {
+          const session = JSON.parse(localStorage.getItem(key) || '{}');
+          if (session.galleryId === galleryId && session.favorites) {
+            session.favorites.forEach((photoId: string) => {
+              photoFavoriteCount[photoId] = (photoFavoriteCount[photoId] || 0) + 1;
+            });
+          }
+        } catch (error) {
+          // Ignore invalid session data
+        }
+      }
+    }
+    
+    // Ordenar fotos por número de favoritos
+    return gallery.photos
+      .filter(photo => photoFavoriteCount[photo.id] > 0)
+      .sort((a, b) => (photoFavoriteCount[b.id] || 0) - (photoFavoriteCount[a.id] || 0));
+  };
+
   const handlePhotoClickForCover = (photo: any, index: number) => {
     if (selectingCover) {
       handleSetCoverPhoto(photo.id);
