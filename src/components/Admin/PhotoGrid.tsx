@@ -111,31 +111,27 @@ export function PhotoGrid({
               </div>
             )}
             
-            {/* ADMIN DELETE BUTTON - SEMPRE VISÍVEL */}
+            {/* ADMIN DELETE BUTTON - SEMPRE VISÍVEL QUANDO É ADMIN */}
             {isAdmin && (
               <button
                 onClick={(e) => handleDeletePhoto(photo.id, e)}
-                className="absolute top-2 right-2 z-20 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-100"
+                className="absolute top-2 right-2 z-20 w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200"
                 title="Deletar foto"
                 disabled={deletingPhoto === photo.id}
+                style={{ opacity: 1 }}
               >
-                <Trash2 size={14} />
+                {deletingPhoto === photo.id ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
+                )}
               </button>
-            )}
-            
-            {/* Deleting Overlay */}
-            {deletingPhoto === photo.id && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
-                <div className="text-white text-sm font-medium">Deletando...</div>
-              </div>
             )}
             
             {/* CLIENT ACTIONS - Only for non-admin */}
             {!isAdmin && (
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300">
-                <div className={`absolute top-2 right-2 flex gap-2 transition-all duration-200 ${
-                  hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'
-                }`}>
+              <div className={`absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'}`}>
+                <div className="absolute top-2 right-2 flex gap-2">
                   {/* Selection Toggle */}
                   <button
                     onClick={(e) => handleSelectionToggle(photo.id, e)}
@@ -161,10 +157,7 @@ export function PhotoGrid({
                   </button>
                 </div>
 
-                {/* Bottom Actions */}
-                <div className={`absolute bottom-2 left-2 right-2 flex justify-between items-end transition-all duration-200 ${
-                  hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'
-                }`}>
+                <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end">
                   <div className="flex gap-2">
                     <button
                       onClick={(e) => handleDownload(photo, e)}
