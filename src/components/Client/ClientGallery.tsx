@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Heart, Download, Grid, List, Filter, ShoppingCart } from 'lucide-react';
+import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { PhotoGrid } from './PhotoGrid';
 import { PhotoLightbox } from './PhotoLightbox';
 import { SelectionPanel } from './SelectionPanel';
 import { Photo, ViewMode } from '../../types';
-import { formatDate } from '../../utils/fileUtils';
+import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
 
 export function ClientGallery() {
   const { state } = useAppContext();
@@ -42,6 +42,21 @@ export function ClientGallery() {
 
   const selectedCount = clientSession?.selectedPhotos.length || 0;
   const favoritesCount = clientSession?.favorites.length || 0;
+
+  // Calculate days until expiration
+  const getDaysUntilExpiration = () => {
+    if (!currentGallery.expirationDate) return null;
+    
+    const now = new Date();
+    const expiration = new Date(currentGallery.expirationDate);
+    const diffTime = expiration.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  const daysUntilExpiration = getDaysUntilExpiration();
+  const isExpired = isGalleryExpired(currentGallery.expirationDate);
 
   return (
     <div className="min-h-screen bg-gray-50">
