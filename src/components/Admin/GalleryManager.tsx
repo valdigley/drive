@@ -5,6 +5,7 @@ import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
 import { LoadingSpinner } from '../UI/LoadingSpinner';
 import { PhotoGrid } from '../Client/PhotoGrid';
+import { PhotoGrid as AdminPhotoGrid } from './PhotoGrid';
 import { PhotoLightbox } from '../Client/PhotoLightbox';
 import { galleryService } from '../../services/galleryService';
 import { isValidImageFile } from '../../utils/fileUtils';
@@ -311,7 +312,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
               </div>
             )}
             
-            <PhotoGrid
+            <AdminPhotoGrid
               photos={gallery.photos}
               onPhotoClick={handlePhotoClickForCover}
               showCoverIndicator={true}
