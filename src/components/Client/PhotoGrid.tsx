@@ -27,6 +27,15 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
     return clientSession?.selectedPhotos.includes(photoId) || false;
   };
 
+  const isInPrintCart = (photoId: string) => {
+    return clientSession?.printCart.includes(photoId) || false;
+  };
+
+  const handlePrintCartToggle = (photoId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch({ type: 'TOGGLE_PRINT_CART', payload: { photoId } });
+  };
+
   const handleFavoriteToggle = (photoId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     dispatch({ type: 'TOGGLE_FAVORITE', payload: { photoId } });
