@@ -64,7 +64,7 @@ export function AuthGuard({ children, requiredPermission }: AuthGuardProps) {
             </Button>
             
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              <p>Após fazer login, clique no botão "Drive" para acessar esta aplicação</p>
+              <p>Após fazer login, você será redirecionado automaticamente</p>
             </div>
           </div>
         </div>

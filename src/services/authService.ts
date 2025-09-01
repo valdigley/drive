@@ -93,8 +93,45 @@ class AuthService {
   }
 
   private requestAuthFromParent() {
-    // Request authentication data from parent window
-    window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+    // Check if we're in the same domain (subdomain)
+    if (window.location.hostname.includes('fotografo.site')) {
+      // Try to get auth data from main domain via cookie or localStorage
+      this.checkCrossDomainAuth();
+    } else {
+      // Request authentication data from parent window
+      window.parent.postMessage({ type: 'REQUEST_AUTH' }, '*');
+    }
+  }
+
+  private async checkCrossDomainAuth() {
+    try {
+      // Check for auth cookie or make request to main domain
+      const response = await fetch('https://fotografo.site/api/auth/check', {
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+
+      if (response.ok) {
+        const authData = await response.json();
+        if (authData.authenticated) {
+          this.handleAuthData({
+            token: authData.token,
+            user: authData.user,
+            permissions: authData.permissions || ['admin']
+          });
+        }
+      }
+    } catch (error) {
+      console.log('Cross-domain auth check failed, user needs to login');
+      // Redirect to login if not authenticated
+      setTimeout(() => {
+        if (!this.isAuthenticated()) {
+          this.redirectToLogin();
+        }
+      }, 2000);
+    }
   }
 
   private notifyAuthCallbacks(isAuthenticated: boolean) {
