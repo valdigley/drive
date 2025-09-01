@@ -225,13 +225,9 @@ class GalleryService {
 
   async incrementDownloadCount(galleryId: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('galleries')
-        .update({ 
-          download_count: supabase.raw('download_count + 1'),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', galleryId);
+      const { error } = await supabase.rpc('increment_download_count', {
+        gallery_id: galleryId
+      });
 
       if (error) throw error;
     } catch (error) {
