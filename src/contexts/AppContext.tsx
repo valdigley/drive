@@ -104,7 +104,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
       
       // Salvar no localStorage
-      const sessionKey = `gallery_session_${state.clientSession.galleryId}_${Date.now()}`;
+      const sessionKey = `gallery_session_${state.clientSession.galleryId}`;
       localStorage.setItem(sessionKey, JSON.stringify(updatedSessionWithFavorites));
       
       return {

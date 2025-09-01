@@ -137,6 +137,19 @@ export function ClientGallery() {
 
               {/* Selection Cart */}
               <div className="flex items-center gap-3">
+                {/* Print Cart */}
+                {printCartCount > 0 && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowPrintCart(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Printer size={16} />
+                    {printCartCount} para imprimir
+                  </Button>
+                )}
+                
                 {selectedCount > 0 && (
                   <Button
                     variant="secondary"
