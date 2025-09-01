@@ -4,6 +4,7 @@ import { Gallery } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
+import { galleryService } from '../../services/galleryService';
 
 interface GalleryCardProps {
   gallery: Gallery;
@@ -11,6 +12,9 @@ interface GalleryCardProps {
 }
 
 export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
+  const { dispatch } = useAppContext();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingGallery, setDeletingGallery] = useState(false);
   const isExpired = isGalleryExpired(gallery.expirationDate);
   const previewPhotos = gallery.photos.slice(0, 4);
 
@@ -21,6 +25,19 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
     alert('Link copiado para a área de transferência!');
   };
 
+  const handleDelete = async () => {
+    setDeletingGallery(true);
+    try {
+      await galleryService.deleteGallery(gallery.id);
+      dispatch({ type: 'DELETE_GALLERY', payload: gallery.id });
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error('Error deleting gallery:', error);
+      alert('Erro ao deletar galeria');
+    } finally {
+      setDeletingGallery(false);
+    }
+  };
   return (
     <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md ${isExpired ? 'opacity-75' : ''}`}>
       {/* Photo Preview Grid */}
