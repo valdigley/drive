@@ -408,11 +408,11 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Gallery Info and Expiration */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Informações da Galeria</h3>
-              <div className="space-y-2 text-sm text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Informações da Galeria</h3>
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <p><span className="font-medium">Cliente:</span> {gallery.clientName}</p>
                 <p><span className="font-medium">Criada em:</span> {formatDate(gallery.createdDate)}</p>
                 <p><span className="font-medium">Acessos:</span> {gallery.accessCount}</p>
@@ -421,15 +421,15 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Atividade dos Clientes</h3>
-              <div className="space-y-2 text-sm text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Atividade dos Clientes</h3>
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <p><span className="font-medium">Total de favoritos:</span> {getTotalFavorites()}</p>
                 <div>
                   <p className="font-medium mb-2">Fotos favoritadas:</p>
                   {getFavoritedPhotosText() ? (
-                    <div className="bg-gray-50 border rounded-lg p-3">
+                    <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-gray-500">Clique para copiar:</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Clique para copiar:</span>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -440,7 +440,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                         </Button>
                       </div>
                       <code 
-                        className="text-xs bg-white p-2 rounded border block cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="text-xs bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-600 block cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100"
                         onClick={handleCopyFavorites}
                         title="Clique para copiar"
                       >
@@ -448,14 +448,14 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                       </code>
                     </div>
                   ) : (
-                    <p className="text-xs text-gray-400 italic">Nenhuma foto favoritada ainda</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 italic">Nenhuma foto favoritada ainda</p>
                   )}
                 </div>
               </div>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Prazo de Expiração</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Prazo de Expiração</h3>
               {editingExpiration ? (
                 <div className="space-y-3">
                   <Input
@@ -494,7 +494,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-medium">Expira em:</span>{' '}
                     {gallery.expirationDate ? formatDate(gallery.expirationDate) : 'Sem expiração'}
                   </p>
