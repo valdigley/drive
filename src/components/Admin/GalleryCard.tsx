@@ -118,46 +118,13 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
             size="sm"
             variant="ghost"
             onClick={() => onManage?.(gallery.id)}
-            className="px-2"
+            className="flex-1 text-xs"
           >
             <Settings size={16} />
-          </Button>
-          
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowDeleteConfirm(true)}
-            className="px-2 text-red-600 hover:bg-red-50"
-          >
-            <Trash2 size={16} />
+            Gerenciar
           </Button>
         </div>
       </div>
-
-      {/* Delete Confirmation */}
-      {showDeleteConfirm && (
-        <div className="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center p-4">
-          <div className="text-center">
-            <p className="text-sm text-gray-900 mb-4">Deletar esta galeria?</p>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={handleDelete}
-              >
-                Deletar
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

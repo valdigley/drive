@@ -226,6 +226,16 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                     Upload Fotos
                   </span>
                 </label>
+                
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Trash2 size={16} />
+                  Deletar Galeria
+                </Button>
               </div>
             </div>
           </div>
