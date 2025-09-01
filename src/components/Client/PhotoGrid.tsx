@@ -48,7 +48,7 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
 
   const handleDownload = (photo: Photo, e: React.MouseEvent) => {
     e.stopPropagation();
-    downloadFile(photo.url, photo.filename, photo.r2Key);
+    downloadFile(photo.url, photo.filename, photo.r2Key, currentGallery?.id);
   };
 
   const isCoverPhoto = (photoId: string) => {
