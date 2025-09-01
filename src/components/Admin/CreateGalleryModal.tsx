@@ -150,7 +150,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             value={formData.description}
             onChange={handleInputChange}
             rows={3}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
             placeholder="Descrição do evento ou sessão fotográfica..."
           />
         </div>
@@ -181,8 +181,8 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         {/* Settings */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Configurações da Galeria</h3>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Configurações da Galeria</h3>
           
           <div className="space-y-3">
             <label className="flex items-center">
@@ -191,9 +191,9 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 name="allowDownload"
                 checked={formData.allowDownload}
                 onChange={handleInputChange}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
               />
-              <span className="ml-2 text-sm text-gray-700">Permitir downloads</span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Permitir downloads</span>
             </label>
             
             <label className="flex items-center">
@@ -202,9 +202,9 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 name="allowComments"
                 checked={formData.allowComments}
                 onChange={handleInputChange}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
               />
-              <span className="ml-2 text-sm text-gray-700">Permitir comentários</span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Permitir comentários</span>
             </label>
             
             <label className="flex items-center">
@@ -213,21 +213,21 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 name="watermark"
                 checked={formData.watermark}
                 onChange={handleInputChange}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
               />
-              <span className="ml-2 text-sm text-gray-700">Adicionar marca d'água</span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Adicionar marca d'água</span>
             </label>
           </div>
           
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Qualidade de Download
             </label>
             <select
               name="downloadQuality"
               value={formData.downloadQuality}
               onChange={handleInputChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="web">Web (otimizada)</option>
               <option value="print">Print (alta qualidade)</option>
