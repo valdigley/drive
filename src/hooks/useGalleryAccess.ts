@@ -87,6 +87,7 @@ export function useGalleryAccess(galleryId: string) {
         accessedAt: new Date(),
         favorites: [],
         selectedPhotos: [],
+        printCart: [],
         downloads: 0,
       };
     }
@@ -97,6 +98,7 @@ export function useGalleryAccess(galleryId: string) {
       accessedAt: new Date(),
       favorites: session.favorites,
       selectedPhotos: session.selectedPhotos,
+      printCart: session.printCart || [],
       downloads: session.downloads,
     }));
     

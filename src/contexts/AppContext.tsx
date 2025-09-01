@@ -122,6 +122,25 @@ function appReducer(state: AppState, action: AppAction): AppState {
             : [...state.clientSession.selectedPhotos, action.payload.photoId],
         },
       };
+    case 'TOGGLE_PRINT_CART':
+      if (!state.clientSession) return state;
+      const updatedPrintCart = state.clientSession.printCart?.includes(action.payload.photoId)
+        ? state.clientSession.printCart.filter(id => id !== action.payload.photoId)
+        : [...(state.clientSession.printCart || []), action.payload.photoId];
+      
+      const updatedSessionWithPrintCart = {
+        ...state.clientSession,
+        printCart: updatedPrintCart,
+      };
+      
+      // Salvar no localStorage
+      const printCartSessionKey = `gallery_session_${state.clientSession.galleryId}_${Date.now()}`;
+      localStorage.setItem(printCartSessionKey, JSON.stringify(updatedSessionWithPrintCart));
+      
+      return {
+        ...state,
+        clientSession: updatedSessionWithPrintCart,
+      };
     default:
       return state;
   }
