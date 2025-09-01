@@ -314,9 +314,9 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <div className="flex items-center justify-between">
@@ -337,8 +337,8 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                 )}
                 
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{gallery.name}</h1>
-                  <p className="text-gray-600">{gallery.clientName} • {gallery.photos.length} fotos</p>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{gallery.name}</h1>
+                  <p className="text-gray-600 dark:text-gray-400">{gallery.clientName} • {gallery.photos.length} fotos</p>
                 </div>
               </div>
 
@@ -387,13 +387,13 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
 
       {/* Upload Progress */}
       {uploading && (
-        <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
+        <div className="bg-blue-50 dark:bg-blue-900 border-b border-blue-200 dark:border-blue-700 px-4 py-3">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
               <LoadingSpinner size="sm" />
               <div className="flex-1">
-                <p className="text-sm text-blue-800">Processando imagens...</p>
-                <div className="w-full bg-blue-200 rounded-full h-2 mt-1">
+                <p className="text-sm text-blue-800 dark:text-blue-200">Processando imagens...</p>
+                <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 mt-1">
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
