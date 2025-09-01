@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Star } from 'lucide-react';
+import { Upload, ArrowLeft, Star, Trash2 } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
@@ -26,6 +26,8 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [selectingCover, setSelectingCover] = useState(false);
   const [fullGallery, setFullGallery] = useState<Gallery | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingGallery, setDeletingGallery] = useState(false);
 
   const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
 
