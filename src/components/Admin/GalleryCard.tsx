@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Calendar, Eye, Download, Lock, Settings, ExternalLink, Trash2, Camera } from 'lucide-react';
+import { Calendar, Eye, Download, Lock, Settings, ExternalLink, Camera } from 'lucide-react';
 import { Gallery } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
-import { galleryService } from '../../services/galleryService';
 
 interface GalleryCardProps {
   gallery: Gallery;
@@ -12,23 +11,14 @@ interface GalleryCardProps {
 }
 
 export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
-  const { dispatch } = useAppContext();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
   const isExpired = isGalleryExpired(gallery.expirationDate);
   const previewPhotos = gallery.photos.slice(0, 4);
 
   const handleCopyLink = () => {
-    const link = galleryService.generateSecureLink(gallery.id);
+    const link = `${window.location.origin}/gallery/${gallery.id}`;
     navigator.clipboard.writeText(link);
     // In a real app, show a toast notification
     alert('Link copiado para a área de transferência!');
-  };
-
-  const handleDelete = () => {
-    galleryService.deleteGallery(gallery.id);
-    dispatch({ type: 'DELETE_GALLERY', payload: gallery.id });
-    setShowDeleteConfirm(false);
   };
 
   return (

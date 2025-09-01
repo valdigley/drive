@@ -345,6 +345,66 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
         onClose={() => setLightboxOpen(false)}
         onNavigate={setCurrentPhotoIndex}
       />
+
+      {/* Delete Gallery Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+              onClick={() => setShowDeleteConfirm(false)}
+            />
+            <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trash2 size={32} className="text-red-600" />
+                </div>
+                
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Deletar Galeria
+                </h3>
+                
+                <p className="text-gray-600 mb-2">
+                  Tem certeza que deseja deletar a galeria <strong>"{gallery.name}"</strong>?
+                </p>
+                
+                <p className="text-sm text-red-600 mb-6">
+                  Esta ação não pode ser desfeita. Todas as {gallery.photos.length} fotos serão removidas permanentemente.
+                </p>
+                
+                <div className="flex gap-3 justify-center">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={deletingGallery}
+                  >
+                    Cancelar
+                  </Button>
+                  
+                  <Button
+                    variant="danger"
+                    onClick={handleDeleteGallery}
+                    disabled={deletingGallery}
+                    className="flex items-center gap-2"
+                  >
+                    {deletingGallery ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Deletando...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={16} />
+                        Deletar Galeria
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
