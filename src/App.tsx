@@ -48,6 +48,9 @@ function App() {
   // Handle URL routing (simplified for MVP)
   useEffect(() => {
     const loadGalleryFromUrl = async () => {
+      // Only proceed if app initialization is complete
+      if (initializing) return;
+      
       const path = window.location.pathname;
       const galleryMatch = path.match(/\/gallery\/(.+)/);
       
@@ -84,7 +87,7 @@ function App() {
     };
     
     loadGalleryFromUrl();
-  }, [dispatch]);
+  }, [dispatch, initializing]);
 
   const handleManageGallery = (galleryId: string) => {
     setManagingGalleryId(galleryId);
