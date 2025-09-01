@@ -1,6 +1,13 @@
 import { r2Service } from '../services/r2Service';
 import { galleryService } from '../services/galleryService';
 
+// Global dispatch for download counter updates
+let globalDispatch: any = null;
+
+export function setGlobalDispatch(dispatch: any) {
+  globalDispatch = dispatch;
+}
+
 export function formatFileSize(bytes: number): string {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   if (bytes === 0) return '0 Bytes';
