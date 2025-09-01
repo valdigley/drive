@@ -332,7 +332,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Gallery Info and Expiration */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Informações da Galeria</h3>
               <div className="space-y-2 text-sm text-gray-600">
@@ -340,6 +340,21 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                 <p><span className="font-medium">Criada em:</span> {formatDate(gallery.createdDate)}</p>
                 <p><span className="font-medium">Acessos:</span> {gallery.accessCount}</p>
                 <p><span className="font-medium">Downloads:</span> {gallery.downloadCount}</p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Atividade dos Clientes</h3>
+              <div className="space-y-2 text-sm text-gray-600">
+                <p><span className="font-medium">Total de favoritos:</span> {getTotalFavorites()}</p>
+                <p><span className="font-medium">Fotos mais favoritadas:</span></p>
+                <div className="ml-4 space-y-1">
+                  {getMostFavoritedPhotos().slice(0, 3).map((photo, index) => (
+                    <p key={photo.id} className="text-xs">
+                      {index + 1}. {photo.filename.substring(0, 20)}...
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
             

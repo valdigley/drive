@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
-import { PhotoGrid } from './PhotoGrid';
+import { PhotoGrid } from '../Client/PhotoGrid';
 import { PhotoLightbox } from './PhotoLightbox';
 import { SelectionPanel } from './SelectionPanel';
 import { Photo, ViewMode } from '../../types';
