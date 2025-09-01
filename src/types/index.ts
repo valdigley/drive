@@ -44,6 +44,7 @@ export interface ClientSession {
   accessedAt: Date;
   favorites: string[];
   selectedPhotos: string[];
+  printCart: string[];
   downloads: number;
 }
 

@@ -26,7 +26,8 @@ type AppAction =
   | { type: 'DELETE_GALLERY'; payload: string }
   | { type: 'ADD_PHOTOS'; payload: { galleryId: string; photos: any[] } }
   | { type: 'TOGGLE_FAVORITE'; payload: { photoId: string } }
-  | { type: 'TOGGLE_SELECTION'; payload: { photoId: string } };
+  | { type: 'TOGGLE_SELECTION'; payload: { photoId: string } }
+  | { type: 'TOGGLE_PRINT_CART'; payload: { photoId: string } };
 
 const initialState: AppState = {
   currentUser: 'admin',

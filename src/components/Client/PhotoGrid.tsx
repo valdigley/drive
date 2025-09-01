@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Download, ZoomIn, Check, Star } from 'lucide-react';
+import { Heart, Download, ZoomIn, Check, Star, Printer } from 'lucide-react';
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
@@ -86,6 +86,19 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
             {/* Overlay */}
             <div className={`absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'}`}>
               <div className={`absolute top-2 right-2 flex gap-2 ${isCoverPhoto(photo.id) ? 'mt-8' : ''}`}>
+                {/* Print Cart Toggle */}
+                <button
+                  onClick={(e) => handlePrintCartToggle(photo.id, e)}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    isInPrintCart(photo.id)
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
+                  }`}
+                  title="Adicionar ao carrinho de impressão"
+                >
+                  <Printer size={16} />
+                </button>
+
                 {/* Selection Toggle */}
                 <button
                   onClick={(e) => handleSelectionToggle(photo.id, e)}
@@ -94,6 +107,7 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
                       ? 'bg-blue-600 text-white'
                       : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
                   }`}
+                  title="Selecionar foto"
                 >
                   <Check size={16} />
                 </button>

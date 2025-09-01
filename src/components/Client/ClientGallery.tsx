@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock } from 'lucide-react';
+import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock, Printer } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { PhotoGrid } from '../Client/PhotoGrid';
 import { PhotoLightbox } from './PhotoLightbox';
 import { SelectionPanel } from './SelectionPanel';
+import { PrintCartPanel } from './PrintCartPanel';
 import { Photo, ViewMode } from '../../types';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
 
@@ -16,6 +17,7 @@ export function ClientGallery() {
   const [viewMode, setViewMode] = useState<ViewMode>('masonry');
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [showSelection, setShowSelection] = useState(false);
+  const [showPrintCart, setShowPrintCart] = useState(false);
 
   if (!currentGallery) {
     return <div>Galeria não encontrada</div>;
@@ -42,6 +44,7 @@ export function ClientGallery() {
 
   const selectedCount = clientSession?.selectedPhotos.length || 0;
   const favoritesCount = clientSession?.favorites.length || 0;
+  const printCartCount = clientSession?.printCart?.length || 0;
 
   // Calculate days until expiration
   const getDaysUntilExpiration = () => {
@@ -186,6 +189,12 @@ export function ClientGallery() {
       <SelectionPanel
         isOpen={showSelection}
         onClose={() => setShowSelection(false)}
+      />
+      
+      {/* Print Cart Panel */}
+      <PrintCartPanel
+        isOpen={showPrintCart}
+        onClose={() => setShowPrintCart(false)}
       />
     </div>
   );
