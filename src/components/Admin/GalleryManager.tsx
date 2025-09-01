@@ -242,19 +242,17 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   };
 
   const getTotalFavorites = () => {
-    // Em uma implementação real, isso viria do banco de dados
-    // Por enquanto, simulamos baseado no localStorage das sessões
     let totalFavorites = 0;
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key?.startsWith('gallery_session_')) {
+      if (key === `gallery_session_${galleryId}`) {
         try {
           const session = JSON.parse(localStorage.getItem(key) || '{}');
-          if (session.galleryId === galleryId && session.favorites) {
+          if (session.favorites) {
             totalFavorites += session.favorites.length;
           }
         } catch (error) {
-          // Ignore invalid session data
+          console.error('Error parsing session data:', error);
         }
       }
     }
@@ -264,21 +262,20 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const getMostFavoritedPhotos = () => {
     const photoFavoriteCount: Record<string, number> = {};
     
-    // Contar favoritos por foto
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith('gallery_session_')) {
-        try {
-          const session = JSON.parse(localStorage.getItem(key) || '{}');
-          if (session.galleryId === galleryId && session.favorites) {
-            session.favorites.forEach((photoId: string) => {
-              photoFavoriteCount[photoId] = (photoFavoriteCount[photoId] || 0) + 1;
-            });
-          }
-        } catch (error) {
-          // Ignore invalid session data
+    // Buscar sessão específica desta galeria
+    const sessionKey = `gallery_session_${galleryId}`;
+    try {
+      const sessionData = localStorage.getItem(sessionKey);
+      if (sessionData) {
+        const session = JSON.parse(sessionData);
+        if (session.favorites && Array.isArray(session.favorites)) {
+          session.favorites.forEach((photoId: string) => {
+            photoFavoriteCount[photoId] = (photoFavoriteCount[photoId] || 0) + 1;
+          });
         }
       }
+    } catch (error) {
+      console.error('Error parsing session data:', error);
     }
     
     // Ordenar fotos por número de favoritos
