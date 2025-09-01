@@ -11,13 +11,22 @@ import { LoadingSpinner } from './components/UI/LoadingSpinner';
 
 function App() {
   const { state, dispatch } = useAppContext();
-  const { currentUser, galleries } = state;
+  const { currentUser, galleries, theme } = state;
   const [currentView, setCurrentView] = useState<'dashboard' | 'gallery-manager' | 'client-gallery'>('dashboard');
   const [managingGalleryId, setManagingGalleryId] = useState<string | null>(null);
   const [clientGalleryId, setClientGalleryId] = useState<string | null>(null);
   const [accessGranted, setAccessGranted] = useState<boolean>(false);
   const [initializing, setInitializing] = useState(true);
   const [loadingGallery, setLoadingGallery] = useState(false);
+
+  // Apply theme to document
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   // Initialize app data
   useEffect(() => {

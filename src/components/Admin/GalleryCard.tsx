@@ -39,9 +39,9 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
     }
   };
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md ${isExpired ? 'opacity-75' : ''}`}>
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md ${isExpired ? 'opacity-75' : ''}`}>
       {/* Photo Preview Grid */}
-      <div className="aspect-square bg-gray-100 relative overflow-hidden">
+      <div className="aspect-square bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
         {previewPhotos.length > 0 ? (
           <div className="grid grid-cols-2 gap-1 h-full">
             {previewPhotos.map((photo, index) => (
@@ -62,8 +62,8 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Camera size={32} className="text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">Nenhuma foto</p>
+              <Camera size={32} className="text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma foto</p>
             </div>
           </div>
         )}
@@ -78,16 +78,16 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
       {/* Gallery Info */}
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-gray-900 truncate">{gallery.name}</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white truncate">{gallery.name}</h3>
           {gallery.password && (
-            <Lock size={16} className="text-gray-400 flex-shrink-0 ml-2" />
+            <Lock size={16} className="text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2" />
           )}
         </div>
         
-        <p className="text-sm text-gray-600 mb-3">{gallery.clientName}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{gallery.clientName}</p>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
           <div className="flex items-center gap-1">
             <Eye size={12} />
             {gallery.accessCount}

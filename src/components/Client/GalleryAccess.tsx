@@ -52,14 +52,14 @@ export function GalleryAccess({ galleryId, onAccessGranted }: GalleryAccessProps
   if (!needsPassword) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock size={32} className="text-blue-600" />
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock size={32} className="text-blue-600 dark:text-blue-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Acesso Restrito</h1>
-          <p className="text-gray-600">Esta galeria é protegida por senha</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Acesso Restrito</h1>
+          <p className="text-gray-600 dark:text-gray-400">Esta galeria é protegida por senha</p>
         </div>
 
         <form onSubmit={handlePasswordSubmit} className="space-y-6">
@@ -81,7 +81,7 @@ export function GalleryAccess({ galleryId, onAccessGranted }: GalleryAccessProps
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Se você não possui a senha, entre em contato com o fotógrafo
           </p>
         </div>
