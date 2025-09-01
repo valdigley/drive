@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Eye, Download, Lock, Settings, ExternalLink, Camera } from 'lucide-react';
+import { Calendar, Eye, Download, Lock, Settings, ExternalLink, Camera, Trash2 } from 'lucide-react';
 import { Gallery } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
