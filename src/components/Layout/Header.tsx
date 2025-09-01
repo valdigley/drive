@@ -40,16 +40,6 @@ export function Header() {
             >
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleUserRole}
-              className="flex items-center gap-2"
-            >
-              <User size={16} />
-              {currentUser === 'admin' ? 'Ver como Cliente' : 'Ver como Admin'}
-            </Button>
           </div>
         </div>
       </div>
