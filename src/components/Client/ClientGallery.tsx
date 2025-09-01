@@ -80,6 +80,22 @@ export function ClientGallery() {
                   <span>{currentGallery.photos.length} fotos</span>
                   <span>•</span>
                   <span>{formatDate(currentGallery.createdDate)}</span>
+                  {daysUntilExpiration !== null && (
+                    <>
+                      <span>•</span>
+                      <div className={`flex items-center gap-1 ${isExpired ? 'text-red-300' : daysUntilExpiration <= 7 ? 'text-yellow-300' : 'text-green-300'}`}>
+                        <Clock size={16} />
+                        <span>
+                          {isExpired 
+                            ? 'Expirada' 
+                            : daysUntilExpiration === 1 
+                              ? '1 dia restante'
+                              : `${daysUntilExpiration} dias restantes`
+                          }
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
                 {currentGallery.description && (
                   <p className="text-lg opacity-90 mt-3 max-w-2xl">{currentGallery.description}</p>
