@@ -5,7 +5,9 @@ import { Button } from '../UI/Button';
 import { CreateGalleryModal } from './CreateGalleryModal';
 import { GalleryCard } from './GalleryCard';
 import { StatsCard } from './StatsCard';
+import { StorageStatusCard } from './StorageStatusCard';
 import { galleryService } from '../../services/galleryService';
+import { storageService, StorageStats } from '../../services/storageService';
 
 interface AdminDashboardProps {
   onManageGallery?: (galleryId: string) => void;
@@ -15,6 +17,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const { state, dispatch } = useAppContext();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loadingGalleries, setLoadingGalleries] = useState(false);
+  const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -35,6 +38,10 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
         
         const stats = await galleryService.getAdminStats();
         dispatch({ type: 'SET_ADMIN_STATS', payload: stats });
+        
+        // Load storage stats
+        const storage = await storageService.getStorageStats();
+        setStorageStats(storage);
       } catch (error) {
         console.error('Error loading galleries:', error);
       } finally {
@@ -105,6 +112,10 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
         </div>
 
         {/* Galleries Section */}
+        <div className="mb-8">
+          {storageStats && <StorageStatusCard storageStats={storageStats} />}
+        </div>
+
         <div className="mb-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Suas Galerias</h2>
