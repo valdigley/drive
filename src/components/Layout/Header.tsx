@@ -25,9 +25,6 @@ export function Header() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">PhotoShare Pro</h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                {currentUser === 'admin' ? 'Painel do Fotógrafo' : 'Visualização do Cliente'}
-              </p>
             </div>
           </div>
 
