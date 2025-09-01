@@ -112,84 +112,81 @@ export function PhotoGrid({
               </div>
             )}
             
+            {/* Admin Delete Button - Always visible for admin */}
+            {isAdmin && (
+              <div className="absolute top-2 right-2 z-20">
+                <button
+                  onClick={(e) => handleDeletePhoto(photo.id, e)}
+                  className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 opacity-0 group-hover:opacity-100"
+                  title="Deletar foto"
+                  disabled={deletingPhoto === photo.id}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            )}
+            
             {/* Deleting Overlay */}
             {deletingPhoto === photo.id && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
                 <div className="text-white text-sm font-medium">Deletando...</div>
               </div>
             )}
             
-            {/* Hover Overlay with Actions */}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300">
-              {/* Action Buttons - Always visible on hover */}
-              <div className={`absolute top-2 right-2 flex flex-col gap-2 transition-all duration-200 ${
-                hoveredPhoto === photo.id || isAdmin ? 'opacity-100' : 'opacity-0'
-              } ${isCoverPhoto(photo.id) ? 'mt-10' : ''}`}>
-                
-                {/* Admin Delete Button - Red and prominent */}
-                {isAdmin && (
+            {/* Client Actions - Only for non-admin */}
+            {!isAdmin && (
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300">
+                <div className={`absolute top-2 right-2 flex gap-2 transition-all duration-200 ${
+                  hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'
+                }`}>
+                  {/* Selection Toggle */}
                   <button
-                    onClick={(e) => handleDeletePhoto(photo.id, e)}
-                    className="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                    title="Deletar foto"
-                    disabled={deletingPhoto === photo.id}
+                    onClick={(e) => handleSelectionToggle(photo.id, e)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      isSelected(photo.id)
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
+                    }`}
                   >
-                    <Trash2 size={18} />
+                    <Check size={16} />
                   </button>
-                )}
 
-                {/* Client Actions */}
-                {!isAdmin && (
-                  <>
-                    {/* Selection Toggle */}
-                    <button
-                      onClick={(e) => handleSelectionToggle(photo.id, e)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-                        isSelected(photo.id)
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
-                      }`}
-                    >
-                      <Check size={16} />
-                    </button>
-
-                    {/* Favorite Toggle */}
-                    <button
-                      onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-                        isFavorite(photo.id)
-                          ? 'bg-red-500 text-white'
-                          : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
-                      }`}
-                    >
-                      <Heart size={16} fill={isFavorite(photo.id) ? 'currentColor' : 'none'} />
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {/* Bottom Actions */}
-              <div className={`absolute bottom-2 left-2 right-2 flex justify-between items-end transition-all duration-200 ${
-                hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'
-              }`}>
-                <div className="flex gap-2">
+                  {/* Favorite Toggle */}
                   <button
-                    onClick={(e) => handleDownload(photo, e)}
-                    className="w-8 h-8 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200"
-                    title="Baixar foto"
+                    onClick={(e) => handleFavoriteToggle(photo.id, e)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      isFavorite(photo.id)
+                        ? 'bg-red-500 text-white'
+                        : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
+                    }`}
                   >
-                    <Download size={16} />
-                  </button>
-                  
-                  <button 
-                    className="w-8 h-8 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200"
-                    title="Visualizar em tela cheia"
-                  >
-                    <ZoomIn size={16} />
+                    <Heart size={16} fill={isFavorite(photo.id) ? 'currentColor' : 'none'} />
                   </button>
                 </div>
+
+                {/* Bottom Actions */}
+                <div className={`absolute bottom-2 left-2 right-2 flex justify-between items-end transition-all duration-200 ${
+                  hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'
+                }`}>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => handleDownload(photo, e)}
+                      className="w-8 h-8 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200"
+                      title="Baixar foto"
+                    >
+                      <Download size={16} />
+                    </button>
+                    
+                    <button 
+                      className="w-8 h-8 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200"
+                      title="Visualizar em tela cheia"
+                    >
+                      <ZoomIn size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Photo Info */}
