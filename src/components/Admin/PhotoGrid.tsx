@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Heart, Download, ZoomIn, Check, Star, Trash2 } from 'lucide-react';
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
-import { Button } from '../UI/Button';
 import { downloadFile } from '../../utils/fileUtils';
 
 interface PhotoGridProps {
@@ -112,18 +111,16 @@ export function PhotoGrid({
               </div>
             )}
             
-            {/* Admin Delete Button - Always visible for admin */}
+            {/* ADMIN DELETE BUTTON - SEMPRE VISÍVEL */}
             {isAdmin && (
-              <div className="absolute top-2 right-2 z-20">
-                <button
-                  onClick={(e) => handleDeletePhoto(photo.id, e)}
-                  className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 opacity-0 group-hover:opacity-100"
-                  title="Deletar foto"
-                  disabled={deletingPhoto === photo.id}
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
+              <button
+                onClick={(e) => handleDeletePhoto(photo.id, e)}
+                className="absolute top-2 right-2 z-20 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-100"
+                title="Deletar foto"
+                disabled={deletingPhoto === photo.id}
+              >
+                <Trash2 size={14} />
+              </button>
             )}
             
             {/* Deleting Overlay */}
@@ -133,7 +130,7 @@ export function PhotoGrid({
               </div>
             )}
             
-            {/* Client Actions - Only for non-admin */}
+            {/* CLIENT ACTIONS - Only for non-admin */}
             {!isAdmin && (
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300">
                 <div className={`absolute top-2 right-2 flex gap-2 transition-all duration-200 ${
