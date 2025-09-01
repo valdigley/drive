@@ -175,6 +175,22 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       alert('Erro ao deletar foto. Tente novamente.');
     }
   };
+
+  const handleDeleteGallery = async () => {
+    setDeletingGallery(true);
+    try {
+      await galleryService.deleteGallery(galleryId);
+      dispatch({ type: 'DELETE_GALLERY', payload: galleryId });
+      setShowDeleteConfirm(false);
+      onBack();
+    } catch (error) {
+      console.error('Error deleting gallery:', error);
+      alert('Erro ao deletar galeria. Tente novamente.');
+    } finally {
+      setDeletingGallery(false);
+    }
+  };
+
   const handlePhotoClickForCover = (photo: any, index: number) => {
     if (selectingCover) {
       handleSetCoverPhoto(photo.id);
