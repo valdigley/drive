@@ -1,8 +1,6 @@
 import React from 'react';
 import { Camera, Moon, Sun, User } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
-import { UserInfo } from '../Auth/UserInfo';
-import { authService } from '../../services/authService';
 import { Button } from '../UI/Button';
 
 export function Header() {
@@ -31,8 +29,6 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-3">
-            {authService.isAuthenticated() && <UserInfo />}
-            
             <Button
               variant="ghost"
               size="sm"

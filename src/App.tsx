@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
-import { AuthGuard } from './components/Auth/AuthGuard';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
@@ -168,22 +167,20 @@ function App() {
 
   // Admin views
   return (
-    <AuthGuard requiredPermission="admin">
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        
-        {currentView === 'dashboard' && (
-          <AdminDashboard onManageGallery={handleManageGallery} />
-        )}
-        
-        {currentView === 'gallery-manager' && managingGalleryId && (
-          <GalleryManager
-            galleryId={managingGalleryId}
-            onBack={handleBackToDashboard}
-          />
-        )}
-      </div>
-    </AuthGuard>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      {currentView === 'dashboard' && (
+        <AdminDashboard onManageGallery={handleManageGallery} />
+      )}
+      
+      {currentView === 'gallery-manager' && managingGalleryId && (
+        <GalleryManager
+          galleryId={managingGalleryId}
+          onBack={handleBackToDashboard}
+        />
+      )}
+    </div>
   );
 }
 

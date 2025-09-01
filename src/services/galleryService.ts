@@ -225,19 +225,9 @@ class GalleryService {
 
   async incrementDownloadCount(galleryId: string): Promise<void> {
     try {
-      // Use direct update instead of RPC function for now
-      const { data: gallery, error: fetchError } = await supabase
-        .from('galleries')
-        .select('download_count')
-        .eq('id', galleryId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const { error } = await supabase
-        .from('galleries')
-        .update({ download_count: (gallery.download_count || 0) + 1 })
-        .eq('id', galleryId);
+      const { error } = await supabase.rpc('increment_download_count', {
+        gallery_id: galleryId
+      });
 
       if (error) throw error;
     } catch (error) {
