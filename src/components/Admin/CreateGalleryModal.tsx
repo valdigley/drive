@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, Lock, Upload } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
-import { Modal } from '../UI/Modal';
-import { Input } from '../UI/Input';
-import { Button } from '../UI/Button';
+import { VSModal, VSInput, VSButton } from '../UI/valdigley-design-system';
 import { Gallery } from '../../types';
 import { galleryService } from '../../services/galleryService';
 import { generateSecureId, validatePassword } from '../../utils/fileUtils';
@@ -113,15 +111,15 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
   };
 
   return (
-    <Modal
+    <VSModal
       isOpen={isOpen}
       onClose={onClose}
       title="Criar Nova Galeria"
       size="lg"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
+      <form onSubmit={handleSubmit} className="vs-space-y-6">
+        <div className="vs-grid vs-grid-2 vs-gap-4">
+          <VSInput
             label="Nome da Galeria"
             name="name"
             value={formData.name}
@@ -131,7 +129,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             icon={<Upload />}
           />
           
-          <Input
+          <VSInput
             label="Nome do Cliente"
             name="clientName"
             value={formData.clientName}
@@ -142,7 +140,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="vs-form-label">
             Descrição (opcional)
           </label>
           <textarea
@@ -150,13 +148,13 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             value={formData.description}
             onChange={handleInputChange}
             rows={3}
-            className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
+            className="vs-input vs-w-full"
             placeholder="Descrição do evento ou sessão fotográfica..."
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
+        <div className="vs-grid vs-grid-2 vs-gap-4">
+          <VSInput
             label="Senha de Acesso (opcional)"
             name="password"
             type="password"
@@ -167,7 +165,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             icon={<Lock />}
           />
           
-          <Input
+          <VSInput
             label="Expiração (dias)"
             name="expirationDays"
             type="number"
@@ -181,19 +179,19 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         {/* Settings */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Configurações da Galeria</h3>
+        <div className="vs-bg-secondary vs-rounded-lg vs-p-4">
+          <h3 className="vs-text-sm vs-font-medium vs-text-primary vs-mb-3">Configurações da Galeria</h3>
           
-          <div className="space-y-3">
+          <div className="vs-space-y-3">
             <label className="flex items-center">
               <input
                 type="checkbox"
                 name="allowDownload"
                 checked={formData.allowDownload}
                 onChange={handleInputChange}
-                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
+                className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Permitir downloads</span>
+              <span className="vs-ml-2 vs-text-sm vs-text-primary">Permitir downloads</span>
             </label>
             
             <label className="flex items-center">
@@ -202,9 +200,9 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 name="allowComments"
                 checked={formData.allowComments}
                 onChange={handleInputChange}
-                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
+                className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Permitir comentários</span>
+              <span className="vs-ml-2 vs-text-sm vs-text-primary">Permitir comentários</span>
             </label>
             
             <label className="flex items-center">
@@ -213,21 +211,21 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 name="watermark"
                 checked={formData.watermark}
                 onChange={handleInputChange}
-                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
+                className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Adicionar marca d'água</span>
+              <span className="vs-ml-2 vs-text-sm vs-text-primary">Adicionar marca d'água</span>
             </label>
           </div>
           
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="vs-mt-4">
+            <label className="vs-form-label">
               Qualidade de Download
             </label>
             <select
               name="downloadQuality"
               value={formData.downloadQuality}
               onChange={handleInputChange}
-              className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
+              className="vs-input vs-w-full"
             >
               <option value="web">Web (otimizada)</option>
               <option value="print">Print (alta qualidade)</option>
@@ -237,15 +235,15 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="secondary" onClick={onClose}>
+        <div className="vs-flex vs-justify-end vs-gap-3 vs-pt-4">
+          <VSButton type="button" variant="secondary" onClick={onClose}>
             Cancelar
-          </Button>
-          <Button type="submit">
+          </VSButton>
+          <VSButton type="submit">
             Criar Galeria
-          </Button>
+          </VSButton>
         </div>
       </form>
-    </Modal>
+    </VSModal>
   );
 }

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Plus, Camera, Users, Download, Eye, LogOut } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
-import { Button } from '../UI/Button';
+import { VSButton, VSCard, VSCardBody, VSPageHeader, VSStatCard, VSEmptyState } from '../UI/valdigley-design-system';
 import { CreateGalleryModal } from './CreateGalleryModal';
 import { GalleryCard } from './GalleryCard';
-import { StatsCard } from './StatsCard';
 import { galleryService } from '../../services/galleryService';
 import { supabase } from '../../lib/supabase';
 
@@ -54,86 +53,88 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const { galleries, adminStats } = state;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-              <p className="text-gray-600 dark:text-gray-400">Gerencie suas galerias e fotos</p>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2"
-              >
-                <Plus size={20} />
-                Nova Galeria
-              </Button>
-              
-              <Button 
-                onClick={handleSignOut}
-                variant="secondary"
-                className="flex items-center gap-2"
-              >
-                <LogOut size={20} />
-                Sair
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="vs-h-screen">
+      <VSCard className="vs-mb-0 vs-rounded-none vs-border-x-0 vs-border-t-0">
+        <VSCardBody>
+          <VSPageHeader
+            title="Dashboard"
+            subtitle="Gerencie suas galerias e fotos"
+            actions={
+              <div className="vs-flex vs-gap-2">
+                <VSButton 
+                  onClick={() => setShowCreateModal(true)}
+                  icon={<Plus size={20} />}
+                >
+                  Nova Galeria
+                </VSButton>
+                
+                <VSButton 
+                  onClick={handleSignOut}
+                  variant="secondary"
+                  icon={<LogOut size={20} />}
+                >
+                  Sair
+                </VSButton>
+              </div>
+            }
+          />
+        </VSCardBody>
+      </VSCard>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="vs-content">
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatsCard
+        <div className="vs-stats-grid vs-mb-8">
+          <VSStatCard
             title="Total de Galerias"
             value={adminStats.totalGalleries}
-            icon={<Camera className="text-blue-600" size={24} />}
+            icon={<Camera size={24} />}
             trend="+12%"
+            color="blue"
           />
           
-          <StatsCard
+          <VSStatCard
             title="Fotos Compartilhadas"
             value={adminStats.totalPhotos}
-            icon={<Camera className="text-green-600" size={24} />}
+            icon={<Camera size={24} />}
             trend="+8%"
+            color="green"
           />
           
-          <StatsCard
+          <VSStatCard
             title="Visualizações"
             value={adminStats.totalViews}
-            icon={<Eye className="text-purple-600" size={24} />}
+            icon={<Eye size={24} />}
             trend="+23%"
+            color="purple"
           />
           
-          <StatsCard
+          <VSStatCard
             title="Downloads"
             value={adminStats.totalDownloads}
-            icon={<Download className="text-orange-600" size={24} />}
+            icon={<Download size={24} />}
             trend="+15%"
+            color="orange"
           />
         </div>
 
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Suas Galerias</h2>
+          <div className="vs-flex vs-justify-between vs-items-center vs-mb-6">
+            <h2 className="vs-heading-2">Suas Galerias</h2>
           </div>
 
           {galleries.length === 0 ? (
-            <div className="text-center py-8">
-              <Camera size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nenhuma galeria criada ainda
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Comece criando sua primeira galeria para compartilhar fotos com seus clientes.
-              </p>
-            </div>
+            <VSEmptyState
+              icon={<Camera size={48} />}
+              title="Nenhuma galeria criada ainda"
+              description="Comece criando sua primeira galeria para compartilhar fotos com seus clientes."
+              action={
+                <VSButton onClick={() => setShowCreateModal(true)} icon={<Plus size={20} />}>
+                  Criar Primeira Galeria
+                </VSButton>
+              }
+            />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="vs-grid vs-grid-3">
               {galleries.map((gallery) => (
                 <GalleryCard 
                   key={gallery.id} 

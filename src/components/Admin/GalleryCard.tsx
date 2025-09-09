@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Calendar, Eye, Download, Lock, Settings, ExternalLink, Camera, Trash2 } from 'lucide-react';
 import { Gallery } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
-import { Button } from '../UI/Button';
+import { VSButton, VSCard, VSCardBody } from '../UI/valdigley-design-system';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
 import { galleryService } from '../../services/galleryService';
 
@@ -39,92 +39,92 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
     }
   };
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md ${isExpired ? 'opacity-75' : ''}`}>
+    <VSCard className={`vs-overflow-hidden ${isExpired ? 'vs-opacity-75' : ''}`}>
       {/* Photo Preview Grid */}
-      <div className="aspect-square bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+      <div className="vs-aspect-square vs-bg-secondary vs-relative vs-overflow-hidden">
         {previewPhotos.length > 0 ? (
-          <div className="grid grid-cols-2 gap-1 h-full">
+          <div className="vs-grid vs-grid-2 vs-gap-1 vs-h-full">
             {previewPhotos.map((photo, index) => (
-              <div key={photo.id} className="relative overflow-hidden">
+              <div key={photo.id} className="vs-relative vs-overflow-hidden">
                 <img
                   src={photo.thumbnail}
                   alt={photo.filename}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  className="vs-w-full vs-h-full vs-object-cover vs-transition vs-hover-scale"
                 />
               </div>
             ))}
             {gallery.photos.length > 4 && (
-              <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+              <div className="vs-absolute vs-bottom-2 vs-right-2 vs-bg-black vs-bg-opacity-60 vs-text-white vs-text-xs vs-px-2 vs-py-1 vs-rounded">
                 +{gallery.photos.length - 4} fotos
               </div>
             )}
           </div>
         ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <Camera size={32} className="text-gray-400 dark:text-gray-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma foto</p>
+          <div className="vs-flex vs-items-center vs-justify-center vs-h-full">
+            <div className="vs-text-center">
+              <Camera size={32} className="vs-text-tertiary vs-mx-auto vs-mb-2" />
+              <p className="vs-text-sm vs-text-tertiary">Nenhuma foto</p>
             </div>
           </div>
         )}
         
         {isExpired && (
-          <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+          <div className="vs-badge vs-badge-error vs-absolute vs-top-2 vs-right-2">
             Expirada
           </div>
         )}
       </div>
 
       {/* Gallery Info */}
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-gray-900 dark:text-white truncate">{gallery.name}</h3>
+      <VSCardBody>
+        <div className="vs-flex vs-justify-between vs-items-start vs-mb-2">
+          <h3 className="vs-font-semibold vs-text-primary vs-truncate">{gallery.name}</h3>
           {gallery.password && (
-            <Lock size={16} className="text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2" />
+            <Lock size={16} className="vs-text-tertiary vs-flex-shrink-0 vs-ml-2" />
           )}
         </div>
         
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{gallery.clientName}</p>
+        <p className="vs-text-sm vs-text-secondary vs-mb-3">{gallery.clientName}</p>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
-          <div className="flex items-center gap-1">
+        <div className="vs-flex vs-items-center vs-gap-4 vs-text-xs vs-text-tertiary vs-mb-4">
+          <div className="vs-flex vs-items-center vs-gap-1">
             <Eye size={12} />
             {gallery.accessCount}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="vs-flex vs-items-center vs-gap-1">
             <Download size={12} />
             {gallery.downloadCount}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="vs-flex vs-items-center vs-gap-1">
             <Calendar size={12} />
             {formatDate(gallery.createdDate)}
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
-          <Button
+        <div className="vs-flex vs-gap-2">
+          <VSButton
             size="sm"
             variant="secondary"
             onClick={handleCopyLink}
-            className="flex-1 text-xs"
+            className="vs-flex-1 vs-text-xs"
+            icon={<ExternalLink size={14} />}
           >
-            <ExternalLink size={14} className="mr-1" />
             Copiar Link
-          </Button>
+          </VSButton>
           
-          <Button
+          <VSButton
             size="sm"
-            variant="ghost"
+            variant="secondary"
             onClick={() => onManage?.(gallery.id)}
-            className="flex-1 text-xs"
+            className="vs-flex-1 vs-text-xs"
+            icon={<Settings size={16} />}
           >
-            <Settings size={16} />
             Gerenciar
-          </Button>
+          </VSButton>
         </div>
-      </div>
-    </div>
+      </VSCardBody>
+    </VSCard>
   );
 }
