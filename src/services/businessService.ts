@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabase';
+
 class BusinessService {
   async getBusinessInfo() {
     try {
