@@ -70,6 +70,40 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       // Testar conexão direta com Supabase
       const { supabase } = await import('../../lib/supabase');
       
+      // Primeiro, verificar se o usuário de teste existe, se não, criar
+      console.log('👤 Verificando se usuário de teste existe...');
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', TEST_USER_UUID)
+        .single();
+      
+      if (userCheckError && userCheckError.code === 'PGRST116') {
+        // Usuário não existe, vamos criar
+        console.log('➕ Criando usuário de teste...');
+        const { error: createUserError } = await supabase
+          .from('users')
+          .insert({
+            id: TEST_USER_UUID,
+            email: 'test@example.com',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        
+        if (createUserError) {
+          console.error('❌ Erro ao criar usuário de teste:', createUserError);
+          alert(`Erro ao criar usuário de teste:\n${createUserError.message}`);
+          return;
+        }
+        console.log('✅ Usuário de teste criado com sucesso');
+      } else if (userCheckError) {
+        console.error('❌ Erro ao verificar usuário:', userCheckError);
+        alert(`Erro ao verificar usuário:\n${userCheckError.message}`);
+        return;
+      } else {
+        console.log('✅ Usuário de teste já existe');
+      }
+      
       // Criar sessão de teste diretamente
       const sessionToken = `test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
