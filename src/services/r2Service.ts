@@ -9,9 +9,9 @@ class R2Service {
   private publicUrl: string;
 
   constructor() {
-    this.bucketName = import.meta.env.VITE_R2_BUCKET_NAME || '';
+    this.bucketName = import.meta.env.VITE_R2_BUCKET || 'fotos-clientes';
     this.endpoint = import.meta.env.VITE_R2_ENDPOINT || '';
-    this.publicUrl = 'https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev';
+    this.publicUrl = import.meta.env.VITE_R2_PUBLIC_URL || '';
     
     // Check if R2 is properly configured
     this.isConfigured = !!(
@@ -23,6 +23,9 @@ class R2Service {
     
     console.log('R2 Configuration Status:', {
       isConfigured: this.isConfigured,
+      endpoint: this.endpoint,
+      bucketName: this.bucketName,
+      publicUrl: this.publicUrl,
       hasEndpoint: !!this.endpoint,
       hasAccessKey: !!import.meta.env.VITE_R2_ACCESS_KEY_ID,
       hasSecretKey: !!import.meta.env.VITE_R2_SECRET_ACCESS_KEY,
@@ -38,7 +41,6 @@ class R2Service {
           accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID,
           secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY,
         },
-        forcePathStyle: true, // Important for R2 compatibility
       });
       console.log('R2 Client initialized successfully');
     } else {
