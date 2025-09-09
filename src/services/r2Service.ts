@@ -225,7 +225,7 @@ class R2Service {
         Key: key,
       });
 
-      const signedUrl = await getSignedUrl(this.client, command, { expiresIn: 3600 }); // 1 hour
+      const signedUrl = await getSignedUrl(this.client, command, { expiresIn: 7200 }); // 2 hours
       return signedUrl;
     } catch (error) {
       console.error('Error generating signed view URL:', error);
