@@ -74,7 +74,6 @@ export function useGalleryAccess(galleryId: string) {
   const initializeClientSession = async (gallery: Gallery) => {
     const sessionId = `gallery_session_${gallery.id}`;
     
-    // Carregar sessão existente do localStorage se houver
     const existingSession = localStorage.getItem(sessionId);
     let session: ClientSession;
     
@@ -96,7 +95,6 @@ export function useGalleryAccess(galleryId: string) {
       };
     }
     
-    // Salvar sessão no localStorage
     localStorage.setItem(sessionId, JSON.stringify({
       galleryId: gallery.id,
       accessedAt: new Date(),

@@ -27,9 +27,7 @@ type AppAction =
   | { type: 'ADD_PHOTOS'; payload: { galleryId: string; photos: any[] } }
   | { type: 'TOGGLE_FAVORITE'; payload: { photoId: string } }
   | { type: 'TOGGLE_SELECTION'; payload: { photoId: string } }
-  | { type: 'TOGGLE_PRINT_CART'; payload: { photoId: string } }
-  | { type: 'INCREMENT_DOWNLOAD_COUNT' };
-
+  | { type: 'TOGGLE_PRINT_CART'; payload: { photoId: string } };
 const initialState: AppState = {
   currentUser: 'admin',
   theme: 'dark',
@@ -143,8 +141,6 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         clientSession: updatedSessionWithPrintCart,
       };
-    default:
-      return state;
   }
 }
 
