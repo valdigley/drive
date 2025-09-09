@@ -209,6 +209,31 @@ class R2Service {
     }
   }
 
+  async getSignedViewUrl(key: string): Promise<string> {
+    if (!this.isConfigured || !this.client) {
+      return key;
+    }
+
+    // Return local URLs as-is
+    if (key.startsWith('local/') || key.startsWith('blob:') || key.startsWith('data:')) {
+      return key;
+    }
+
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      });
+
+      const signedUrl = await getSignedUrl(this.client, command, { expiresIn: 3600 }); // 1 hour
+      return signedUrl;
+    } catch (error) {
+      console.error('Error generating signed view URL:', error);
+      // Fallback to public URL
+      return this.getPublicUrl(key);
+    }
+  }
+
   getPublicUrl(key: string): string {
     if (key.startsWith('local/') || key.startsWith('blob:') || key.startsWith('data:')) {
       return key;

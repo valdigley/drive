@@ -61,8 +61,18 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
 
   const getThumbnailUrl = (photo: Photo) => {
     if (failedThumbnails.has(photo.id)) {
+      // Se o thumbnail falhou, tentar usar a URL original
+      if (photo.r2Key && !photo.r2Key.startsWith('data:')) {
+        return photo.url;
+      }
       return photo.url;
     }
+    
+    // Se é um arquivo R2 e o bucket é privado, usar URL assinada
+    if (photo.r2Key && !photo.r2Key.startsWith('data:') && photo.thumbnail.includes('catalog.cloudflarestorage.com')) {
+      return photo.url; // Temporariamente usar a URL principal
+    }
+    
     return photo.thumbnail;
   };
   return (
