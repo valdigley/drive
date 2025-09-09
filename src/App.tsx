@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useSessionVerification } from './hooks/useSessionVerification';
+import { SessionRedirect } from './components/Auth/SessionRedirect';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
@@ -11,6 +13,7 @@ import { setGlobalDispatch } from './utils/fileUtils';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
 
 function App() {
+  const { isVerifying, isAuthenticated } = useSessionVerification();
   const { state, dispatch } = useAppContext();
   const { currentUser, galleries, theme } = state;
   const [currentView, setCurrentView] = useState<'dashboard' | 'gallery-manager' | 'client-gallery'>('dashboard');
@@ -24,6 +27,23 @@ function App() {
   useEffect(() => {
     setGlobalDispatch(dispatch);
   }, [dispatch]);
+
+  // Show loading while verifying session
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Verificando acesso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show redirect screen if not authenticated
+  if (!isAuthenticated) {
+    return <SessionRedirect />;
+  }
 
   // Apply theme to document
   useEffect(() => {
