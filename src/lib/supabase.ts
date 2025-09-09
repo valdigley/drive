@@ -127,6 +127,26 @@ export type Database = {
         Row: {
           id: string;
           gallery_id: string;
+          session_id: string;
+          accessed_at: string;
+          favorites: string[];
+          selected_photos: string[];
+          downloads: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          gallery_id: string;
+          session_id: string;
+          accessed_at?: string;
+          favorites?: string[];
+          selected_photos?: string[];
+          downloads?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
           id?: string;
           gallery_id?: string;
           session_id?: string;

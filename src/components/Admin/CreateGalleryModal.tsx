@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Calendar, Lock, Upload } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
-import { Button } from '../UI/Button';
+import { Modal } from '../UI/Modal';
 import { Input } from '../UI/Input';
+import { Button } from '../UI/Button';
 import { Gallery } from '../../types';
 import { galleryService } from '../../services/galleryService';
 import { generateSecureId, validatePassword } from '../../utils/fileUtils';
@@ -112,25 +113,14 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
   };
 
   return (
-    <div className={`fixed inset-0 z-50 overflow-y-auto ${isOpen ? '' : 'hidden'}`}>
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-          onClick={onClose}
-        />
-        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Criar Nova Galeria</h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              ✕
-            </button>
-          </div>
-          
-      <form onSubmit={handleSubmit} className="vs-space-y-6">
-        <div className="vs-grid vs-grid-2 vs-gap-4">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Criar Nova Galeria"
+      size="lg"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Nome da Galeria"
             name="name"
@@ -152,7 +142,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         <div>
-          <label className="vs-form-label">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Descrição (opcional)
           </label>
           <textarea
@@ -160,12 +150,12 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             value={formData.description}
             onChange={handleInputChange}
             rows={3}
-            className="vs-input vs-w-full"
+            className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
             placeholder="Descrição do evento ou sessão fotográfica..."
           />
         </div>
 
-        <div className="vs-grid vs-grid-2 vs-gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Senha de Acesso (opcional)"
             name="password"
@@ -191,19 +181,19 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         {/* Settings */}
-        <div className="vs-bg-secondary vs-rounded-lg vs-p-4">
-          <h3 className="vs-text-sm vs-font-medium vs-text-primary vs-mb-3">Configurações da Galeria</h3>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Configurações da Galeria</h3>
           
-          <div className="vs-space-y-3">
+          <div className="space-y-3">
             <label className="flex items-center">
               <input
                 type="checkbox"
                 name="allowDownload"
                 checked={formData.allowDownload}
                 onChange={handleInputChange}
-                className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
               />
-              <span className="vs-ml-2 vs-text-sm vs-text-primary">Permitir downloads</span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Permitir downloads</span>
             </label>
             
             <label className="flex items-center">
@@ -212,9 +202,9 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 name="allowComments"
                 checked={formData.allowComments}
                 onChange={handleInputChange}
-                className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
               />
-              <span className="vs-ml-2 vs-text-sm vs-text-primary">Permitir comentários</span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Permitir comentários</span>
             </label>
             
             <label className="flex items-center">
@@ -223,21 +213,21 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 name="watermark"
                 checked={formData.watermark}
                 onChange={handleInputChange}
-                className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-600"
               />
-              <span className="vs-ml-2 vs-text-sm vs-text-primary">Adicionar marca d'água</span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Adicionar marca d'água</span>
             </label>
           </div>
           
-          <div className="vs-mt-4">
-            <label className="vs-form-label">
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Qualidade de Download
             </label>
             <select
               name="downloadQuality"
               value={formData.downloadQuality}
               onChange={handleInputChange}
-              className="vs-input vs-w-full"
+              className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="web">Web (otimizada)</option>
               <option value="print">Print (alta qualidade)</option>
@@ -256,8 +246,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
           </Button>
         </div>
       </form>
-        </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
