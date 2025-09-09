@@ -9,14 +9,10 @@ import { PhotoGrid } from '../Client/PhotoGrid';
 import { PhotoGrid as AdminPhotoGrid } from './PhotoGrid';
 import { PhotoLightbox } from '../Client/PhotoLightbox';
 import { galleryService } from '../../services/galleryService';
-import { formatDate } from '../../utils/fileUtils';
+import { isValidImageFile, formatDate } from '../../utils/fileUtils';
 import { Gallery } from '../../types';
 import { r2Service } from '../../services/r2Service';
 
-function isValidImageFile(file: File): boolean {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-  return allowedTypes.includes(file.type);
-}
 interface GalleryManagerProps {
   galleryId: string;
   onBack: () => void;
