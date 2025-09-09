@@ -73,6 +73,17 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       
       console.log('🔑 Criando sessão com token:', sessionToken);
       
+      // Primeiro, invalidar sessões antigas de teste
+      console.log('🧹 Limpando sessões antigas de teste...');
+      await supabase
+        .from('user_sessions')
+        .update({ 
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', 'test-user-123')
+        .eq('is_active', true);
+      
       const { data, error } = await supabase
         .from('user_sessions')
         .insert({
@@ -91,12 +102,59 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
         alert(`Erro ao criar sessão:\n${error.message}\n\nVerifique se a tabela user_sessions existe no Supabase.`);
       } else {
         console.log('✅ Sessão criada com sucesso:', data);
-        alert(`✅ Sessão criada com sucesso!\n\nToken: ${sessionToken}\nUser ID: test-user-123\nExpira em: ${expiresAt.toLocaleString()}\n\nVerifique a tabela user_sessions no Supabase!`);
+        
+        // Verificar se a sessão foi realmente criada
+        console.log('🔍 Verificando sessão criada...');
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('user_sessions')
+          .select('*')
+          .eq('session_token', sessionToken)
+          .single();
+        
+        if (verifyError) {
+          console.error('❌ Erro ao verificar sessão:', verifyError);
+          alert(`❌ Sessão criada mas não foi possível verificar:\n${verifyError.message}`);
+        } else {
+          console.log('✅ Sessão verificada:', verifyData);
+          
+          // Salvar token no localStorage para teste
+          localStorage.setItem('shared_session_token', sessionToken);
+          
+          alert(`✅ Sessão criada e verificada com sucesso!\n\nToken: ${sessionToken}\nUser ID: test-user-123\nExpira em: ${expiresAt.toLocaleString()}\n\nToken salvo no localStorage para teste.\n\nVerifique a tabela user_sessions no Supabase!`);
+        }
       }
       
     } catch (error) {
       console.error('❌ Erro no teste:', error);
-      alert(`❌ Erro no teste:\n${error.message}\n\nVerifique a conexão com o Supabase.`);
+      alert(`❌ Erro no teste:\n${error instanceof Error ? error.message : 'Erro desconhecido'}\n\nVerifique a conexão com o Supabase.`);
+    } finally {
+      setTestingAuth(false);
+    }
+  };
+
+  const handleClearTestSessions = async () => {
+    try {
+      console.log('🧹 Limpando todas as sessões de teste...');
+      const { supabase } = await import('../../lib/supabase');
+      
+      const { error } = await supabase
+        .from('user_sessions')
+        .delete()
+        .eq('user_id', 'test-user-123');
+      
+      if (error) {
+        console.error('❌ Erro ao limpar sessões:', error);
+        alert(`Erro ao limpar sessões:\n${error.message}`);
+      } else {
+        console.log('✅ Sessões de teste limpas');
+        localStorage.removeItem('shared_session_token');
+        alert(`✅ Sessão criada com sucesso!\n\nToken: ${sessionToken}\nUser ID: test-user-123\nExpira em: ${expiresAt.toLocaleString()}\n\nVerifique a tabela user_sessions no Supabase!`);
+        alert('✅ Todas as sessões de teste foram removidas!');
+      }
+      
+    } catch (error) {
+      console.error('❌ Erro no teste:', error);
+      alert(`❌ Erro ao limpar sessões:\n${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     } finally {
       setTestingAuth(false);
     }
@@ -137,6 +195,14 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
                   <Settings size={20} />
                 )}
                 Testar Auth
+              </Button>
+              
+              <Button 
+                onClick={handleClearTestSessions}
+                variant="ghost"
+                className="flex items-center gap-2 text-red-600 hover:text-red-700"
+              >
+                🧹 Limpar Testes
               </Button>
             </div>
           </div>

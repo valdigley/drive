@@ -27,6 +27,36 @@ export function useSessionVerification() {
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('🔧 Modo desenvolvimento - autenticação automática');
         
+        // Verificar se há token de teste no localStorage
+        const testToken = localStorage.getItem('shared_session_token');
+        if (testToken) {
+          console.log('🧪 Token de teste encontrado, verificando no banco...');
+          
+          try {
+            const { data: sessionRecord, error } = await supabase
+              .from('user_sessions')
+              .select('*')
+              .eq('session_token', testToken)
+              .eq('is_active', true)
+              .gt('expires_at', new Date().toISOString())
+              .single();
+
+            if (!error && sessionRecord) {
+              console.log('✅ Sessão de teste válida encontrada:', sessionRecord);
+              setSessionData(sessionRecord);
+              setIsAuthenticated(true);
+              setIsVerifying(false);
+              return;
+            } else {
+              console.log('❌ Sessão de teste inválida, removendo...');
+              localStorage.removeItem('shared_session_token');
+            }
+          } catch (error) {
+            console.log('❌ Erro ao verificar sessão de teste:', error);
+            localStorage.removeItem('shared_session_token');
+          }
+        }
+        
         // Criar uma sessão de teste para desenvolvimento
         const testSessionData: SessionData = {
           user_id: 'test-user-id',
