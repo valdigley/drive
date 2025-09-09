@@ -45,6 +45,7 @@ export function Header() {
             >
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </Button>
+            </div>
           </div>
         </div>
       </div>
