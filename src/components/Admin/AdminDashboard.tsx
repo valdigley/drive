@@ -3,6 +3,7 @@ import { Plus, Camera, Users, Download, Eye, LogOut } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { GalleryCard } from './GalleryCard';
+import { CreateGalleryModal } from './CreateGalleryModal';
 import { supabase } from '../../lib/supabase';
 
 interface AdminDashboardProps {
