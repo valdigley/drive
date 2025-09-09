@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
+import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
 import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
-import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { supabase } from './lib/supabase';
 
 function App() {
@@ -154,10 +154,12 @@ function App() {
   // Show loading while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" className="mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
+          </div>
         </div>
       </div>
     );
@@ -166,12 +168,32 @@ function App() {
   // Show login screen if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+      <div className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
+        <div className="bg-slate-700 rounded-2xl shadow-2xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">DriVal</h1>
-            <p className="text-gray-600 dark:text-gray-400">Faça login para continuar</p>
+            {/* Logo */}
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="relative">
+                {/* Camera aperture icon */}
+                <div className="w-12 h-12 border-4 border-slate-800 rounded-full relative">
+                  <div className="absolute inset-2 border-2 border-slate-800 rounded-full">
+                    <div className="absolute inset-1 bg-slate-800 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Triagem
+            </h1>
+            <p className="text-slate-400 text-sm mb-1">By Valdigley Santos</p>
+            <p className="text-slate-300 text-sm">Acesso Administrativo</p>
           </div>
+          
           <LoginForm />
         </div>
       </div>
@@ -180,12 +202,14 @@ function App() {
 
   if (initializing || loadingGallery) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" className="mx-auto mb-4" />
-          <p className="text-gray-600">
+      <div className="min-h-screen bg-slate-800">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-slate-300">
             {initializing ? 'Carregando aplicação...' : 'Carregando galeria...'}
-          </p>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -197,15 +221,17 @@ function App() {
     
     if (!gallery) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Galeria não encontrada</h1>
-            <p className="text-gray-600 mb-4">
+        <div className="min-h-screen bg-slate-800">
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-white mb-2">Galeria não encontrada</h1>
+              <p className="text-slate-400 mb-4">
               A galeria que você está tentando acessar não existe ou foi removida.
-            </p>
-            <Button onClick={() => window.location.href = '/'}>
+              </p>
+              <Button onClick={() => window.location.href = '/'}>
               Voltar ao Início
-            </Button>
+              </Button>
+            </div>
           </div>
         </div>
       );
@@ -225,7 +251,8 @@ function App() {
 
   // Admin views
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-800">
+      <div className="h-screen">
       <Header />
       
       {currentView === 'dashboard' && (
@@ -238,6 +265,7 @@ function App() {
           onBack={handleBackToDashboard}
         />
       )}
+      </div>
     </div>
   );
 }
@@ -248,6 +276,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,50 +306,63 @@ function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-slate-300 mb-2">
           Email
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="admin@studio.com"
           required
         />
       </div>
       
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-slate-300 mb-2">
           Senha
         </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          required
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+            placeholder="••••••••"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300"
+          >
+            {showPassword ? '👁️' : '👁️‍🗨️'}
+          </button>
+        </div>
       </div>
 
       {error && (
-        <div className="text-red-600 text-sm">{error}</div>
+        <div className="text-red-400 text-sm text-center">
+          {error}
+        </div>
       )}
 
-      <button
+      <Button
         type="submit"
-        disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        loading={loading}
+        className="w-full"
       >
-        {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
-      </button>
+        {isSignUp ? 'Criar Conta' : 'Entrar'}
+      </Button>
 
       <div className="text-center">
         <button
           type="button"
           onClick={() => setIsSignUp(!isSignUp)}
-          className="text-blue-600 hover:text-blue-500 text-sm"
+          className="text-sm text-blue-600 hover:text-blue-500"
         >
           {isSignUp ? 'Já tem conta? Faça login' : 'Não tem conta? Cadastre-se'}
         </button>
