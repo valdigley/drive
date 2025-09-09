@@ -33,15 +33,15 @@ function App() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-400">Verificando acesso...</p>
         </div>
       </div>
     );
   }
 
-  // Show redirect screen if not authenticated
-  if (!isAuthenticated) {
+  // Show redirect screen if not authenticated (only in production)
+  if (!isAuthenticated && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     return <SessionRedirect />;
   }
 

@@ -23,6 +23,14 @@ export function useSessionVerification() {
       setIsVerifying(true);
       setError(null);
 
+      // Para desenvolvimento local, sempre autenticar
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('🔧 Modo desenvolvimento - autenticação automática');
+        setIsAuthenticated(true);
+        setIsVerifying(false);
+        return;
+      }
+
       // Verificar se há um token de sessão compartilhada nos parâmetros da URL ou localStorage
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('session_token') || localStorage.getItem('shared_session_token');
