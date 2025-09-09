@@ -292,21 +292,26 @@ function LoginForm() {
           required
         />
       </div>
-
+      
       <div>
         <label className="block text-sm font-medium text-slate-300 mb-2">
           Senha
         </label>
-        <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Sua senha"
-            required
-          />
-        </div>
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <div className={`w-16 h-16 bg-blue-600 dark:bg-blue-500 rounded-lg flex items-center justify-center ${businessInfo?.logo_url_drive ? 'hidden' : ''}`}>
+                <Camera size={32} className="text-white" />
+              </div>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {businessInfo?.name || 'DriVal'}
+            </h1>
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          required
+        />
       </div>
 
       {error && (
