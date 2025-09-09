@@ -239,8 +239,41 @@ class R2Service {
       return key;
     }
     
-    // Use the correct R2 public URL format
+    // For private buckets, we'll use signed URLs instead
+    // This method is kept for backward compatibility but should use getSignedViewUrl
     return `https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev/${key}`;
+  }
+
+  async getSignedUrlsForPhotos(photos: any[]): Promise<any[]> {
+    if (!this.isConfigured || !this.client) {
+      return photos;
+    }
+
+    const photosWithSignedUrls = await Promise.all(
+      photos.map(async (photo) => {
+        try {
+          // Generate signed URLs for both main image and thumbnail
+          const signedUrl = photo.r2_key && !photo.r2_key.startsWith('data:') 
+            ? await this.getSignedViewUrl(photo.r2_key)
+            : photo.url;
+            
+          const signedThumbnail = photo.r2_key && !photo.r2_key.startsWith('data:')
+            ? await this.getSignedViewUrl(photo.r2_key.replace('/photos/', '/thumbnails/').replace(/\.[^/.]+$/, '.jpg'))
+            : photo.thumbnail;
+
+          return {
+            ...photo,
+            url: signedUrl,
+            thumbnail: signedThumbnail,
+          };
+        } catch (error) {
+          console.warn('Error generating signed URL for photo:', photo.id, error);
+          return photo; // Return original photo if signing fails
+        }
+      })
+    );
+
+    return photosWithSignedUrls;
   }
 
   private async fileToDataUrl(file: File): Promise<string> {

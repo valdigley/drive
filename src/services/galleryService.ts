@@ -68,13 +68,33 @@ class GalleryService {
 
       if (error) throw error;
 
-      return (photos || []).map((photo: any) => ({
+      const mappedPhotos = (photos || []).map((photo: any) => ({
         id: photo.id,
         url: photo.url,
         thumbnail: photo.thumbnail,
         filename: photo.filename,
         size: photo.size,
         uploadDate: new Date(photo.upload_date),
+        r2Key: photo.r2_key,
+        metadata: photo.metadata || {},
+      }));
+
+      // Generate signed URLs for R2 photos
+      const { r2Service } = await import('./r2Service');
+      const photosWithSignedUrls = await r2Service.getSignedUrlsForPhotos(
+        mappedPhotos.map(photo => ({
+          ...photo,
+          r2_key: photo.r2Key,
+        }))
+      );
+
+      return photosWithSignedUrls.map((photo: any) => ({
+        id: photo.id,
+        url: photo.url,
+        thumbnail: photo.thumbnail,
+        filename: photo.filename,
+        size: photo.size,
+        uploadDate: photo.uploadDate,
         r2Key: photo.r2_key,
         metadata: photo.metadata || {},
       }));
