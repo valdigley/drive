@@ -184,10 +184,12 @@ function App() {
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
             
-            <h1 className="text-3xl font-bold text-white mb-2">Triagem</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              {businessInfo?.name || 'Triagem'}
+            </h1>
             <p className="text-slate-400 text-sm mb-1">By Valdigley Santos</p>
             <p className="text-slate-300 text-sm">Acesso Administrativo</p>
           </div>
@@ -346,6 +348,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -375,31 +378,41 @@ function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="vs-space-y-4">
-      <div className="vs-form-group">
-        <label className="vs-form-label">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-2">
           Email
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="vs-input vs-w-full"
+          className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="admin@studio.com"
           required
         />
       </div>
       
-      <div className="vs-form-group">
-        <label className="vs-form-label">
+      <div>
+        <label className="block text-sm font-medium text-slate-300 mb-2">
           Senha
         </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="vs-input vs-w-full"
-          required
-        />
+              {businessInfo?.logo_url ? (
+                <img 
+                  src={businessInfo.logo_url} 
+                  alt="Logo" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="relative">
+                  {/* Camera aperture icon */}
+                  <div className="w-12 h-12 border-4 border-slate-800 rounded-full relative">
+                    <div className="absolute inset-2 border-2 border-slate-800 rounded-full">
+                      <div className="absolute inset-1 bg-slate-800 rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
       </div>
 
       {error && (
