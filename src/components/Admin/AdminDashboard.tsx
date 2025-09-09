@@ -110,8 +110,14 @@ CREATE POLICY "Allow anonymous insert for testing"
   ON users FOR INSERT TO anon WITH CHECK (true);
 
 CREATE POLICY "Allow anonymous read for testing"
+  ON users FOR SELECT TO anon USING (true);
+          `);
+          return;
+        }
+      }
+      
       // Criar sessão de teste diretamente
-      const sessionToken = `test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      const sessionToken = \`test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
       
       console.log('🔑 Criando sessão com token:', sessionToken);
@@ -289,6 +295,7 @@ ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;
       setTestingAuth(false);
     }
   };
+  
   const { galleries, adminStats } = state;
 
   return (
