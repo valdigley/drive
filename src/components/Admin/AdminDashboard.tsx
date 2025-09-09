@@ -47,7 +47,8 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   }, [dispatch]);
 
   const handleSignOut = async () => {
-        );
+    try {
+      await supabase.auth.signOut();
     } catch (error) {
       console.error('Error signing out:', error);
     }
