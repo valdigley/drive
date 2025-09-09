@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Calendar, Lock, Upload } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
-import { VSModal, VSInput, VSButton } from '../UI/valdigley-design-system';
+import { Button } from '../UI/Button';
+import { Input } from '../UI/Input';
 import { Gallery } from '../../types';
 import { galleryService } from '../../services/galleryService';
 import { generateSecureId, validatePassword } from '../../utils/fileUtils';
@@ -111,15 +112,26 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
   };
 
   return (
-    <VSModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Criar Nova Galeria"
-      size="lg"
-    >
+    <div className={`fixed inset-0 z-50 overflow-y-auto ${isOpen ? '' : 'hidden'}`}>
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+          onClick={onClose}
+        />
+        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Criar Nova Galeria</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              ✕
+            </button>
+          </div>
+          
       <form onSubmit={handleSubmit} className="vs-space-y-6">
         <div className="vs-grid vs-grid-2 vs-gap-4">
-          <VSInput
+          <Input
             label="Nome da Galeria"
             name="name"
             value={formData.name}
@@ -129,7 +141,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             icon={<Upload />}
           />
           
-          <VSInput
+          <Input
             label="Nome do Cliente"
             name="clientName"
             value={formData.clientName}
@@ -154,7 +166,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         <div className="vs-grid vs-grid-2 vs-gap-4">
-          <VSInput
+          <Input
             label="Senha de Acesso (opcional)"
             name="password"
             type="password"
@@ -165,7 +177,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             icon={<Lock />}
           />
           
-          <VSInput
+          <Input
             label="Expiração (dias)"
             name="expirationDays"
             type="number"
@@ -235,15 +247,17 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         </div>
 
         {/* Actions */}
-        <div className="vs-flex vs-justify-end vs-gap-3 vs-pt-4">
-          <VSButton type="button" variant="secondary" onClick={onClose}>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
-          </VSButton>
-          <VSButton type="submit">
+          </Button>
+          <Button type="submit">
             Criar Galeria
-          </VSButton>
+          </Button>
         </div>
       </form>
-    </VSModal>
+        </div>
+      </div>
+    </div>
   );
 }

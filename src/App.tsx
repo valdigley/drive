@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from './contexts/AppContext';
-import { VSButton, VSLoadingSpinner, DriveLayout } from './components/UI/valdigley-design-system';
+import { Button } from './components/UI/Button';
+import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
@@ -153,46 +154,46 @@ function App() {
   // Show loading while checking auth
   if (loading) {
     return (
-      <DriveLayout>
-        <div className="vs-h-screen vs-flex vs-items-center vs-justify-center">
-          <div className="vs-text-center">
-            <VSLoadingSpinner size="lg" className="vs-mx-auto vs-mb-4" />
-            <p className="vs-text-secondary">Carregando...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
           </div>
         </div>
-      </DriveLayout>
+      </div>
     );
   }
 
   // Show login screen if not authenticated
   if (!user) {
     return (
-      <DriveLayout>
-        <div className="vs-h-screen vs-flex vs-items-center vs-justify-center vs-p-4" style={{ background: 'linear-gradient(135deg, var(--vs-blue-50), var(--vs-blue-100))' }}>
-          <div className="vs-card vs-p-8 vs-w-full" style={{ maxWidth: '28rem' }}>
-            <div className="vs-text-center vs-mb-8">
-              <h1 className="vs-heading-2 vs-mb-2">DriVal</h1>
-              <p className="vs-text-secondary">Faça login para continuar</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="h-screen flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">DriVal</h1>
+              <p className="text-gray-600 dark:text-gray-400">Faça login para continuar</p>
             </div>
             <LoginForm />
           </div>
         </div>
-      </DriveLayout>
+      </div>
     );
   }
 
   if (initializing || loadingGallery) {
     return (
-      <DriveLayout>
-        <div className="vs-h-screen vs-flex vs-items-center vs-justify-center">
-          <div className="vs-text-center">
-            <VSLoadingSpinner size="lg" className="vs-mx-auto vs-mb-4" />
-            <p className="vs-text-secondary">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">
             {initializing ? 'Carregando aplicação...' : 'Carregando galeria...'}
             </p>
           </div>
         </div>
-      </DriveLayout>
+      </div>
     );
   }
 
@@ -202,19 +203,19 @@ function App() {
     
     if (!gallery) {
       return (
-        <DriveLayout>
-          <div className="vs-h-screen vs-flex vs-items-center vs-justify-center">
-            <div className="vs-text-center">
-              <h1 className="vs-heading-2 vs-mb-2">Galeria não encontrada</h1>
-              <p className="vs-text-secondary vs-mb-4">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Galeria não encontrada</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
               A galeria que você está tentando acessar não existe ou foi removida.
               </p>
-              <VSButton onClick={() => window.location.href = '/'}>
+              <Button onClick={() => window.location.href = '/'}>
               Voltar ao Início
-              </VSButton>
+              </Button>
             </div>
           </div>
-        </DriveLayout>
+        </div>
       );
     }
     
@@ -232,8 +233,8 @@ function App() {
 
   // Admin views
   return (
-    <DriveLayout>
-      <div className="vs-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="h-screen">
       <Header />
       
       {currentView === 'dashboard' && (
@@ -247,7 +248,7 @@ function App() {
         />
       )}
       </div>
-    </DriveLayout>
+    </div>
   );
 }
 
@@ -314,27 +315,28 @@ function LoginForm() {
       </div>
 
       {error && (
-        <div className="vs-alert vs-alert-error">{error}</div>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
       )}
 
-      <VSButton
+      <Button
         type="submit" 
         disabled={loading}
         loading={loading}
-        className="vs-w-full"
+        className="w-full"
       >
         {isSignUp ? 'Criar Conta' : 'Entrar'}
-      </VSButton>
+      </Button>
 
       <div className="vs-text-center">
-        <VSButton
+        <button
           type="button"
-          variant="ghost"
           onClick={() => setIsSignUp(!isSignUp)}
-          size="sm"
+          className="text-sm text-blue-600 hover:text-blue-500"
         >
           {isSignUp ? 'Já tem conta? Faça login' : 'Não tem conta? Cadastre-se'}
-        </VSButton>
+        </button>
       </div>
     </form>
   );
