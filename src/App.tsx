@@ -118,6 +118,26 @@ function App() {
     loadGalleryFromUrl();
   }, [dispatch, initializing, state.galleries]);
 
+  // Clean SSO token from URL after authentication
+  useEffect(() => {
+    if (!loading && user) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasSsoToken = urlParams.has('sso_token') || urlParams.has('timestamp');
+      
+      if (hasSsoToken) {
+        // Remove SSO parameters from URL
+        urlParams.delete('sso_token');
+        urlParams.delete('timestamp');
+        
+        // Update URL without reloading the page
+        const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+        
+        console.log('✅ SSO token cleaned from URL');
+      }
+    }
+  }, [loading, user]);
+
   // Handler functions
   const handleManageGallery = (galleryId: string) => {
     setManagingGalleryId(galleryId);
