@@ -41,7 +41,12 @@ function App() {
   }
 
   // Show redirect screen if not authenticated (only in production)
-  if (!isAuthenticated && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+  if (!isAuthenticated && 
+      window.location.hostname !== 'localhost' && 
+      window.location.hostname !== '127.0.0.1' &&
+      !window.location.hostname.includes('stackblitz') &&
+      !window.location.hostname.includes('bolt.new') &&
+      window.location.port !== '5173') {
     return <SessionRedirect />;
   }
 

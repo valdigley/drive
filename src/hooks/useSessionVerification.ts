@@ -24,7 +24,11 @@ export function useSessionVerification() {
       setError(null);
 
       // Para desenvolvimento local, sempre autenticar
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (window.location.hostname === 'localhost' || 
+          window.location.hostname === '127.0.0.1' || 
+          window.location.hostname.includes('stackblitz') ||
+          window.location.hostname.includes('bolt.new') ||
+          window.location.port === '5173') {
         console.log('🔧 Modo desenvolvimento - autenticação automática');
         
         // Verificar se há token de teste no localStorage
