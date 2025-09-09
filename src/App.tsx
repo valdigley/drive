@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useSessionVerification } from './hooks/useSessionVerification';
-import { SessionRedirect } from './components/Auth/SessionRedirect';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
@@ -11,10 +9,9 @@ import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
 import { setGlobalDispatch } from './utils/fileUtils';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
+import { supabase } from './lib/supabase';
 
 function App() {
-  // ALL HOOKS MUST BE CALLED FIRST - NO CONDITIONAL LOGIC BEFORE THIS POINT
-  const { isVerifying, isAuthenticated } = useSessionVerification();
   const { state, dispatch } = useAppContext();
   
   // State hooks - must be called unconditionally
@@ -24,11 +21,29 @@ function App() {
   const [accessGranted, setAccessGranted] = useState<boolean>(false);
   const [initializing, setInitializing] = useState(true);
   const [loadingGallery, setLoadingGallery] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   // Extract state values after hooks
   const { currentUser, galleries, theme } = state;
 
   // Effect hooks - must be called unconditionally
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   useEffect(() => {
     setGlobalDispatch(dispatch);
   }, [dispatch]);
@@ -121,29 +136,31 @@ function App() {
 
   // CONDITIONAL RENDERING - AFTER ALL HOOKS HAVE BEEN CALLED
   
-  // Show loading while verifying session
-  if (isVerifying) {
+  // Show loading while checking auth
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" className="mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Verificando acesso...</p>
+          <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
         </div>
       </div>
     );
   }
 
-  // Show redirect screen if not authenticated (only in production)
-  if (!isAuthenticated && 
-      window.location.hostname !== 'localhost' && 
-      window.location.hostname !== '127.0.0.1' &&
-      !window.location.hostname.includes('stackblitz') &&
-      !window.location.hostname.includes('bolt.new') &&
-      !window.location.hostname.includes('bolt') &&
-      !window.location.hostname.includes('webcontainer') &&
-      !window.location.hostname.includes('csb.app') &&
-      window.location.port !== '5173') {
-    return <SessionRedirect />;
+  // Show login screen if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">PhotoShare Pro</h1>
+            <p className="text-gray-600 dark:text-gray-400">Faça login para continuar</p>
+          </div>
+          <LoginForm />
+        </div>
+      </div>
+    );
   }
 
   if (initializing || loadingGallery) {
@@ -207,6 +224,93 @@ function App() {
         />
       )}
     </div>
+  );
+}
+
+function LoginForm() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        alert('Verifique seu email para confirmar a conta!');
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+      }
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Email
+        </label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          required
+        />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Senha
+        </label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          required
+        />
+      </div>
+
+      {error && (
+        <div className="text-red-600 text-sm">{error}</div>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
+      </button>
+
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={() => setIsSignUp(!isSignUp)}
+          className="text-blue-600 hover:text-blue-500 text-sm"
+        >
+          {isSignUp ? 'Já tem conta? Faça login' : 'Não tem conta? Cadastre-se'}
+        </button>
+      </div>
+    </form>
   );
 }
 

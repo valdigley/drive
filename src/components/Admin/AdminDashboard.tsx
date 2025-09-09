@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Camera, Users, Download, Eye, Settings } from 'lucide-react';
+import { Plus, Camera, Users, Download, Eye, LogOut } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { CreateGalleryModal } from './CreateGalleryModal';
@@ -8,9 +8,7 @@ import { StatsCard } from './StatsCard';
 import { StorageStatusCard } from './StorageStatusCard';
 import { galleryService } from '../../services/galleryService';
 import { storageService, StorageStats } from '../../services/storageService';
-
-// Valid UUID for testing purposes
-const TEST_USER_UUID = '00000000-0000-4000-8000-000000000001';
+import { supabase } from '../../lib/supabase';
 
 interface AdminDashboardProps {
   onManageGallery?: (galleryId: string) => void;
@@ -21,7 +19,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loadingGalleries, setLoadingGalleries] = useState(false);
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
-  const [testingAuth, setTestingAuth] = useState(false);
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -36,264 +33,14 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             const photos = await galleryService.getGalleryPhotos(gallery.id);
             return { ...gallery, photos };
           })
-        );
-        
-        dispatch({ type: 'SET_GALLERIES', payload: galleriesWithPhotos });
-        
-        const stats = await galleryService.getAdminStats();
-        dispatch({ type: 'SET_ADMIN_STATS', payload: stats });
-        
-        // Load storage stats
-        const storage = await storageService.getStorageStats();
-        setStorageStats(storage);
-      } catch (error) {
-        console.error('Error loading galleries:', error);
-      } finally {
-        setLoadingGalleries(false);
-      }
-    };
-
-    loadGalleriesWithPhotos();
-  }, [dispatch]);
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const handleCreateSampleData = () => {
     alert('Para criar dados de exemplo, use o painel do Supabase para inserir dados de teste.');
-  };
-
-  const handleTestAuthentication = async () => {
-    setTestingAuth(true);
-    console.log('🧪 Iniciando teste de autenticação...');
-    
-    try {
-      console.log('📡 Testando conexão com Supabase...');
-      
-      // Testar conexão direta com Supabase
-      const { supabase } = await import('../../lib/supabase');
-      
-      // Primeiro, criar o usuário de teste se não existir
-      console.log('👤 Criando usuário de teste se necessário...');
-      
-      const { data: existingUser, error: checkError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', TEST_USER_UUID)
-        .single();
-      
-      if (checkError && checkError.code !== 'PGRST116') {
-        // Se o erro não for "not found", é um erro real
-        if (checkError.code === 'PGRST205') {
-          // Tabela users não existe
-          console.error('❌ Tabela users não existe!');
-          alert(`❌ PROBLEMA: Tabela 'users' não existe!\n\n` +
-                `SOLUÇÕES:\n\n` +
-                `1. CRIAR TABELA USERS (Recomendado):\n` +
-                `   - Vá para Supabase Dashboard > SQL Editor\n` +
-                `   - Execute o SQL que está no console\n\n` +
-                `2. REMOVER CHAVE ESTRANGEIRA (Mais simples):\n` +
-                `   - Execute: ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;\n\n` +
-                `3. USAR SUPABASE AUTH:\n` +
-                `   - Habilite Authentication no Supabase Dashboard`);
-          
-          console.log(`
-🔧 SQL PARA CRIAR TABELA USERS:
-
-CREATE TABLE IF NOT EXISTS users (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email text,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow anonymous insert for testing"
-  ON users FOR INSERT TO anon WITH CHECK (true);
-
-CREATE POLICY "Allow anonymous read for testing"
-  ON users FOR SELECT TO anon USING (true);
-          `);
-          return;
-        }
-      }
-      
-      // Criar sessão de teste diretamente
-      const sessionToken = `test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      
-      console.log('🔑 Criando sessão com token:', sessionToken);
-      
-      // Primeiro, invalidar sessões antigas de teste
-      console.log('🧹 Limpando sessões antigas de teste...');
-      const { error: cleanupError } = await supabase
-        .from('user_sessions')
-        .update({ 
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', TEST_USER_UUID)
-        .eq('is_active', true);
-      
-      if (cleanupError) {
-        console.warn('⚠️ Aviso ao limpar sessões antigas:', cleanupError);
-      }
-      
-      // Preparar dados da sessão
-      const sessionData = {
-        user_id: TEST_USER_UUID,
-        session_token: sessionToken,
-        is_active: true,
-        expires_at: expiresAt.toISOString(),
-        ip_address: 'localhost',
-        user_agent: navigator.userAgent,
-        last_activity: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      console.log('📝 Dados da sessão a serem inseridos:', sessionData);
-      
-      const { data, error } = await supabase
-        .from('user_sessions')
-        .insert(sessionData)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('❌ Erro ao inserir sessão:', error);
-        console.error('❌ Detalhes completos do erro:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        
-        // Se o erro for de chave estrangeira, dar instruções claras
-        if (error.code === '23503') {
-          alert(`❌ PROBLEMA: Tabela 'users' não existe!\n\n` +
-                `SOLUÇÕES:\n\n` +
-                `1. CRIAR TABELA USERS (Recomendado):\n` +
-                `   - Vá para Supabase Dashboard > SQL Editor\n` +
-                `   - Execute o SQL que está no console\n\n` +
-                `2. REMOVER CHAVE ESTRANGEIRA (Mais simples):\n` +
-                `   - Execute: ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;\n\n` +
-                `3. USAR SUPABASE AUTH:\n` +
-                `   - Habilite Authentication no Supabase Dashboard`);
-          
-          console.log(`
-🔧 SQL PARA CRIAR TABELA USERS:
-
-CREATE TABLE IF NOT EXISTS users (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email text,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow anonymous insert for testing"
-  ON users FOR INSERT TO anon WITH CHECK (true);
-
-CREATE POLICY "Allow anonymous read for testing"
-  ON users FOR SELECT TO anon USING (true);
-
-🔧 OU REMOVER CHAVE ESTRANGEIRA:
-
-ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;
-          `);
-          return;
-        }
-        
-        // Tentar inserção sem RLS (usando service role se disponível)
-        console.log('🔄 Tentando inserção alternativa...');
-        try {
-          // Criar um cliente temporário sem RLS para teste
-          const { createClient } = await import('@supabase/supabase-js');
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
-          
-          if (supabaseServiceKey) {
-            console.log('🔑 Usando service role key para bypass RLS...');
-            const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-            
-            const { data: adminData, error: adminError } = await adminClient
-              .from('user_sessions')
-              .insert(sessionData)
-              .select()
-              .single();
-            
-            if (adminError) {
-              console.error('❌ Erro mesmo com service role:', adminError);
-              alert(`❌ Erro ao criar sessão:\n${error.message}\n\nErro com service role:\n${adminError.message}\n\nVerifique:\n1. Se a tabela user_sessions existe\n2. Se as políticas RLS estão corretas\n3. Se o service role key está configurado`);
-            } else {
-              console.log('✅ Sessão criada com service role:', adminData);
-              localStorage.setItem('shared_session_token', sessionToken);
-              alert(`✅ Sessão criada com sucesso usando service role!\n\nToken: ${sessionToken}\nUser ID: ${TEST_USER_UUID}\nExpira em: ${expiresAt.toLocaleString()}`);
-            }
-          } else {
-            alert(`❌ Erro ao criar sessão:\n${error.message}\n\nSugestões:\n1. Verifique se a tabela user_sessions existe no Supabase\n2. Configure as políticas RLS para permitir INSERT\n3. Configure VITE_SUPABASE_SERVICE_ROLE_KEY no .env`);
-          }
-        } catch (fallbackError) {
-          console.error('❌ Erro na inserção alternativa:', fallbackError);
-          alert(`❌ Erro ao criar sessão:\n${error.message}\n\nErro alternativo:\n${fallbackError instanceof Error ? fallbackError.message : 'Erro desconhecido'}`);
-        }
-      } else {
-        console.log('✅ Sessão criada com sucesso:', data);
-        
-        // Verificar se a sessão foi realmente criada
-        console.log('🔍 Verificando sessão criada...');
-        const { data: verifyData, error: verifyError } = await supabase
-          .from('user_sessions')
-          .select('*')
-          .eq('session_token', sessionToken)
-          .single();
-        
-        if (verifyError) {
-          console.error('❌ Erro ao verificar sessão:', verifyError);
-          alert(`❌ Sessão criada mas não foi possível verificar:\n${verifyError.message}`);
-        } else {
-          console.log('✅ Sessão verificada:', verifyData);
-          
-          // Salvar token no localStorage para teste
-          localStorage.setItem('shared_session_token', sessionToken);
-          
-          alert(`✅ Sessão criada e verificada com sucesso!\n\nToken: ${sessionToken}\nUser ID: ${TEST_USER_UUID}\nExpira em: ${expiresAt.toLocaleString()}\n\nToken salvo no localStorage para teste.\n\nVerifique a tabela user_sessions no Supabase!`);
-        }
-      }
-      
-    } catch (error) {
-      console.error('❌ Erro no teste:', error);
-      alert(`❌ Erro no teste:\n${error instanceof Error ? error.message : 'Erro desconhecido'}\n\nVerifique a conexão com o Supabase.`);
-    } finally {
-      setTestingAuth(false);
-    }
-  };
-
-  const handleClearTestSessions = async () => {
-    try {
-      console.log('🧹 Limpando todas as sessões de teste...');
-      const { supabase } = await import('../../lib/supabase');
-      
-      const { error } = await supabase
-        .from('user_sessions')
-        .delete()
-        .eq('user_id', TEST_USER_UUID);
-      
-      if (error) {
-        console.error('❌ Erro ao limpar sessões:', error);
-        alert(`Erro ao limpar sessões:\n${error.message}`);
-      } else {
-        console.log('✅ Sessões de teste limpas');
-        localStorage.removeItem('shared_session_token');
-        alert('✅ Todas as sessões de teste foram removidas!');
-      }
-      
-    } catch (error) {
-      console.error('❌ Erro no teste:', error);
-      alert(`❌ Erro ao limpar sessões:\n${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    } finally {
-      setTestingAuth(false);
-    }
   };
   
   const { galleries, adminStats } = state;
@@ -321,25 +68,12 @@ ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;
               </Button>
               
               <Button 
-                onClick={handleTestAuthentication}
+                onClick={handleSignOut}
                 variant="secondary"
-                disabled={testingAuth}
                 className="flex items-center gap-2"
               >
-                {testingAuth ? (
-                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Settings size={20} />
-                )}
-                Testar Auth
-              </Button>
-              
-              <Button 
-                onClick={handleClearTestSessions}
-                variant="ghost"
-                className="flex items-center gap-2 text-red-600 hover:text-red-700"
-              >
-                🧹 Limpar Testes
+                <LogOut size={20} />
+                Sair
               </Button>
             </div>
           </div>
