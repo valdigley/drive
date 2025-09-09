@@ -9,6 +9,9 @@ import { StorageStatusCard } from './StorageStatusCard';
 import { galleryService } from '../../services/galleryService';
 import { storageService, StorageStats } from '../../services/storageService';
 
+// Valid UUID for testing purposes
+const TEST_USER_UUID = '00000000-0000-4000-8000-000000000001';
+
 interface AdminDashboardProps {
   onManageGallery?: (galleryId: string) => void;
 }
@@ -81,13 +84,13 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
           is_active: false,
           updated_at: new Date().toISOString()
         })
-        .eq('user_id', 'test-user-123')
+        .eq('user_id', TEST_USER_UUID)
         .eq('is_active', true);
       
       const { data, error } = await supabase
         .from('user_sessions')
         .insert({
-          user_id: 'test-user-123',
+          user_id: TEST_USER_UUID,
           session_token: sessionToken,
           is_active: true,
           expires_at: expiresAt.toISOString(),
@@ -120,7 +123,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
           // Salvar token no localStorage para teste
           localStorage.setItem('shared_session_token', sessionToken);
           
-          alert(`✅ Sessão criada e verificada com sucesso!\n\nToken: ${sessionToken}\nUser ID: test-user-123\nExpira em: ${expiresAt.toLocaleString()}\n\nToken salvo no localStorage para teste.\n\nVerifique a tabela user_sessions no Supabase!`);
+          alert(`✅ Sessão criada e verificada com sucesso!\n\nToken: ${sessionToken}\nUser ID: ${TEST_USER_UUID}\nExpira em: ${expiresAt.toLocaleString()}\n\nToken salvo no localStorage para teste.\n\nVerifique a tabela user_sessions no Supabase!`);
         }
       }
       
@@ -140,7 +143,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       const { error } = await supabase
         .from('user_sessions')
         .delete()
-        .eq('user_id', 'test-user-123');
+        .eq('user_id', TEST_USER_UUID);
       
       if (error) {
         console.error('❌ Erro ao limpar sessões:', error);
@@ -148,7 +151,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       } else {
         console.log('✅ Sessões de teste limpas');
         localStorage.removeItem('shared_session_token');
-        alert(`✅ Sessão criada com sucesso!\n\nToken: ${sessionToken}\nUser ID: test-user-123\nExpira em: ${expiresAt.toLocaleString()}\n\nVerifique a tabela user_sessions no Supabase!`);
         alert('✅ Todas as sessões de teste foram removidas!');
       }
       
