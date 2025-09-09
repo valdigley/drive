@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
+import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
 import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
-import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { supabase } from './lib/supabase';
 
 function App() {
@@ -154,10 +154,12 @@ function App() {
   // Show loading while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" className="mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
+          </div>
         </div>
       </div>
     );
@@ -166,13 +168,15 @@ function App() {
   // Show login screen if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">DriVal</h1>
-            <p className="text-gray-600 dark:text-gray-400">Faça login para continuar</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="h-screen flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">DriVal</h1>
+              <p className="text-gray-600 dark:text-gray-400">Faça login para continuar</p>
+            </div>
+            <LoginForm />
           </div>
-          <LoginForm />
         </div>
       </div>
     );
@@ -180,12 +184,14 @@ function App() {
 
   if (initializing || loadingGallery) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" className="mx-auto mb-4" />
-          <p className="text-gray-600">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">
             {initializing ? 'Carregando aplicação...' : 'Carregando galeria...'}
-          </p>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -197,15 +203,17 @@ function App() {
     
     if (!gallery) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Galeria não encontrada</h1>
-            <p className="text-gray-600 mb-4">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Galeria não encontrada</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
               A galeria que você está tentando acessar não existe ou foi removida.
-            </p>
-            <Button onClick={() => window.location.href = '/'}>
+              </p>
+              <Button onClick={() => window.location.href = '/'}>
               Voltar ao Início
-            </Button>
+              </Button>
+            </div>
           </div>
         </div>
       );
@@ -225,7 +233,8 @@ function App() {
 
   // Admin views
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="h-screen">
       <Header />
       
       {currentView === 'dashboard' && (
@@ -238,6 +247,7 @@ function App() {
           onBack={handleBackToDashboard}
         />
       )}
+      </div>
     </div>
   );
 }
@@ -277,50 +287,53 @@ function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+    <form onSubmit={handleSubmit} className="vs-space-y-4">
+      <div className="vs-form-group">
+        <label className="vs-form-label">
           Email
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="vs-input vs-w-full"
           required
         />
       </div>
       
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <div className="vs-form-group">
+        <label className="vs-form-label">
           Senha
         </label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="vs-input vs-w-full"
           required
         />
       </div>
 
       {error && (
-        <div className="text-red-600 text-sm">{error}</div>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
       )}
 
-      <button
-        type="submit"
+      <Button
+        type="submit" 
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        loading={loading}
+        className="w-full"
       >
-        {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
-      </button>
+        {isSignUp ? 'Criar Conta' : 'Entrar'}
+      </Button>
 
-      <div className="text-center">
+      <div className="vs-text-center">
         <button
           type="button"
           onClick={() => setIsSignUp(!isSignUp)}
-          className="text-blue-600 hover:text-blue-500 text-sm"
+          className="text-sm text-blue-600 hover:text-blue-500"
         >
           {isSignUp ? 'Já tem conta? Faça login' : 'Não tem conta? Cadastre-se'}
         </button>
