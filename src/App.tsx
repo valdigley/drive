@@ -188,7 +188,7 @@ function App() {
             </div>
             
             <h1 className="text-3xl font-bold text-white mb-2">
-              Triagem
+              {businessInfo?.name || 'Triagem'}
             </h1>
             <p className="text-slate-400 text-sm mb-1">By Valdigley Santos</p>
             <p className="text-slate-300 text-sm">Acesso Administrativo</p>
