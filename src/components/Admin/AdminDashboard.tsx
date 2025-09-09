@@ -166,3 +166,5 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
     </div>
   );
 }
+
+export { AdminDashboard }
