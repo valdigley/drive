@@ -9,6 +9,7 @@ import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
 import { supabase } from './lib/supabase';
+import { businessService } from './services/businessService';
 
 function App() {
   const { state, dispatch } = useAppContext();
@@ -22,6 +23,7 @@ function App() {
   const [loadingGallery, setLoadingGallery] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [businessInfo, setBusinessInfo] = useState<any>(null);
 
   // Extract state values after hooks
   const { currentUser, galleries, theme } = state;
@@ -41,6 +43,16 @@ function App() {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Load business info
+  useEffect(() => {
+    const loadBusinessInfo = async () => {
+      const info = await businessService.getBusinessInfo();
+      setBusinessInfo(info);
+    };
+    
+    loadBusinessInfo();
   }, []);
 
   useEffect(() => {
@@ -168,33 +180,37 @@ function App() {
   // Show login screen if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
-        <div className="bg-slate-700 rounded-2xl shadow-2xl p-8 w-full max-w-md">
-          <div className="text-center mb-8">
-            {/* Logo */}
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <div className="relative">
-                {/* Camera aperture icon */}
-                <div className="w-12 h-12 border-4 border-slate-800 rounded-full relative">
-                  <div className="absolute inset-2 border-2 border-slate-800 rounded-full">
-                    <div className="absolute inset-1 bg-slate-800 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="h-screen flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">DriVal</h1>
+              {businessInfo?.logo_url ? (
+                <img 
+                  src={businessInfo.logo_url} 
+                  alt="Logo" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="relative">
+                  {/* Camera aperture icon */}
+                  <div className="w-12 h-12 border-4 border-slate-800 rounded-full relative">
+                    <div className="absolute inset-2 border-2 border-slate-800 rounded-full">
+                      <div className="absolute inset-1 bg-slate-800 rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
+              <h1 className="text-3xl font-bold text-white mb-2">
+                {businessInfo?.name || 'Triagem'}
+              </h1>
             </div>
-            
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Triagem
-            </h1>
-            <p className="text-slate-400 text-sm mb-1">By Valdigley Santos</p>
-            <p className="text-slate-300 text-sm">Acesso Administrativo</p>
+            <LoginForm />
           </div>
-          
-          <LoginForm />
         </div>
       </div>
     );
@@ -202,11 +218,11 @@ function App() {
 
   if (initializing || loadingGallery) {
     return (
-      <div className="min-h-screen bg-slate-800">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="h-screen flex items-center justify-center">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto mb-4" />
-            <p className="text-slate-300">
+            <p className="text-gray-600 dark:text-gray-400">
             {initializing ? 'Carregando aplicação...' : 'Carregando galeria...'}
             </p>
           </div>
@@ -221,15 +237,15 @@ function App() {
     
     if (!gallery) {
       return (
-        <div className="min-h-screen bg-slate-800">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           <div className="h-screen flex items-center justify-center">
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-white mb-2">Galeria não encontrada</h1>
-              <p className="text-slate-400 mb-4">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Galeria não encontrada</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
               A galeria que você está tentando acessar não existe ou foi removida.
               </p>
               <Button onClick={() => window.location.href = '/'}>
-              Voltar ao Início
+                Voltar ao início
               </Button>
             </div>
           </div>
@@ -251,7 +267,7 @@ function App() {
 
   // Admin views
   return (
-    <div className="min-h-screen bg-slate-800">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="h-screen">
       <Header />
       
@@ -276,7 +292,6 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -306,46 +321,35 @@ function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
+    <form onSubmit={handleSubmit} className="vs-space-y-4">
+      <div className="vs-form-group">
+        <label className="vs-form-label">
           Email
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="admin@studio.com"
+          className="vs-input vs-w-full"
           required
         />
       </div>
       
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
+      <div className="vs-form-group">
+        <label className="vs-form-label">
           Senha
         </label>
-        <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-            placeholder="••••••••"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300"
-          >
-            {showPassword ? '👁️' : '👁️‍🗨️'}
-          </button>
-        </div>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="vs-input vs-w-full"
+          required
+        />
       </div>
 
       {error && (
-        <div className="text-red-400 text-sm text-center">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
@@ -359,7 +363,7 @@ function LoginForm() {
         {isSignUp ? 'Criar Conta' : 'Entrar'}
       </Button>
 
-      <div className="text-center">
+      <div className="vs-text-center">
         <button
           type="button"
           onClick={() => setIsSignUp(!isSignUp)}
