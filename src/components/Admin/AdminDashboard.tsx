@@ -59,30 +59,44 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
 
   const handleTestAuthentication = async () => {
     setTestingAuth(true);
+    console.log('🧪 Iniciando teste de autenticação...');
+    
     try {
-      // Importar as funções de sessão
-      const { createSharedSession, generateSystemUrlByName } = await import('../../utils/sessionManager');
+      console.log('📡 Testando conexão com Supabase...');
       
-      console.log('🧪 Testando criação de sessão...');
+      // Testar conexão direta com Supabase
+      const { supabase } = await import('../../lib/supabase');
       
-      // Criar uma sessão de teste
-      const sessionToken = await createSharedSession('test-user-123');
+      // Criar sessão de teste diretamente
+      const sessionToken = `test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
       
-      if (sessionToken) {
-        console.log('✅ Sessão criada com sucesso:', sessionToken);
-        
-        // Gerar URL de teste
-        const testUrl = generateSystemUrlByName(sessionToken, 'drive');
-        console.log('🔗 URL gerada:', testUrl);
-        
-        alert(`Sessão criada com sucesso!\nToken: ${sessionToken}\n\nVerifique o console e a tabela user_sessions no Supabase.`);
+      console.log('🔑 Criando sessão com token:', sessionToken);
+      
+      const { data, error } = await supabase
+        .from('user_sessions')
+        .insert({
+          user_id: 'test-user-123',
+          session_token: sessionToken,
+          is_active: true,
+          expires_at: expiresAt.toISOString(),
+          ip_address: 'localhost',
+          user_agent: navigator.userAgent
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ Erro ao inserir sessão:', error);
+        alert(`Erro ao criar sessão:\n${error.message}\n\nVerifique se a tabela user_sessions existe no Supabase.`);
       } else {
-        console.error('❌ Falha ao criar sessão');
-        alert('Erro ao criar sessão. Verifique o console.');
+        console.log('✅ Sessão criada com sucesso:', data);
+        alert(`✅ Sessão criada com sucesso!\n\nToken: ${sessionToken}\nUser ID: test-user-123\nExpira em: ${expiresAt.toLocaleString()}\n\nVerifique a tabela user_sessions no Supabase!`);
       }
+      
     } catch (error) {
       console.error('❌ Erro no teste:', error);
-      alert('Erro no teste: ' + error.message);
+      alert(`❌ Erro no teste:\n${error.message}\n\nVerifique a conexão com o Supabase.`);
     } finally {
       setTestingAuth(false);
     }
@@ -110,19 +124,21 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               Nova Galeria
             </Button>
             
-            <Button 
-              onClick={handleTestAuthentication}
-              variant="secondary"
-              disabled={testingAuth}
-              className="flex items-center gap-2"
-            >
-              {testingAuth ? (
-                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Settings size={20} />
-              )}
-              Testar Auth
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleTestAuthentication}
+                variant="secondary"
+                disabled={testingAuth}
+                className="flex items-center gap-2"
+              >
+                {testingAuth ? (
+                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Settings size={20} />
+                )}
+                Testar Auth
+              </Button>
+            </div>
           </div>
         </div>
       </div>
