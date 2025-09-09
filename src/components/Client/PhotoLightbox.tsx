@@ -165,12 +165,14 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
                 <p className="font-medium">{formatFileSize(currentPhoto.size)}</p>
               </div>
               {currentPhoto.metadata && (
-                <div>
-                  <p className="opacity-80">Dimensões:</p>
-                  <p className="font-medium">
-                    {currentPhoto.metadata.width} × {currentPhoto.metadata.height}
-                  </p>
-                </div>
+                <>
+                  <div>
+                    <p className="opacity-80">Dimensões:</p>
+                    <p className="font-medium">{(currentPhoto.size / 1024 / 1024).toFixed(2)} MB</p>
+                      {currentPhoto.metadata.width} × {currentPhoto.metadata.height}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
