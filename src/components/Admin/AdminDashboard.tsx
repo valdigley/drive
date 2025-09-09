@@ -70,25 +70,46 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       // Testar conexão direta com Supabase
       const { supabase } = await import('../../lib/supabase');
       
-      // Usar upsert para garantir que o usuário existe
-      console.log('👤 Garantindo que usuário de teste existe...');
+      // Primeiro, criar o usuário de teste se não existir
+      console.log('👤 Criando usuário de teste se necessário...');
       
-      // OPÇÃO 1: Tentar usar auth.users (se Supabase Auth estiver habilitado)
-      console.log('🔍 Verificando se podemos usar auth.users...');
-      try {
-        const { data: authUser, error: authError } = await supabase.auth.signInAnonymously();
-        if (!authError && authUser.user) {
-          console.log('✅ Usuário anônimo criado via Supabase Auth:', authUser.user.id);
-          // Usar o ID do usuário autenticado
-          sessionData.user_id = authUser.user.id;
-        } else {
-          console.log('⚠️ Supabase Auth não disponível, usando UUID fixo');
-          // Manter o UUID fixo original
-        }
-      } catch (authTestError) {
-        console.log('⚠️ Supabase Auth não configurado, usando UUID fixo');
-      }
+      const { data: existingUser, error: checkError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', TEST_USER_UUID)
+        .single();
       
+      if (checkError && checkError.code !== 'PGRST116') {
+        // Se o erro não for "not found", é um erro real
+        if (checkError.code === 'PGRST205') {
+          // Tabela users não existe
+          console.error('❌ Tabela users não existe!');
+          alert(`❌ PROBLEMA: Tabela 'users' não existe!\n\n` +
+                `SOLUÇÕES:\n\n` +
+                `1. CRIAR TABELA USERS (Recomendado):\n` +
+                `   - Vá para Supabase Dashboard > SQL Editor\n` +
+                `   - Execute o SQL que está no console\n\n` +
+                `2. REMOVER CHAVE ESTRANGEIRA (Mais simples):\n` +
+                `   - Execute: ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;\n\n` +
+                `3. USAR SUPABASE AUTH:\n` +
+                `   - Habilite Authentication no Supabase Dashboard`);
+          
+          console.log(`
+🔧 SQL PARA CRIAR TABELA USERS:
+
+CREATE TABLE IF NOT EXISTS users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anonymous insert for testing"
+  ON users FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "Allow anonymous read for testing"
       // Criar sessão de teste diretamente
       const sessionToken = `test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
