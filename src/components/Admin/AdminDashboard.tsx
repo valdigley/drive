@@ -72,32 +72,21 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       
       // Usar upsert para garantir que o usuário existe
       console.log('👤 Garantindo que usuário de teste existe...');
-      const { data: upsertedUser, error: upsertError } = await supabase
-        .from('users')
-        .upsert({
-          id: TEST_USER_UUID,
-          email: 'test@example.com',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'id'
-        })
-        .select()
-        .single();
       
-      if (upsertError) {
-        console.error('❌ Erro ao garantir usuário de teste:', upsertError);
-        alert(`Erro ao garantir usuário de teste:\n${upsertError.message}`);
-        return;
-      }
-      
-      // Verificar se o usuário foi realmente criado/recuperado
-      if (!upsertedUser) {
-        console.error('❌ Usuário não foi criado ou recuperado após upsert');
-        alert(`❌ Falha ao criar usuário de teste!\n\nO usuário não foi criado mesmo sem erro direto.\n\nVerifique as políticas RLS na tabela 'users':\n1. A role 'anon' precisa ter permissão INSERT\n2. A role 'anon' precisa ter permissão SELECT\n\nVá para Supabase Dashboard > Authentication > Policies\ne configure as políticas adequadas para a tabela 'users'.`);
-        return;
-      } else {
-        console.log('✅ Usuário de teste garantido:', upsertedUser);
+      // OPÇÃO 1: Tentar usar auth.users (se Supabase Auth estiver habilitado)
+      console.log('🔍 Verificando se podemos usar auth.users...');
+      try {
+        const { data: authUser, error: authError } = await supabase.auth.signInAnonymously();
+        if (!authError && authUser.user) {
+          console.log('✅ Usuário anônimo criado via Supabase Auth:', authUser.user.id);
+          // Usar o ID do usuário autenticado
+          sessionData.user_id = authUser.user.id;
+        } else {
+          console.log('⚠️ Supabase Auth não disponível, usando UUID fixo');
+          // Manter o UUID fixo original
+        }
+      } catch (authTestError) {
+        console.log('⚠️ Supabase Auth não configurado, usando UUID fixo');
       }
       
       // Criar sessão de teste diretamente
@@ -151,9 +140,45 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
           hint: error.hint
         });
         
+        // Se o erro for de chave estrangeira, dar instruções claras
+        if (error.code === '23503') {
+          alert(`❌ PROBLEMA: Tabela 'users' não existe!\n\n` +
+                `SOLUÇÕES:\n\n` +
+                `1. CRIAR TABELA USERS (Recomendado):\n` +
+                `   - Vá para Supabase Dashboard > SQL Editor\n` +
+                `   - Execute o SQL que está no console\n\n` +
+                `2. REMOVER CHAVE ESTRANGEIRA (Mais simples):\n` +
+                `   - Execute: ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;\n\n` +
+                `3. USAR SUPABASE AUTH:\n` +
+                `   - Habilite Authentication no Supabase Dashboard`);
+          
+          console.log(`
+🔧 SQL PARA CRIAR TABELA USERS:
+
+CREATE TABLE IF NOT EXISTS users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anonymous insert for testing"
+  ON users FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "Allow anonymous read for testing"
+  ON users FOR SELECT TO anon USING (true);
+
+🔧 OU REMOVER CHAVE ESTRANGEIRA:
+
+ALTER TABLE user_sessions DROP CONSTRAINT user_sessions_user_id_fkey;
+          `);
+          return;
+        }
+        
         // Tentar inserção sem RLS (usando service role se disponível)
         console.log('🔄 Tentando inserção alternativa...');
-        
         try {
           // Criar um cliente temporário sem RLS para teste
           const { createClient } = await import('@supabase/supabase-js');
