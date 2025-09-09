@@ -117,7 +117,7 @@ CREATE POLICY "Allow anonymous read for testing"
       }
       
       // Criar sessão de teste diretamente
-      const sessionToken = \`test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      const sessionToken = `test_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
       
       console.log('🔑 Criando sessão com token:', sessionToken);
