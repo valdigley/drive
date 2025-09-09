@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
-import { AdminDashboard } from './components/Admin/AdminDashboard';
+import { ModernDashboard } from './components/Admin/ModernDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
 import { GalleryAccess } from './components/Client/GalleryAccess';
@@ -154,11 +154,11 @@ function App() {
   // Show loading while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-slate-900">
         <div className="h-screen flex items-center justify-center">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
+            <p className="text-slate-300">Carregando...</p>
           </div>
         </div>
       </div>
@@ -207,7 +207,7 @@ function App() {
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto mb-4" />
             <p className="text-slate-300">
-            {initializing ? 'Carregando aplicação...' : 'Carregando galeria...'}
+              {initializing ? 'Carregando aplicação...' : 'Carregando galeria...'}
             </p>
           </div>
         </div>
@@ -226,10 +226,10 @@ function App() {
             <div className="text-center">
               <h1 className="text-2xl font-bold text-white mb-2">Galeria não encontrada</h1>
               <p className="text-slate-400 mb-4">
-              A galeria que você está tentando acessar não existe ou foi removida.
+                A galeria que você está tentando acessar não existe ou foi removida.
               </p>
               <Button onClick={() => window.location.href = '/'}>
-              Voltar ao Início
+                Voltar ao Início
               </Button>
             </div>
           </div>
@@ -251,21 +251,20 @@ function App() {
 
   // Admin views
   return (
-    <div className="min-h-screen bg-slate-800">
-      <div className="h-screen">
-      <Header />
-      
+    <div className="min-h-screen bg-slate-900">
       {currentView === 'dashboard' && (
-        <AdminDashboard onManageGallery={handleManageGallery} />
+        <ModernDashboard />
       )}
       
       {currentView === 'gallery-manager' && managingGalleryId && (
-        <GalleryManager
-          galleryId={managingGalleryId}
-          onBack={handleBackToDashboard}
-        />
+        <div className="h-screen">
+          <Header />
+          <GalleryManager
+            galleryId={managingGalleryId}
+            onBack={handleBackToDashboard}
+          />
+        </div>
       )}
-      </div>
     </div>
   );
 }
