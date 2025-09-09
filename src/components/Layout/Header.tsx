@@ -250,8 +250,6 @@ function LoginForm() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,16 +291,17 @@ function LoginForm() {
           className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="admin@studio.com"
           placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
           required
         />
-          Senha
-        </label>
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-slate-300 mb-2">
+          Senha
+        </label>
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Sua senha"
-            )}
             required
           />
         </div>
