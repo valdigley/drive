@@ -78,8 +78,15 @@ export function validatePassword(password: string): boolean {
 
 export function formatDate(date: Date): string {
   return new Intl.DateTimeFormat('pt-BR', {
-  }
-  )
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+}
+
+export function isGalleryExpired(expirationDate?: Date): boolean {
   if (!expirationDate) return false;
   return new Date() > expirationDate;
 }
