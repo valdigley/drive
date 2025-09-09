@@ -1,13 +1,6 @@
 import { r2Service } from '../services/r2Service';
 import { galleryService } from '../services/galleryService';
 
-// Global dispatch for download counter updates
-let globalDispatch: any = null;
-
-export function setGlobalDispatch(dispatch: any) {
-  globalDispatch = dispatch;
-}
-
 export function formatFileSize(bytes: number): string {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   if (bytes === 0) return '0 Bytes';
@@ -56,11 +49,6 @@ export async function downloadFile(url: string, filename: string, r2Key?: string
     // Increment download count if galleryId is provided
     if (galleryId) {
       await galleryService.incrementDownloadCount(galleryId);
-      
-      // Update local state immediately for better UX
-      if (globalDispatch) {
-        globalDispatch({ type: 'INCREMENT_DOWNLOAD_COUNT' });
-      }
     }
   } catch (error) {
     console.error('Error downloading file:', error);

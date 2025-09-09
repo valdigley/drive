@@ -5,9 +5,7 @@ import { Button } from '../UI/Button';
 import { CreateGalleryModal } from './CreateGalleryModal';
 import { GalleryCard } from './GalleryCard';
 import { StatsCard } from './StatsCard';
-import { StorageStatusCard } from './StorageStatusCard';
 import { galleryService } from '../../services/galleryService';
-import { storageService, StorageStats } from '../../services/storageService';
 import { supabase } from '../../lib/supabase';
 
 interface AdminDashboardProps {
@@ -18,7 +16,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const { state, dispatch } = useAppContext();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loadingGalleries, setLoadingGalleries] = useState(false);
-  const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -58,9 +55,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Storage Status Bar */}
-      {storageStats && <StorageStatusCard storageStats={storageStats} />}
-      
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
