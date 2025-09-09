@@ -3,7 +3,7 @@ import { X, ChevronLeft, ChevronRight, Heart, Download, Info } from 'lucide-reac
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
-import { downloadFile, formatFileSize } from '../../utils/fileUtils';
+import { downloadFile } from '../../utils/fileUtils';
 
 interface PhotoLightboxProps {
   photos: Photo[];
@@ -165,20 +165,12 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
                 <p className="font-medium">{formatFileSize(currentPhoto.size)}</p>
               </div>
               {currentPhoto.metadata && (
-                <>
-                  <div>
-                    <p className="opacity-80">Dimensões:</p>
-                    <p className="font-medium">
-                      {currentPhoto.metadata.width} × {currentPhoto.metadata.height}
-                    </p>
-                  </div>
-                  {currentPhoto.metadata.camera && (
-                    <div>
-                      <p className="opacity-80">Câmera:</p>
-                      <p className="font-medium">{currentPhoto.metadata.camera}</p>
-                    </div>
-                  )}
-                </>
+                <div>
+                  <p className="opacity-80">Dimensões:</p>
+                  <p className="font-medium">
+                    {currentPhoto.metadata.width} × {currentPhoto.metadata.height}
+                  </p>
+                </div>
               )}
             </div>
           </div>
