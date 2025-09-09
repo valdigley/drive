@@ -21,7 +21,7 @@ class R2Service {
       this.bucketName
     );
     
-    console.log('R2 Configuration Status:', {
+    const configStatus = {
       isConfigured: this.isConfigured,
       endpoint: this.endpoint,
       bucketName: this.bucketName,
@@ -31,7 +31,16 @@ class R2Service {
       hasSecretKey: !!import.meta.env.VITE_R2_SECRET_ACCESS_KEY,
       hasBucketName: !!this.bucketName,
       hasPublicUrl: !!this.publicUrl,
-    });
+      // Debug environment variables
+      envVars: {
+        VITE_R2_ENDPOINT: import.meta.env.VITE_R2_ENDPOINT ? 'SET' : 'NOT SET',
+        VITE_R2_ACCESS_KEY_ID: import.meta.env.VITE_R2_ACCESS_KEY_ID ? 'SET' : 'NOT SET',
+        VITE_R2_SECRET_ACCESS_KEY: import.meta.env.VITE_R2_SECRET_ACCESS_KEY ? 'SET' : 'NOT SET',
+        VITE_R2_BUCKET: import.meta.env.VITE_R2_BUCKET ? 'SET' : 'NOT SET',
+      }
+    };
+    
+    console.log('R2 Configuration Status:', configStatus);
     
     if (this.isConfigured) {
       this.client = new S3Client({
@@ -44,7 +53,14 @@ class R2Service {
       });
       console.log('R2 Client initialized successfully');
     } else {
-      console.warn('R2 not configured. Check environment variables.');
+      console.warn('R2 not configured. Missing environment variables:', {
+        missing: [
+          !this.endpoint && 'VITE_R2_ENDPOINT',
+          !import.meta.env.VITE_R2_ACCESS_KEY_ID && 'VITE_R2_ACCESS_KEY_ID',
+          !import.meta.env.VITE_R2_SECRET_ACCESS_KEY && 'VITE_R2_SECRET_ACCESS_KEY',
+          !this.bucketName && 'VITE_R2_BUCKET'
+        ].filter(Boolean)
+      });
     }
   }
 
