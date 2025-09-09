@@ -1,46 +1,57 @@
 import React from 'react';
-import { X, Download, Heart, Trash2 } from 'lucide-react';
+import { X, Printer, Trash2, MessageCircle } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
-import { downloadMultipleFiles, formatFileSize } from '../../utils/fileUtils';
+import { formatFileSize } from '../../utils/fileUtils';
 
-interface SelectionPanelProps {
+interface PrintCartPanelProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
+export function PrintCartPanel({ isOpen, onClose }: PrintCartPanelProps) {
   const { state, dispatch } = useAppContext();
   const { currentGallery, clientSession } = state;
 
   if (!isOpen || !currentGallery || !clientSession) return null;
 
-  const selectedPhotos = currentGallery.photos.filter(photo =>
-    clientSession.selectedPhotos.includes(photo.id)
+  const printCartPhotos = currentGallery.photos.filter(photo =>
+    clientSession.printCart?.includes(photo.id) || false
   );
 
-  const totalSize = selectedPhotos.reduce((sum, photo) => sum + photo.size, 0);
-
-  const handleDownloadSelected = async () => {
-    const files = selectedPhotos.map(photo => ({
-      url: photo.url,
-      filename: photo.filename,
-      r2Key: photo.r2Key,
-    }));
-    
-    await downloadMultipleFiles(files, currentGallery.id);
-    onClose();
+  const handleRemoveFromCart = (photoId: string) => {
+    dispatch({ type: 'TOGGLE_PRINT_CART', payload: { photoId } });
   };
 
-  const handleClearSelection = () => {
-    selectedPhotos.forEach(photo => {
-      dispatch({ type: 'TOGGLE_SELECTION', payload: { photoId: photo.id } });
+  const handleClearCart = () => {
+    printCartPhotos.forEach(photo => {
+      dispatch({ type: 'TOGGLE_PRINT_CART', payload: { photoId: photo.id } });
     });
   };
 
-  const handleRemoveFromSelection = (photoId: string) => {
-    dispatch({ type: 'TOGGLE_SELECTION', payload: { photoId } });
+  const generateWhatsAppMessage = () => {
+    if (printCartPhotos.length === 0) return;
+
+    const photoNames = printCartPhotos
+      .map(photo => {
+        // Remove extensão do arquivo para ficar apenas o nome
+        return photo.filename.replace(/\.[^/.]+$/, '');
+      })
+      .join(' OR ');
+
+    const message = `Olá! Gostaria de solicitar a impressão das seguintes fotos da galeria "${currentGallery.name}":
+
+${photoNames}
+
+Obrigado!`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
   };
+
+  const totalSize = printCartPhotos.reduce((sum, photo) => sum + photo.size, 0);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -50,8 +61,9 @@ export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Fotos Selecionadas ({selectedPhotos.length})
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Printer size={20} />
+              Carrinho de Impressão ({printCartPhotos.length})
             </h2>
             <button
               onClick={onClose}
@@ -63,14 +75,17 @@ export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
 
           {/* Photos List */}
           <div className="flex-1 overflow-y-auto p-6">
-            {selectedPhotos.length === 0 ? (
+            {printCartPhotos.length === 0 ? (
               <div className="text-center py-8">
-                <Heart size={48} className="mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600">Nenhuma foto selecionada</p>
+                <Printer size={48} className="mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 mb-2">Carrinho vazio</p>
+                <p className="text-sm text-gray-500">
+                  Adicione fotos ao carrinho para solicitar impressão
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {selectedPhotos.map((photo) => (
+                {printCartPhotos.map((photo) => (
                   <div key={photo.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <img
                       src={photo.thumbnail}
@@ -80,16 +95,20 @@ export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
                     
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {photo.filename}
+                        {photo.filename.replace(/\.[^/.]+$/, '')}
                       </p>
                       <p className="text-xs text-gray-500">
                         {formatFileSize(photo.size)}
+                        {photo.metadata && (
+                          <span> • {photo.metadata.width} × {photo.metadata.height}</span>
+                        )}
                       </p>
                     </div>
                     
                     <button
-                      onClick={() => handleRemoveFromSelection(photo.id)}
+                      onClick={() => handleRemoveFromCart(photo.id)}
                       className="text-gray-400 hover:text-red-600 transition-colors"
+                      title="Remover do carrinho"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -100,27 +119,28 @@ export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
           </div>
 
           {/* Footer */}
-          {selectedPhotos.length > 0 && (
+          {printCartPhotos.length > 0 && (
             <div className="border-t border-gray-200 p-6 space-y-4">
               <div className="text-sm text-gray-600">
+                <p><strong>{printCartPhotos.length}</strong> fotos selecionadas</p>
                 <p>Total: {formatFileSize(totalSize)}</p>
               </div>
               
               <div className="space-y-2">
                 <Button
-                  onClick={handleDownloadSelected}
-                  className="w-full flex items-center justify-center gap-2"
+                  onClick={generateWhatsAppMessage}
+                  className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
                 >
-                  <Download size={16} />
-                  Baixar Selecionadas
+                  <MessageCircle size={16} />
+                  Solicitar via WhatsApp
                 </Button>
                 
                 <Button
                   variant="secondary"
-                  onClick={handleClearSelection}
+                  onClick={handleClearCart}
                   className="w-full"
                 >
-                  Limpar Seleção
+                  Limpar Carrinho
                 </Button>
               </div>
             </div>
