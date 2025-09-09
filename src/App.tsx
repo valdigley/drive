@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
-import { businessService } from './services/businessService';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
@@ -23,7 +22,6 @@ function App() {
   const [loadingGallery, setLoadingGallery] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [businessInfo, setBusinessInfo] = useState<any>(null);
 
   // Extract state values after hooks
   const { currentUser, galleries, theme } = state;
@@ -43,18 +41,6 @@ function App() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const loadBusinessInfo = async () => {
-      try {
-        const info = await businessService.getBusinessInfo();
-        setBusinessInfo(info);
-      } catch (error) {
-        console.error('Error loading business info:', error);
-      }
-    };
-    loadBusinessInfo();
   }, []);
 
   useEffect(() => {
@@ -183,29 +169,7 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            {/* Logo */}
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              {businessInfo?.logo_url_drive ? (
-                <img 
-                  src={businessInfo.logo_url_drive} 
-                  alt="Logo" 
-                  className="w-16 h-16 object-contain"
-                />
-              ) : (
-                {/* Camera aperture icon */}
-                <div className="w-12 h-12 border-4 border-slate-800 rounded-full relative">
-                  <div className="absolute inset-2 border-2 border-slate-800 rounded-full">
-                    <div className="absolute inset-1 bg-slate-800 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {businessInfo?.name || 'DriVal'}
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">DriVal</h1>
             <p className="text-gray-600 dark:text-gray-400">Faça login para continuar</p>
           </div>
           <LoginForm />
@@ -285,6 +249,12 @@ function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -325,6 +295,12 @@ function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
           required
         />
       </div>
@@ -333,42 +309,22 @@ function LoginForm() {
         <label className="block text-sm font-medium text-slate-300 mb-2">
           Senha
         </label>
-        <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-            placeholder="••••••••"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300"
-          >
-            {showPassword ? '👁️' : '👁️‍🗨️'}
-          </button>
-        </div>
-      </div>
-
-      {error && (
         <div className="text-red-600 text-sm">{error}</div>
       )}
 
-      <Button
+      <button
         type="submit"
         disabled={loading}
-        className="w-full"
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isSignUp ? 'Criar Conta' : 'Entrar'}
-      </Button>
+        {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
+      </button>
 
       <div className="text-center">
         <button
           type="button"
           onClick={() => setIsSignUp(!isSignUp)}
-          className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+          className="text-blue-600 hover:text-blue-500 text-sm"
         >
           {isSignUp ? 'Já tem conta? Faça login' : 'Não tem conta? Cadastre-se'}
         </button>
