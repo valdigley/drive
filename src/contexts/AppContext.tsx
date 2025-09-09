@@ -32,7 +32,7 @@ type AppAction =
 
 const initialState: AppState = {
   currentUser: 'admin',
-  theme: 'light',
+  theme: 'dark',
   galleries: [],
   currentGallery: null,
   clientSession: null,
