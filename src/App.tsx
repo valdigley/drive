@@ -249,12 +249,6 @@ function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,12 +289,6 @@ function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
-          placeholder="admin@studio.com"
           required
         />
       </div>
@@ -309,6 +297,19 @@ function LoginForm() {
         <label className="block text-sm font-medium text-slate-300 mb-2">
           Senha
         </label>
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Sua senha"
+            required
+          />
+        </div>
+      </div>
+
+      {error && (
         <div className="text-red-600 text-sm">{error}</div>
       )}
 
