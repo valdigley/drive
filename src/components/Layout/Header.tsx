@@ -27,13 +27,16 @@ export function Header() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={toggleTheme}
-            >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </Button>
-          </div>
-        </div>
+        <input
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Sua senha"
+          required
+        />
       </div>
     </header>
+  )
   );
 }
