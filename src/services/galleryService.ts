@@ -115,48 +115,13 @@ class GalleryService {
 
   async deleteGallery(id: string): Promise<void> {
     try {
-      // Buscar todas as fotos da galeria para deletar do R2
-      const { data: photos, error: photosError } = await supabase
-        .from('photos')
-        .select('r2_key, thumbnail')
-        .eq('gallery_id', id);
-
-      if (photosError) {
-        console.error('Error fetching photos for deletion:', photosError);
-      }
-
-      // Deletar todas as fotos e thumbnails do R2 antes de deletar do banco
-      if (photos && photos.length > 0) {
+      // Deletar toda a pasta da galeria do R2 de uma vez
+      try {
         const { r2Service } = await import('./r2Service');
-        
-        for (const photo of photos) {
-          // Deletar foto original
-          if (photo.r2_key && !photo.r2_key.startsWith('data:') && !photo.r2_key.startsWith('local/')) {
-            try {
-              await r2Service.deletePhoto(photo.r2_key);
-            } catch (error) {
-              console.warn('Error deleting photo from R2:', photo.r2_key, error);
-            }
-          }
-          
-          // Deletar thumbnail (pode ter chave separada)
-          if (photo.thumbnail && !photo.thumbnail.startsWith('data:') && !photo.thumbnail.startsWith('local/')) {
-            try {
-              // Extrair a chave do thumbnail da URL
-              const thumbnailKey = photo.thumbnail.replace('https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev/', '');
-              await r2Service.deletePhoto(thumbnailKey);
-            } catch (error) {
-              console.warn('Error deleting thumbnail from R2:', photo.thumbnail, error);
-            }
-          }
-        }
-        
-        // Tentar deletar os diretórios da galeria (se estiverem vazios)
-        try {
-          await r2Service.deleteGalleryDirectory(id);
-        } catch (error) {
-          console.warn('Error deleting gallery directory:', error);
-        }
+        await r2Service.deleteGalleryDirectory(id);
+        console.log('✅ Gallery files deleted from R2');
+      } catch (error) {
+        console.warn('⚠️ Error deleting gallery from R2 (continuing with database cleanup):', error);
       }
 
       // Agora deletar a galeria do banco (cascade vai deletar as fotos automaticamente)
@@ -165,7 +130,12 @@ class GalleryService {
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error deleting gallery from database:', error);
+        throw error;
+      }
+      
+      console.log('✅ Gallery deleted from database');
     } catch (error) {
       console.error('Error deleting gallery:', error);
       throw new Error('Falha ao deletar galeria');

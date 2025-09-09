@@ -139,7 +139,7 @@ class R2Service {
 
     try {
       // Lista todos os objetos no diretório da galeria
-      const { ListObjectsV2Command } = await import('@aws-sdk/client-s3');
+      const { ListObjectsV2Command, DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
       
       const listCommand = new ListObjectsV2Command({
         Bucket: this.bucketName,
@@ -149,21 +149,37 @@ class R2Service {
       const listResponse = await this.client.send(listCommand);
       
       if (listResponse.Contents && listResponse.Contents.length > 0) {
-        // Deletar todos os objetos restantes no diretório
-        for (const object of listResponse.Contents) {
-          if (object.Key) {
-            try {
-              await this.deletePhoto(object.Key);
-            } catch (error) {
-              console.warn('Error deleting remaining object:', object.Key, error);
-            }
+        // Preparar lista de objetos para deleção em lote
+        const objectsToDelete = listResponse.Contents
+          .filter(object => object.Key)
+          .map(object => ({ Key: object.Key! }));
+
+        if (objectsToDelete.length > 0) {
+          // Deletar todos os objetos de uma vez (máximo 1000 por requisição)
+          const deleteCommand = new DeleteObjectsCommand({
+            Bucket: this.bucketName,
+            Delete: {
+              Objects: objectsToDelete,
+              Quiet: false, // Para receber confirmação dos objetos deletados
+            },
+          });
+
+          const deleteResponse = await this.client.send(deleteCommand);
+          
+          if (deleteResponse.Deleted && deleteResponse.Deleted.length > 0) {
+            console.log(`✅ Successfully deleted ${deleteResponse.Deleted.length} objects from R2 for gallery:`, galleryId);
+          }
+          
+          if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
+            console.warn('⚠️ Some objects failed to delete:', deleteResponse.Errors);
           }
         }
       }
       
-      console.log('Gallery directory cleanup completed for:', galleryId);
+      console.log('✅ Gallery directory bulk cleanup completed for:', galleryId);
     } catch (error) {
-      console.error('Error cleaning up gallery directory:', error);
+      console.error('❌ Error cleaning up gallery directory:', error);
+      throw error;
     }
   }
 
