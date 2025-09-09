@@ -26,6 +26,16 @@ export function useSessionVerification() {
       // Para desenvolvimento local, sempre autenticar
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('🔧 Modo desenvolvimento - autenticação automática');
+        
+        // Criar uma sessão de teste para desenvolvimento
+        const testSessionData: SessionData = {
+          user_id: 'test-user-id',
+          session_token: 'test-session-token',
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          last_activity: new Date().toISOString()
+        };
+        
+        setSessionData(testSessionData);
         setIsAuthenticated(true);
         setIsVerifying(false);
         return;

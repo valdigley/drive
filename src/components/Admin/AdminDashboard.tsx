@@ -18,6 +18,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loadingGalleries, setLoadingGalleries] = useState(false);
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
+  const [testingAuth, setTestingAuth] = useState(false);
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -56,6 +57,36 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
     alert('Para criar dados de exemplo, use o painel do Supabase para inserir dados de teste.');
   };
 
+  const handleTestAuthentication = async () => {
+    setTestingAuth(true);
+    try {
+      // Importar as funções de sessão
+      const { createSharedSession, generateSystemUrlByName } = await import('../../utils/sessionManager');
+      
+      console.log('🧪 Testando criação de sessão...');
+      
+      // Criar uma sessão de teste
+      const sessionToken = await createSharedSession('test-user-123');
+      
+      if (sessionToken) {
+        console.log('✅ Sessão criada com sucesso:', sessionToken);
+        
+        // Gerar URL de teste
+        const testUrl = generateSystemUrlByName(sessionToken, 'drive');
+        console.log('🔗 URL gerada:', testUrl);
+        
+        alert(`Sessão criada com sucesso!\nToken: ${sessionToken}\n\nVerifique o console e a tabela user_sessions no Supabase.`);
+      } else {
+        console.error('❌ Falha ao criar sessão');
+        alert('Erro ao criar sessão. Verifique o console.');
+      }
+    } catch (error) {
+      console.error('❌ Erro no teste:', error);
+      alert('Erro no teste: ' + error.message);
+    } finally {
+      setTestingAuth(false);
+    }
+  };
   const { galleries, adminStats } = state;
 
   return (
@@ -77,6 +108,20 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             >
               <Plus size={20} />
               Nova Galeria
+            </Button>
+            
+            <Button 
+              onClick={handleTestAuthentication}
+              variant="secondary"
+              disabled={testingAuth}
+              className="flex items-center gap-2"
+            >
+              {testingAuth ? (
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Settings size={20} />
+              )}
+              Testar Auth
             </Button>
           </div>
         </div>
