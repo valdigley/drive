@@ -24,7 +24,7 @@ export function Header() {
               <Camera size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">PhotoShare Pro</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">DriVal</h1>
             </div>
           </div>
 
