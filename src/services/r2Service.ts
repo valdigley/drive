@@ -11,7 +11,7 @@ class R2Service {
   constructor() {
     this.bucketName = import.meta.env.VITE_R2_BUCKET || 'fotos-clientes';
     this.endpoint = import.meta.env.VITE_R2_ENDPOINT || '';
-    this.publicUrl = import.meta.env.VITE_R2_PUBLIC_URL || '';
+    this.publicUrl = import.meta.env.VITE_R2_PUBLIC_URL || 'https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev';
     
     // Check if R2 is properly configured
     this.isConfigured = !!(
@@ -214,7 +214,8 @@ class R2Service {
       return key;
     }
     
-    return `${this.publicUrl}/${key}`;
+    // Use the correct R2 public URL format
+    return `https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev/${key}`;
   }
 
   private async fileToDataUrl(file: File): Promise<string> {
