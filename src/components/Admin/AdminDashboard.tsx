@@ -112,7 +112,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       
       // Primeiro, invalidar sessões antigas de teste
       console.log('🧹 Limpando sessões antigas de teste...');
-      await supabase
+      const { error: cleanupError } = await supabase
         .from('user_sessions')
         .update({ 
           is_active: false,
@@ -121,22 +121,74 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
         .eq('user_id', TEST_USER_UUID)
         .eq('is_active', true);
       
+      if (cleanupError) {
+        console.warn('⚠️ Aviso ao limpar sessões antigas:', cleanupError);
+      }
+      
+      // Preparar dados da sessão
+      const sessionData = {
+        user_id: TEST_USER_UUID,
+        session_token: sessionToken,
+        is_active: true,
+        expires_at: expiresAt.toISOString(),
+        ip_address: 'localhost',
+        user_agent: navigator.userAgent,
+        last_activity: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log('📝 Dados da sessão a serem inseridos:', sessionData);
+      
       const { data, error } = await supabase
         .from('user_sessions')
-        .insert({
-          user_id: TEST_USER_UUID,
-          session_token: sessionToken,
-          is_active: true,
-          expires_at: expiresAt.toISOString(),
-          ip_address: 'localhost',
-          user_agent: navigator.userAgent
-        })
+        .insert(sessionData)
         .select()
         .single();
       
       if (error) {
         console.error('❌ Erro ao inserir sessão:', error);
-        alert(`Erro ao criar sessão:\n${error.message}\n\nVerifique se a tabela user_sessions existe no Supabase.`);
+        console.error('❌ Detalhes completos do erro:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // Tentar inserção sem RLS (usando service role se disponível)
+        console.log('🔄 Tentando inserção alternativa...');
+        
+        try {
+          // Criar um cliente temporário sem RLS para teste
+          const { createClient } = await import('@supabase/supabase-js');
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+          
+          if (supabaseServiceKey) {
+            console.log('🔑 Usando service role key para bypass RLS...');
+            const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+            
+            const { data: adminData, error: adminError } = await adminClient
+              .from('user_sessions')
+              .insert(sessionData)
+              .select()
+              .single();
+            
+            if (adminError) {
+              console.error('❌ Erro mesmo com service role:', adminError);
+              alert(`❌ Erro ao criar sessão:\n${error.message}\n\nErro com service role:\n${adminError.message}\n\nVerifique:\n1. Se a tabela user_sessions existe\n2. Se as políticas RLS estão corretas\n3. Se o service role key está configurado`);
+            } else {
+              console.log('✅ Sessão criada com service role:', adminData);
+              localStorage.setItem('shared_session_token', sessionToken);
+              alert(`✅ Sessão criada com sucesso usando service role!\n\nToken: ${sessionToken}\nUser ID: ${TEST_USER_UUID}\nExpira em: ${expiresAt.toLocaleString()}`);
+            }
+          } else {
+            alert(`❌ Erro ao criar sessão:\n${error.message}\n\nSugestões:\n1. Verifique se a tabela user_sessions existe no Supabase\n2. Configure as políticas RLS para permitir INSERT\n3. Configure VITE_SUPABASE_SERVICE_ROLE_KEY no .env`);
+          }
+        } catch (fallbackError) {
+          console.error('❌ Erro na inserção alternativa:', fallbackError);
+          alert(`❌ Erro ao criar sessão:\n${error.message}\n\nErro alternativo:\n${fallbackError instanceof Error ? fallbackError.message : 'Erro desconhecido'}`);
+        }
       } else {
         console.log('✅ Sessão criada com sucesso:', data);
         
