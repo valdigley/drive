@@ -28,7 +28,6 @@ type AppAction =
   | { type: 'TOGGLE_FAVORITE'; payload: { photoId: string } }
   | { type: 'TOGGLE_SELECTION'; payload: { photoId: string } }
   | { type: 'TOGGLE_PRINT_CART'; payload: { photoId: string } };
-
 const initialState: AppState = {
   currentUser: 'admin',
   theme: 'dark',
