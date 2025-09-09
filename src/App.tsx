@@ -13,9 +13,11 @@ import { setGlobalDispatch } from './utils/fileUtils';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
 
 function App() {
+  // ALL HOOKS MUST BE CALLED FIRST - NO CONDITIONAL LOGIC BEFORE THIS POINT
   const { isVerifying, isAuthenticated } = useSessionVerification();
   const { state, dispatch } = useAppContext();
-  const { currentUser, galleries, theme } = state;
+  
+  // State hooks - must be called unconditionally
   const [currentView, setCurrentView] = useState<'dashboard' | 'gallery-manager' | 'client-gallery'>('dashboard');
   const [managingGalleryId, setManagingGalleryId] = useState<string | null>(null);
   const [clientGalleryId, setClientGalleryId] = useState<string | null>(null);
@@ -23,11 +25,102 @@ function App() {
   const [initializing, setInitializing] = useState(true);
   const [loadingGallery, setLoadingGallery] = useState(false);
 
-  // Set global dispatch for download counter
+  // Extract state values after hooks
+  const { currentUser, galleries, theme } = state;
+
+  // Effect hooks - must be called unconditionally
   useEffect(() => {
     setGlobalDispatch(dispatch);
   }, [dispatch]);
 
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        const galleries = await galleryService.getAllGalleries();
+        dispatch({ type: 'SET_GALLERIES', payload: galleries });
+        
+        const stats = await galleryService.getAdminStats();
+        dispatch({ type: 'SET_ADMIN_STATS', payload: stats });
+      } catch (error) {
+        console.warn('App initialization completed with fallback data:', error);
+      } finally {
+        setInitializing(false);
+      }
+    };
+
+    if (state.galleries.length === 0) {
+      initializeApp();
+    } else {
+      setInitializing(false);
+    }
+  }, [dispatch, state.galleries.length]);
+
+  useEffect(() => {
+    const loadGalleryFromUrl = async () => {
+      if (initializing) return;
+      
+      const path = window.location.pathname;
+      const galleryMatch = path.match(/\/gallery\/(.+)/);
+      
+      if (galleryMatch) {
+        const galleryId = galleryMatch[1];
+        setClientGalleryId(galleryId);
+        dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+        
+        let gallery = state.galleries.find(g => g.id === galleryId);
+        
+        if (!gallery) {
+          setLoadingGallery(true);
+          try {
+            gallery = await galleryService.getGalleryDetails(galleryId);
+            if (gallery) {
+              const photos = await galleryService.getGalleryPhotos(galleryId);
+              const completeGallery = { ...gallery, photos };
+              dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
+              dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+            } else {
+              console.log('Gallery not found:', galleryId);
+            }
+          } catch (error) {
+            console.log('Gallery not found or error loading:', galleryId, error);
+          } finally {
+            setLoadingGallery(false);
+          }
+        } else {
+          dispatch({ type: 'SET_CURRENT_GALLERY', payload: gallery });
+        }
+      }
+    };
+    
+    loadGalleryFromUrl();
+  }, [dispatch, initializing, state.galleries]);
+
+  // Handler functions
+  const handleManageGallery = (galleryId: string) => {
+    setManagingGalleryId(galleryId);
+    setCurrentView('gallery-manager');
+  };
+
+  const handleBackToDashboard = () => {
+    setCurrentView('dashboard');
+    setManagingGalleryId(null);
+  };
+
+  const handleClientAccessGranted = () => {
+    setAccessGranted(true);
+    setCurrentView('client-gallery');
+  };
+
+  // CONDITIONAL RENDERING - AFTER ALL HOOKS HAVE BEEN CALLED
+  
   // Show loading while verifying session
   if (isVerifying) {
     return (
@@ -53,100 +146,6 @@ function App() {
     return <SessionRedirect />;
   }
 
-  // Apply theme to document
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
-
-  // Initialize app data
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Load galleries from Supabase
-        const galleries = await galleryService.getAllGalleries();
-        dispatch({ type: 'SET_GALLERIES', payload: galleries });
-        
-        const stats = await galleryService.getAdminStats();
-        dispatch({ type: 'SET_ADMIN_STATS', payload: stats });
-      } catch (error) {
-        console.warn('App initialization completed with fallback data:', error);
-        // Continue with empty data instead of showing error
-      } finally {
-        setInitializing(false);
-      }
-    };
-
-    // Only initialize once
-    if (state.galleries.length === 0) {
-      initializeApp();
-    } else {
-      setInitializing(false);
-    }
-  }, [dispatch]);
-
-  // Handle URL routing (simplified for MVP)
-  useEffect(() => {
-    const loadGalleryFromUrl = async () => {
-      // Only proceed if app initialization is complete
-      if (initializing) return;
-      
-      const path = window.location.pathname;
-      const galleryMatch = path.match(/\/gallery\/(.+)/);
-      
-      if (galleryMatch) {
-        const galleryId = galleryMatch[1];
-        setClientGalleryId(galleryId);
-        dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
-        
-        // Check if gallery exists in state, if not load from database
-        let gallery = state.galleries.find(g => g.id === galleryId);
-        
-        if (!gallery) {
-          setLoadingGallery(true);
-          try {
-            gallery = await galleryService.getGalleryDetails(galleryId);
-            if (gallery) {
-              const photos = await galleryService.getGalleryPhotos(galleryId);
-              const completeGallery = { ...gallery, photos };
-              dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
-              dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
-            } else {
-              // Gallery not found - this is handled in the render logic below
-              console.log('Gallery not found:', galleryId);
-            }
-          } catch (error) {
-            console.log('Gallery not found or error loading:', galleryId, error);
-          } finally {
-            setLoadingGallery(false);
-          }
-        } else {
-          dispatch({ type: 'SET_CURRENT_GALLERY', payload: gallery });
-        }
-      }
-    };
-    
-    loadGalleryFromUrl();
-  }, [dispatch, initializing]);
-
-  const handleManageGallery = (galleryId: string) => {
-    setManagingGalleryId(galleryId);
-    setCurrentView('gallery-manager');
-  };
-
-  const handleBackToDashboard = () => {
-    setCurrentView('dashboard');
-    setManagingGalleryId(null);
-  };
-
-  const handleClientAccessGranted = () => {
-    setAccessGranted(true);
-    setCurrentView('client-gallery');
-  };
-
   if (initializing || loadingGallery) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -162,7 +161,6 @@ function App() {
 
   // Client view with gallery access
   if (currentUser === 'client' && clientGalleryId) {
-    // Check if gallery exists
     const gallery = state.galleries.find(g => g.id === clientGalleryId) || state.currentGallery;
     
     if (!gallery) {
