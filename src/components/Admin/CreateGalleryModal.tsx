@@ -5,8 +5,11 @@ import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Gallery } from '../../types';
 import { galleryService } from '../../services/galleryService';
-import { generateSecureId, validatePassword } from '../../utils/fileUtils';
+import { generateSecureId } from '../../utils/fileUtils';
 
+function validatePassword(password: string): boolean {
+  return password.length >= 6;
+}
 interface CreateGalleryModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,7 +24,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
     password: '',
     expirationDays: '30',
     allowDownload: true,
-    allowComments: false,
     watermark: true,
     downloadQuality: 'print' as const,
   });
@@ -86,7 +88,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
       isActive: true,
       settings: {
         allowDownload: formData.allowDownload,
-        allowComments: formData.allowComments,
         watermark: formData.watermark,
         downloadQuality: formData.downloadQuality,
       },
@@ -103,7 +104,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
       password: '',
       expirationDays: '30',
       allowDownload: true,
-      allowComments: false,
       watermark: true,
       downloadQuality: 'print',
     });
@@ -204,17 +204,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
                 className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
               />
               <span className="vs-ml-2 vs-text-sm vs-text-primary">Permitir downloads</span>
-            </label>
-            
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                name="allowComments"
-                checked={formData.allowComments}
-                onChange={handleInputChange}
-                className="vs-rounded vs-border-primary vs-text-blue-600 focus:vs-ring-blue-500"
-              />
-              <span className="vs-ml-2 vs-text-sm vs-text-primary">Permitir comentários</span>
             </label>
             
             <label className="flex items-center">

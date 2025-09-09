@@ -27,7 +27,6 @@ type AppAction =
   | { type: 'ADD_PHOTOS'; payload: { galleryId: string; photos: any[] } }
   | { type: 'TOGGLE_FAVORITE'; payload: { photoId: string } }
   | { type: 'TOGGLE_SELECTION'; payload: { photoId: string } }
-  | { type: 'TOGGLE_PRINT_CART'; payload: { photoId: string } };
 
 const initialState: AppState = {
   currentUser: 'admin',
@@ -121,26 +120,6 @@ function appReducer(state: AppState, action: AppAction): AppState {
             ? state.clientSession.selectedPhotos.filter(id => id !== action.payload.photoId)
             : [...state.clientSession.selectedPhotos, action.payload.photoId],
         },
-      };
-    case 'TOGGLE_PRINT_CART':
-      if (!state.clientSession) return state;
-      const currentPrintCart = state.clientSession.printCart || [];
-      const updatedPrintCart = currentPrintCart.includes(action.payload.photoId)
-        ? currentPrintCart.filter(id => id !== action.payload.photoId)
-        : [...currentPrintCart, action.payload.photoId];
-      
-      const updatedSessionWithPrintCart = {
-        ...state.clientSession,
-        printCart: updatedPrintCart,
-      };
-      
-      // Salvar no localStorage
-      const printCartSessionKey = `gallery_session_${state.clientSession.galleryId}`;
-      localStorage.setItem(printCartSessionKey, JSON.stringify(updatedSessionWithPrintCart));
-      
-      return {
-        ...state,
-        clientSession: updatedSessionWithPrintCart,
       };
   }
 }

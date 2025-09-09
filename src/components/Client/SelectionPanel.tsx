@@ -2,7 +2,7 @@ import React from 'react';
 import { X, Download, Heart, Trash2 } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
-import { downloadMultipleFiles, formatFileSize } from '../../utils/fileUtils';
+import { downloadMultipleFiles } from '../../utils/fileUtils';
 
 interface SelectionPanelProps {
   isOpen: boolean;
@@ -83,7 +83,7 @@ export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
                         {photo.filename}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {formatFileSize(photo.size)}
+                        {(photo.size / 1024 / 1024).toFixed(2)} MB
                       </p>
                     </div>
                     
@@ -103,7 +103,7 @@ export function SelectionPanel({ isOpen, onClose }: SelectionPanelProps) {
           {selectedPhotos.length > 0 && (
             <div className="border-t border-gray-200 p-6 space-y-4">
               <div className="text-sm text-gray-600">
-                <p>Total: {formatFileSize(totalSize)}</p>
+                <p>Total: {(totalSize / 1024 / 1024).toFixed(2)} MB</p>
               </div>
               
               <div className="space-y-2">
