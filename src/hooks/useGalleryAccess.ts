@@ -81,7 +81,6 @@ export function useGalleryAccess(galleryId: string) {
       const parsedSession = JSON.parse(existingSession);
       session = {
         ...parsedSession,
-        printCart: parsedSession.printCart || [],
       };
       session.accessedAt = new Date();
     } else {
@@ -90,7 +89,6 @@ export function useGalleryAccess(galleryId: string) {
         accessedAt: new Date(),
         favorites: [],
         selectedPhotos: [],
-        printCart: [],
         downloads: 0,
       };
     }
@@ -100,7 +98,6 @@ export function useGalleryAccess(galleryId: string) {
       accessedAt: new Date(),
       favorites: session.favorites,
       selectedPhotos: session.selectedPhotos,
-      printCart: session.printCart || [],
       downloads: session.downloads,
     }));
     
