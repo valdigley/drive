@@ -184,11 +184,11 @@ function App() {
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
             
             <h1 className="text-3xl font-bold text-white mb-2">
-              Triagem
+              {businessInfo?.name || 'Triagem'}
             </h1>
             <p className="text-slate-400 text-sm mb-1">By Valdigley Santos</p>
             <p className="text-slate-300 text-sm">Acesso Administrativo</p>
@@ -269,6 +269,78 @@ function App() {
     </div>
   );
 }
+    );
+  }
+
+  if (initializing || loadingGallery) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">
+            {initializing ? 'Carregando aplicação...' : 'Carregando galeria...'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Client view with gallery access
+  if (currentUser === 'client' && clientGalleryId) {
+    const gallery = state.galleries.find(g => g.id === clientGalleryId) || state.currentGallery;
+    
+    if (!gallery) {
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Galeria não encontrada</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              A galeria que você está tentando acessar não existe ou foi removida.
+              </p>
+              <Button onClick={() => window.location.href = '/'}>
+              Voltar ao Início
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    if (!accessGranted) {
+      return (
+        <GalleryAccess
+          galleryId={clientGalleryId}
+          onAccessGranted={handleClientAccessGranted}
+        />
+      );
+    }
+    
+    return <ClientGallery />;
+  }
+
+  // Admin views
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="h-screen">
+      <Header />
+      
+      {currentView === 'dashboard' && (
+        <AdminDashboard onManageGallery={handleManageGallery} />
+      )}
+      
+      {currentView === 'gallery-manager' && managingGalleryId && (
+        <GalleryManager
+          galleryId={managingGalleryId}
+          onBack={handleBackToDashboard}
+        />
+      )}
+      </div>
+    </div>
+  );
+}
 
 function LoginForm() {
   const [email, setEmail] = useState('');
@@ -276,6 +348,12 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -317,6 +395,12 @@ function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
           required
         />
       </div>
@@ -325,40 +409,6 @@ function LoginForm() {
         <label className="block text-sm font-medium text-slate-300 mb-2">
           Senha
         </label>
-        <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-            placeholder="••••••••"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300"
-          >
-            {showPassword ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
       <Button
         type="submit" 
         disabled={loading}
@@ -368,7 +418,7 @@ function LoginForm() {
         {isSignUp ? 'Criar Conta' : 'Entrar'}
       </Button>
 
-      <div className="text-center">
+      <div className="vs-text-center">
         <button
           type="button"
           onClick={() => setIsSignUp(!isSignUp)}
