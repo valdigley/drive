@@ -174,15 +174,15 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               <p className="text-gray-600 dark:text-gray-400">Gerencie suas galerias e fotos</p>
             </div>
             
-            <Button 
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Nova Galeria
-            </Button>
-            
             <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus size={20} />
+                Nova Galeria
+              </Button>
+              
               <Button 
                 onClick={handleTestAuthentication}
                 variant="secondary"

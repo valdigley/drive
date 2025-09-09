@@ -57,15 +57,8 @@ export function useSessionVerification() {
           }
         }
         
-        // Criar uma sessão de teste para desenvolvimento
-        const testSessionData: SessionData = {
-          user_id: 'test-user-id',
-          session_token: 'test-session-token',
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          last_activity: new Date().toISOString()
-        };
-        
-        setSessionData(testSessionData);
+        // Em desenvolvimento, permitir acesso sem sessão válida
+        console.log('🔧 Permitindo acesso em modo desenvolvimento');
         setIsAuthenticated(true);
         setIsVerifying(false);
         return;
