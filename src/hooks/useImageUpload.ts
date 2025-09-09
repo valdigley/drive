@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { Photo } from '../types';
 import { r2Service } from '../services/r2Service';
 
+function isValidImageFile(file: File): boolean {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  return allowedTypes.includes(file.type);
+}
 export function useImageUpload() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
