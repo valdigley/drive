@@ -46,6 +46,9 @@ function App() {
       window.location.hostname !== '127.0.0.1' &&
       !window.location.hostname.includes('stackblitz') &&
       !window.location.hostname.includes('bolt.new') &&
+      !window.location.hostname.includes('bolt') &&
+      !window.location.hostname.includes('webcontainer') &&
+      !window.location.hostname.includes('csb.app') &&
       window.location.port !== '5173') {
     return <SessionRedirect />;
   }

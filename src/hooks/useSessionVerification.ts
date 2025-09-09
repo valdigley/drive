@@ -28,6 +28,9 @@ export function useSessionVerification() {
           window.location.hostname === '127.0.0.1' || 
           window.location.hostname.includes('stackblitz') ||
           window.location.hostname.includes('bolt.new') ||
+          window.location.hostname.includes('bolt') ||
+          window.location.hostname.includes('webcontainer') ||
+          window.location.hostname.includes('csb.app') ||
           window.location.port === '5173') {
         console.log('🔧 Modo desenvolvimento - autenticação automática');
         
@@ -62,7 +65,7 @@ export function useSessionVerification() {
         }
         
         // Em desenvolvimento, permitir acesso sem sessão válida
-        console.log('🔧 Permitindo acesso em modo desenvolvimento');
+        console.log('🔧 Permitindo acesso em modo desenvolvimento - hostname:', window.location.hostname);
         setIsAuthenticated(true);
         setIsVerifying(false);
         return;
