@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAppContext } from './contexts/AppContext';
 import { Button } from './components/UI/Button';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
+import { Header } from './components/Layout/Header';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
