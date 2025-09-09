@@ -1,6 +1,14 @@
 import { r2Service } from '../services/r2Service';
 import { galleryService } from '../services/galleryService';
 
+export function formatFileSize(bytes: number): string {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  if (bytes === 0) return '0 Bytes';
+  
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
 export async function downloadFile(url: string, filename: string, r2Key?: string, galleryId?: string): Promise<void> {
   try {
     // For R2 files, get a signed download URL with proper headers
@@ -59,6 +67,14 @@ export function generateSecureId(): string {
   return crypto.randomUUID();
 }
 
+export function isValidImageFile(file: File): boolean {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  return allowedTypes.includes(file.type);
+}
+
+export function validatePassword(password: string): boolean {
+  return password.length >= 6;
+}
 
 export function formatDate(date: Date): string {
   return new Intl.DateTimeFormat('pt-BR', {
