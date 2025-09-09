@@ -252,6 +252,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,6 +296,7 @@ function LoginForm() {
           placeholder="admin@studio.com"
           placeholder="admin@studio.com"
           placeholder="admin@studio.com"
+          placeholder="admin@studio.com"
           required
         />
       </div>
@@ -303,10 +305,6 @@ function LoginForm() {
         <label className="block text-sm font-medium text-slate-300 mb-2">
           Senha
         </label>
-                <Camera size={32} className="text-white" />
-              </div>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               {businessInfo?.name || 'DriVal'}
             </h1>
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
