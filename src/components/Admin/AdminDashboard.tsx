@@ -33,6 +33,21 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             const photos = await galleryService.getGalleryPhotos(gallery.id);
             return { ...gallery, photos };
           })
+        );
+        
+        dispatch({ type: 'SET_GALLERIES', payload: galleriesWithPhotos });
+      } catch (error) {
+        console.error('Error loading galleries:', error);
+      } finally {
+        setLoadingGalleries(false);
+      }
+    };
+
+    loadGalleriesWithPhotos();
+  }, [dispatch]);
+
+  const handleSignOut = async () => {
+    try {
       await supabase.auth.signOut();
     } catch (error) {
       console.error('Error signing out:', error);
