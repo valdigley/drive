@@ -89,6 +89,13 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
         console.error('❌ Erro ao garantir usuário de teste:', upsertError);
         alert(`Erro ao garantir usuário de teste:\n${upsertError.message}`);
         return;
+      }
+      
+      // Verificar se o usuário foi realmente criado/recuperado
+      if (!upsertedUser) {
+        console.error('❌ Usuário não foi criado ou recuperado após upsert');
+        alert(`❌ Falha ao criar usuário de teste!\n\nO usuário não foi criado mesmo sem erro direto.\n\nVerifique as políticas RLS na tabela 'users':\n1. A role 'anon' precisa ter permissão INSERT\n2. A role 'anon' precisa ter permissão SELECT\n\nVá para Supabase Dashboard > Authentication > Policies\ne configure as políticas adequadas para a tabela 'users'.`);
+        return;
       } else {
         console.log('✅ Usuário de teste garantido:', upsertedUser);
       }
