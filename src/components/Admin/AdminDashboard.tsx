@@ -137,12 +137,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               <p className="text-gray-600 mb-6">
                 Comece criando sua primeira galeria para compartilhar fotos com seus clientes.
               </p>
-              <div className="flex gap-2 justify-center">
-                <Button onClick={() => setShowCreateModal(true)}>
-                  <Plus size={20} className="mr-2" />
-                  Criar Nova Galeria
-                </Button>
-              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
