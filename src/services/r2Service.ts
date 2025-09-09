@@ -121,10 +121,13 @@ class R2Service {
       });
 
       await this.client.send(command);
-      console.log('Successfully deleted from R2:', key);
+      console.log('✅ Successfully deleted from R2:', key);
     } catch (error) {
-      console.error('Error deleting from R2:', error);
-      console.warn('Failed to delete from R2, continuing with cleanup:', key);
+      console.error('❌ Error deleting from R2:', error);
+      if (error instanceof Error && error.message.includes('CORS')) {
+        console.warn('🔧 CORS error - check R2 bucket CORS configuration');
+      }
+      console.warn('⚠️ Failed to delete from R2, continuing with cleanup:', key);
     }
   }
 
