@@ -54,10 +54,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
     }
   };
 
-  const handleCreateSampleData = () => {
-    alert('Para criar dados de exemplo, use o painel do Supabase para inserir dados de teste.');
-  };
-  
   const { galleries, adminStats } = state;
 
   return (
@@ -145,9 +141,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
                 <Button onClick={() => setShowCreateModal(true)}>
                   <Plus size={20} className="mr-2" />
                   Criar Nova Galeria
-                </Button>
-                <Button variant="secondary" onClick={handleCreateSampleData}>
-                  Criar Dados de Exemplo
                 </Button>
               </div>
             </div>
