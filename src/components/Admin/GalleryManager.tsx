@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink, MapPin, User, Heart, Clock, X, Copy } from 'lucide-react';
+import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink, MapPin, User, Heart, Clock, X, Copy, Grid, Film } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
@@ -9,6 +9,8 @@ import { Modal } from '../UI/Modal';
 import { PhotoGrid } from '../Client/PhotoGrid';
 import { PhotoGrid as AdminPhotoGrid } from './PhotoGrid';
 import { PhotoLightbox } from '../Client/PhotoLightbox';
+import { NetflixGallery } from '../Client/NetflixGallery';
+import { CategorySelector } from './CategorySelector';
 import { galleryService } from '../../services/galleryService';
 import { isValidImageFile, formatDate } from '../../utils/fileUtils';
 import { Gallery } from '../../types';
@@ -46,6 +48,9 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [favoritePhotoIds, setFavoritePhotoIds] = useState<string[]>([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
+  const [showCategorySelector, setShowCategorySelector] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<FileList | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'netflix'>('grid');
 
   const gallery = React.useMemo(() => {
     return fullGallery || state.galleries.find(g => g.id === galleryId);
@@ -128,7 +133,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
     loadFullGalleryData();
   }, [galleryId]);
 
-  const handleFileUpload = async (files: FileList) => {
+  const handleFileUpload = async (files: FileList, category?: string) => {
     const validFiles = Array.from(files).filter(file => {
       return file.type.startsWith('image/') || file.type.startsWith('video/');
     });
@@ -138,11 +143,32 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       return;
     }
 
+    if (!category) {
+      setPendingFiles(files);
+      setShowCategorySelector(true);
+      return;
+    }
+
     const photos = await processFiles(validFiles as any, galleryId);
 
-    if (photos.length > 0) {
-      await galleryService.addPhotosToGallery(galleryId, photos);
-      dispatch({ type: 'ADD_PHOTOS', payload: { galleryId, photos } });
+    const photosWithCategory = photos.map(photo => ({
+      ...photo,
+      metadata: {
+        ...photo.metadata,
+        category
+      }
+    }));
+
+    if (photosWithCategory.length > 0) {
+      await galleryService.addPhotosToGallery(galleryId, photosWithCategory);
+      dispatch({ type: 'ADD_PHOTOS', payload: { galleryId, photos: photosWithCategory } });
+    }
+  };
+
+  const handleCategorySelect = async (category: string) => {
+    if (pendingFiles) {
+      await handleFileUpload(pendingFiles, category);
+      setPendingFiles(null);
     }
   };
 
@@ -419,8 +445,30 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                   </Button>
                 )}
 
-                {/* Filter Buttons */}
+                {/* View Mode Toggle */}
                 {gallery.photos.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant={viewMode === 'grid' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('grid')}
+                    >
+                      <Grid size={16} className="mr-1" />
+                      Grade
+                    </Button>
+                    <Button
+                      variant={viewMode === 'netflix' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('netflix')}
+                    >
+                      <Film size={16} className="mr-1" />
+                      Netflix
+                    </Button>
+                  </div>
+                )}
+
+                {/* Filter Buttons */}
+                {gallery.photos.length > 0 && viewMode === 'grid' && (
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
                       variant={filter === 'all' ? 'primary' : 'ghost'}
@@ -759,6 +807,11 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                 <Heart size={48} className="mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-600 dark:text-gray-400">Nenhuma foto favoritada nesta galeria</p>
               </div>
+            ) : viewMode === 'netflix' ? (
+              <NetflixGallery
+                photos={filteredPhotos}
+                favoriteIds={favoritePhotoIds}
+              />
             ) : (
               <AdminPhotoGrid
                 photos={filteredPhotos}
@@ -940,6 +993,17 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
           )}
         </div>
       </Modal>
+
+      {/* Category Selector Modal */}
+      <CategorySelector
+        isOpen={showCategorySelector}
+        onClose={() => {
+          setShowCategorySelector(false);
+          setPendingFiles(null);
+        }}
+        onSelect={handleCategorySelect}
+        title="Escolha a categoria para os arquivos"
+      />
     </div>
   );
 }
