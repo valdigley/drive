@@ -10,6 +10,7 @@ import { SupplierTimeline } from './SupplierTimeline';
 import { Photo, ViewMode } from '../../types';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
 import { galleryService } from '../../services/galleryService';
+import { favoriteService } from '../../services/favoriteService';
 
 export function ClientGallery() {
   const { state, dispatch } = useAppContext();
@@ -25,6 +26,33 @@ export function ClientGallery() {
   const [loadingGalleryFilter, setLoadingGalleryFilter] = useState(false);
 
   const isSupplier = currentUser === 'supplier';
+
+  // Sync favorites from database when filter changes to favorites
+  useEffect(() => {
+    const syncFavorites = async () => {
+      if (filter === 'favorites' && clientSession && currentGallery) {
+        const sessionId = `gallery_session_${currentGallery.id}`;
+        const favoritesFromDB = await favoriteService.getFavorites(currentGallery.id, sessionId);
+
+        console.log('🔄 Syncing favorites from database:', favoritesFromDB);
+
+        if (favoritesFromDB.length !== clientSession.favorites.length ||
+            !favoritesFromDB.every(id => clientSession.favorites.includes(id))) {
+
+          const updatedSession = {
+            ...clientSession,
+            favorites: favoritesFromDB
+          };
+
+          localStorage.setItem(sessionId, JSON.stringify(updatedSession));
+          dispatch({ type: 'SET_CLIENT_SESSION', payload: updatedSession });
+          console.log('✅ Favorites synced with database');
+        }
+      }
+    };
+
+    syncFavorites();
+  }, [filter, clientSession?.galleryId, currentGallery?.id]);
 
   // Load supplier galleries on mount if supplier
   useEffect(() => {
@@ -79,10 +107,16 @@ export function ClientGallery() {
 
   const filteredPhotos = useMemo(() => {
     console.log('🖼️ ClientGallery - Total photos in gallery:', currentGallery.photos.length);
+    console.log('🔍 Filter mode:', filter);
+    console.log('💾 Client session:', clientSession);
+    console.log('❤️ Favorites in session:', clientSession?.favorites || []);
+
     if (filter === 'favorites' && clientSession) {
-      return currentGallery.photos.filter(photo =>
+      const favorited = currentGallery.photos.filter(photo =>
         clientSession.favorites.includes(photo.id)
       );
+      console.log('✨ Filtered favorites:', favorited.length, 'photos');
+      return favorited;
     }
     return currentGallery.photos;
   }, [currentGallery.photos, filter, clientSession]);
