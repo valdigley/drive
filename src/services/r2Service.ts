@@ -4,12 +4,14 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 class R2Service {
   private client: S3Client | null = null;
   private bucketName: string;
+  private videosBucketName: string;
   private isConfigured: boolean;
   private endpoint: string;
   private publicUrl: string;
 
   constructor() {
     this.bucketName = import.meta.env.VITE_R2_BUCKET_NAME || import.meta.env.VITE_R2_BUCKET || 'fotos-clientes';
+    this.videosBucketName = import.meta.env.VITE_R2_VIDEOS_BUCKET_NAME || 'videos-clientes';
     this.endpoint = import.meta.env.VITE_R2_ENDPOINT || '';
     this.publicUrl = import.meta.env.VITE_R2_PUBLIC_URL || 'https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev';
     
@@ -64,6 +66,18 @@ class R2Service {
     }
   }
 
+  private isVideoFile(file: File): boolean {
+    return file.type.startsWith('video/');
+  }
+
+  private isVideoKey(key: string): boolean {
+    return key.includes('/videos/');
+  }
+
+  private getBucketForKey(key: string): string {
+    return this.isVideoKey(key) ? this.videosBucketName : this.bucketName;
+  }
+
   async uploadPhoto(file: File, galleryId: string): Promise<{ url: string; key: string }> {
     if (!this.isConfigured || !this.client) {
       console.warn('R2 not configured, using data URL fallback');
@@ -73,18 +87,22 @@ class R2Service {
     }
 
     try {
-      const key = `galleries/${galleryId}/photos/${crypto.randomUUID()}-${file.name}`;
-      
+      const isVideo = this.isVideoFile(file);
+      const bucket = isVideo ? this.videosBucketName : this.bucketName;
+      const folder = isVideo ? 'videos' : 'photos';
+      const key = `galleries/${galleryId}/${folder}/${crypto.randomUUID()}-${file.name}`;
+
       const arrayBuffer = await this.blobToArrayBuffer(file);
-      
+
       const command = new PutObjectCommand({
-        Bucket: this.bucketName,
+        Bucket: bucket,
         Key: key,
         Body: arrayBuffer,
         ContentType: file.type,
       });
 
       await this.client.send(command);
+      console.log(`✅ Uploaded ${isVideo ? 'video' : 'photo'} to bucket: ${bucket}, key: ${key}`);
       return { url: this.getPublicUrl(key), key };
     } catch (error) {
       console.error('Error uploading to R2, using data URL fallback:', error);
@@ -141,7 +159,7 @@ class R2Service {
 
       await Promise.all([
         this.client.send(new PutObjectCommand({
-          Bucket: this.bucketName,
+          Bucket: this.videosBucketName,
           Key: videoKey,
           Body: videoArrayBuffer,
           ContentType: videoBlob.type || 'video/mp4',
@@ -159,6 +177,7 @@ class R2Service {
         }))
       ]);
 
+      console.log(`✅ Uploaded video to bucket: ${this.videosBucketName}, key: ${videoKey}`);
       return {
         videoUrl: this.getPublicUrl(videoKey),
         thumbnailUrl: this.getPublicUrl(thumbnailKey),
@@ -191,13 +210,14 @@ class R2Service {
     }
 
     try {
+      const bucket = this.getBucketForKey(key);
       const command = new DeleteObjectCommand({
-        Bucket: this.bucketName,
+        Bucket: bucket,
         Key: key,
       });
 
       await this.client.send(command);
-      console.log('✅ Successfully deleted from R2:', key);
+      console.log(`✅ Successfully deleted from R2 (${bucket}):`, key);
     } catch (error) {
       console.error('❌ Error deleting from R2:', error);
       if (error instanceof Error && error.message.includes('CORS')) {
@@ -270,8 +290,9 @@ class R2Service {
     }
 
     try {
+      const bucket = this.getBucketForKey(key);
       const command = new GetObjectCommand({
-        Bucket: this.bucketName,
+        Bucket: bucket,
         Key: key,
         ResponseContentDisposition: `attachment; filename="${filename}"`,
       });
@@ -296,8 +317,9 @@ class R2Service {
     }
 
     try {
+      const bucket = this.getBucketForKey(key);
       const command = new GetObjectCommand({
-        Bucket: this.bucketName,
+        Bucket: bucket,
         Key: key,
       });
 
