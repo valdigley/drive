@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink, MapPin, User } from 'lucide-react';
+import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink, MapPin, User, Heart } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
@@ -40,10 +40,40 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   });
   const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const [savingDetails, setSavingDetails] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'favorites'>('all');
+  const [favoritePhotoIds, setFavoritePhotoIds] = useState<string[]>([]);
+  const [loadingFavorites, setLoadingFavorites] = useState(false);
 
   const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
 
   console.log('📊 GalleryManager state:', { editingDetails, clients: clients.length, gallery: gallery?.name });
+
+  // Load favorites from database
+  useEffect(() => {
+    const loadFavorites = async () => {
+      if (!galleryId || filter !== 'favorites') return;
+
+      setLoadingFavorites(true);
+      try {
+        const { data, error } = await supabase
+          .from('favorites')
+          .select('photo_id')
+          .eq('gallery_id', galleryId);
+
+        if (error) throw error;
+
+        const photoIds = data?.map(f => f.photo_id) || [];
+        setFavoritePhotoIds(photoIds);
+        console.log('📊 Admin: Loaded favorites from database:', photoIds.length);
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      } finally {
+        setLoadingFavorites(false);
+      }
+    };
+
+    loadFavorites();
+  }, [galleryId, filter]);
 
   useEffect(() => {
     const loadClients = async () => {
@@ -384,6 +414,25 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
     }
   };
 
+  // Filter photos based on filter state
+  const filteredPhotos = React.useMemo(() => {
+    if (!gallery) return [];
+
+    if (filter === 'favorites') {
+      return gallery.photos.filter(photo => favoritePhotoIds.includes(photo.id));
+    }
+
+    return gallery.photos;
+  }, [gallery, filter, favoritePhotoIds]);
+
+  if (!gallery) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -406,10 +455,35 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                     {selectingCover ? 'Cancelar' : 'Definir Capa'}
                   </Button>
                 )}
-                
+
+                {/* Filter Buttons */}
+                {gallery.photos.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant={filter === 'all' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setFilter('all')}
+                    >
+                      Todas ({gallery.photos.length})
+                    </Button>
+                    <Button
+                      variant={filter === 'favorites' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setFilter('favorites')}
+                      className="flex items-center gap-1"
+                    >
+                      <Heart size={16} />
+                      Favoritas {loadingFavorites ? '...' : `(${favoritePhotoIds.length})`}
+                    </Button>
+                  </div>
+                )}
+
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{gallery.name}</h1>
-                  <p className="text-gray-600 dark:text-gray-400">{gallery.clientName} • {gallery.photos.length} fotos</p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {gallery.clientName} • {filteredPhotos.length} {filter === 'favorites' ? 'favoritas' : 'fotos'}
+                    {filter === 'favorites' && ` de ${gallery.photos.length}`}
+                  </p>
                 </div>
               </div>
 
@@ -696,14 +770,25 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
           </div>
         ) : (
           <div className="space-y-6">
-            <AdminPhotoGrid
-              photos={gallery.photos}
-              onPhotoClick={handlePhotoClickForCover}
-              showCoverIndicator={true}
-              isAdmin={true}
-              onDeletePhoto={handleDeletePhoto}
-              galleryId={galleryId}
-            />
+            {loadingFavorites && filter === 'favorites' ? (
+              <div className="flex items-center justify-center py-12">
+                <LoadingSpinner size="lg" />
+              </div>
+            ) : filteredPhotos.length === 0 && filter === 'favorites' ? (
+              <div className="text-center py-12">
+                <Heart size={48} className="mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">Nenhuma foto favoritada nesta galeria</p>
+              </div>
+            ) : (
+              <AdminPhotoGrid
+                photos={filteredPhotos}
+                onPhotoClick={handlePhotoClickForCover}
+                showCoverIndicator={true}
+                isAdmin={true}
+                onDeletePhoto={handleDeletePhoto}
+                galleryId={galleryId}
+              />
+            )}
           </div>
         )}
       </div>
