@@ -9,6 +9,9 @@ export interface Photo {
   r2Key?: string;
   thumbnailR2Key?: string;
   supplierId?: string;
+  mediaType?: 'photo' | 'video';
+  videoUrl?: string;
+  duration?: number;
   metadata?: {
     width: number;
     height: number;

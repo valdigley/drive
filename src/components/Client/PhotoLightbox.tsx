@@ -4,6 +4,7 @@ import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { downloadFile, formatFileSize, getPhotoCode } from '../../utils/fileUtils';
+import { VideoPlayer } from './VideoPlayer';
 
 interface PhotoLightboxProps {
   photos: Photo[];
@@ -162,13 +163,24 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
         </button>
       )}
 
-      {/* Photo */}
+      {/* Photo or Video */}
       <div className="flex flex-col items-center justify-center h-full p-16 gap-4">
-        <img
-          src={currentPhoto.url}
-          alt={currentPhoto.filename}
-          className="max-w-full max-h-[calc(100%-120px)] object-contain rounded-lg shadow-2xl"
-        />
+        {currentPhoto.mediaType === 'video' ? (
+          <div className="w-full max-w-5xl">
+            <VideoPlayer
+              videoUrl={currentPhoto.videoUrl || currentPhoto.url}
+              videoType={currentPhoto.videoUrl ? 'youtube' : 'mp4'}
+              thumbnail={currentPhoto.thumbnail}
+              title={currentPhoto.filename}
+            />
+          </div>
+        ) : (
+          <img
+            src={currentPhoto.url}
+            alt={currentPhoto.filename}
+            className="max-w-full max-h-[calc(100%-120px)] object-contain rounded-lg shadow-2xl"
+          />
+        )}
 
         {/* Action Buttons Below Photo */}
         <div className="flex items-center justify-center gap-3 bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-4">

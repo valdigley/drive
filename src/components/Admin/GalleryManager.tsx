@@ -141,15 +141,17 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   }
 
   const handleFileUpload = async (files: FileList) => {
-    const validFiles = Array.from(files).filter(isValidImageFile);
-    
+    const validFiles = Array.from(files).filter(file => {
+      return file.type.startsWith('image/') || file.type.startsWith('video/');
+    });
+
     if (validFiles.length === 0) {
-      alert('Nenhum arquivo de imagem válido encontrado');
+      alert('Nenhum arquivo de imagem ou vídeo válido encontrado');
       return;
     }
 
     const photos = await processFiles(validFiles as any, galleryId);
-    
+
     if (photos.length > 0) {
       await galleryService.addPhotosToGallery(galleryId, photos);
       dispatch({ type: 'ADD_PHOTOS', payload: { galleryId, photos } });
@@ -506,7 +508,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
             <div className="flex items-center gap-3">
               <LoadingSpinner size="sm" />
               <div className="flex-1">
-                <p className="text-sm text-blue-800 dark:text-blue-200">Processando imagens...</p>
+                <p className="text-sm text-blue-800 dark:text-blue-200">Processando imagens e vídeos...</p>
                 <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 mt-1">
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -747,10 +749,10 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
             <div className="text-center">
               <Upload size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Faça upload das suas fotos
+                Faça upload das suas fotos e vídeos
               </h3>
               <p className="text-gray-600">
-                Arraste e solte as imagens aqui ou use o botão "Upload Fotos" acima
+                Arraste e solte imagens ou vídeos aqui ou use o botão "Upload Fotos" acima
               </p>
             </div>
           </div>

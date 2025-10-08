@@ -120,6 +120,59 @@ class R2Service {
     }
   }
 
+  async uploadVideo(videoBlob: Blob, thumbnailBlob: Blob, filename: string, galleryId: string): Promise<{ videoUrl: string; thumbnailUrl: string; r2Key: string; thumbnailR2Key: string }> {
+    if (!this.isConfigured || !this.client) {
+      const videoDataUrl = await this.blobToDataUrl(videoBlob);
+      const thumbnailDataUrl = await this.blobToDataUrl(thumbnailBlob);
+      return {
+        videoUrl: videoDataUrl,
+        thumbnailUrl: thumbnailDataUrl,
+        r2Key: `data:video`,
+        thumbnailR2Key: `data:thumbnail`
+      };
+    }
+
+    try {
+      const videoKey = `galleries/${galleryId}/videos/${crypto.randomUUID()}-${filename}`;
+      const thumbnailKey = `galleries/${galleryId}/thumbnails/${crypto.randomUUID()}.jpg`;
+
+      const videoArrayBuffer = await this.blobToArrayBuffer(videoBlob);
+      const thumbnailArrayBuffer = await this.blobToArrayBuffer(thumbnailBlob);
+
+      await Promise.all([
+        this.client.send(new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: videoKey,
+          Body: videoArrayBuffer,
+          ContentType: videoBlob.type,
+        })),
+        this.client.send(new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: thumbnailKey,
+          Body: thumbnailArrayBuffer,
+          ContentType: 'image/jpeg',
+        }))
+      ]);
+
+      return {
+        videoUrl: this.getPublicUrl(videoKey),
+        thumbnailUrl: this.getPublicUrl(thumbnailKey),
+        r2Key: videoKey,
+        thumbnailR2Key: thumbnailKey
+      };
+    } catch (error) {
+      console.error('Error uploading video to R2:', error);
+      const videoDataUrl = await this.blobToDataUrl(videoBlob);
+      const thumbnailDataUrl = await this.blobToDataUrl(thumbnailBlob);
+      return {
+        videoUrl: videoDataUrl,
+        thumbnailUrl: thumbnailDataUrl,
+        r2Key: `data:video`,
+        thumbnailR2Key: `data:thumbnail`
+      };
+    }
+  }
+
   async deletePhoto(key: string): Promise<void> {
     if (!this.isConfigured || !this.client) {
       console.warn('R2 not configured, cannot delete photo from cloud storage');

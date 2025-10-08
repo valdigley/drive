@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Download, ZoomIn, Check, Star, Printer, Tag } from 'lucide-react';
+import { Heart, Download, ZoomIn, Check, Star, Printer, Tag, Play } from 'lucide-react';
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
@@ -115,6 +115,15 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false, on
                 loading="lazy"
                 onError={() => handleThumbnailError(photo.id)}
               />
+
+              {/* Video Play Button Overlay */}
+              {photo.mediaType === 'video' && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <Play size={28} className="text-white ml-1" fill="white" />
+                  </div>
+                </div>
+              )}
 
               {/* Photo Code Badge */}
               <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded font-mono">

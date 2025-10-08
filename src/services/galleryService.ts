@@ -192,6 +192,9 @@ class GalleryService {
         metadata: photo.metadata || {},
         galleryId: photo.gallery_id,
         supplierId: photo.photo_suppliers?.[0]?.supplier_id || null,
+        mediaType: photo.media_type || 'photo',
+        videoUrl: photo.video_url,
+        duration: photo.duration,
       }));
 
       // Generate signed URLs for R2 photos
@@ -215,6 +218,9 @@ class GalleryService {
         thumbnailR2Key: photo.thumbnail_r2_key,
         metadata: photo.metadata || {},
         supplierId: photo.supplierId,
+        mediaType: photo.mediaType,
+        videoUrl: photo.videoUrl,
+        duration: photo.duration,
       }));
     } catch (error) {
       console.error('Error loading gallery photos:', error);
