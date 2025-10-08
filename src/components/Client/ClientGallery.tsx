@@ -192,9 +192,16 @@ export function ClientGallery() {
   };
 
   const handleSupplierTagged = async () => {
-    const updatedGallery = await galleryService.getGalleryDetails(currentGallery.id);
-    if (updatedGallery) {
-      dispatch({ type: 'SET_CURRENT_GALLERY', payload: updatedGallery });
+    const [updatedGallery, photos] = await Promise.all([
+      galleryService.getGalleryDetails(currentGallery.id),
+      galleryService.getGalleryPhotos(currentGallery.id, currentSupplierId)
+    ]);
+
+    if (updatedGallery && photos) {
+      dispatch({
+        type: 'SET_CURRENT_GALLERY',
+        payload: { ...updatedGallery, photos }
+      });
     }
   };
 
