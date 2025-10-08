@@ -9,7 +9,7 @@ class R2Service {
   private publicUrl: string;
 
   constructor() {
-    this.bucketName = import.meta.env.VITE_R2_BUCKET || 'fotos-clientes';
+    this.bucketName = import.meta.env.VITE_R2_BUCKET_NAME || import.meta.env.VITE_R2_BUCKET || 'fotos-clientes';
     this.endpoint = import.meta.env.VITE_R2_ENDPOINT || '';
     this.publicUrl = import.meta.env.VITE_R2_PUBLIC_URL || 'https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev';
     
