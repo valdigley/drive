@@ -30,6 +30,9 @@ export interface Gallery {
   accessCount: number;
   downloadCount: number;
   isActive: boolean;
+  eventDate?: Date;
+  location?: string;
+  clientId?: string;
   settings: {
     allowDownload: boolean;
     allowComments: boolean;

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Calendar, Lock, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Lock, Upload, MapPin, User } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Modal } from '../UI/Modal';
 import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
 import { Gallery } from '../../types';
 import { galleryService } from '../../services/galleryService';
+import { clientService } from '../../services/clientService';
 import { generateSecureId, validatePassword } from '../../utils/fileUtils';
 
 interface CreateGalleryModalProps {
@@ -21,12 +22,29 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
     description: '',
     password: '',
     expirationDays: '30',
+    eventDate: '',
+    location: '',
+    clientId: '',
     allowDownload: true,
     allowComments: false,
     watermark: true,
     downloadQuality: 'print' as const,
   });
+  const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    loadClients();
+  }, []);
+
+  const loadClients = async () => {
+    try {
+      const clientsData = await clientService.getAllClients();
+      setClients(clientsData.map(c => ({ id: c.id, name: c.name })));
+    } catch (error) {
+      console.error('Error loading clients:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -81,6 +99,9 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
       createdDate: new Date(),
       expirationDate,
       password: formData.password.trim() || undefined,
+      eventDate: formData.eventDate ? new Date(formData.eventDate) : undefined,
+      location: formData.location.trim() || undefined,
+      clientId: formData.clientId || undefined,
       photos: [],
       accessCount: 0,
       downloadCount: 0,
@@ -103,6 +124,9 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
       description: '',
       password: '',
       expirationDays: '30',
+      eventDate: '',
+      location: '',
+      clientId: '',
       allowDownload: true,
       allowComments: false,
       watermark: true,
@@ -130,7 +154,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             error={errors.name}
             icon={<Upload />}
           />
-          
+
           <Input
             label="Nome do Cliente"
             name="clientName"
@@ -140,6 +164,48 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             error={errors.clientName}
           />
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div className="flex items-center gap-2">
+                <User size={16} />
+                Vincular a Cliente (opcional)
+              </div>
+            </label>
+            <select
+              name="clientId"
+              value={formData.clientId}
+              onChange={handleInputChange}
+              className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
+            >
+              <option value="">Nenhum cliente vinculado</option>
+              {clients.map(client => (
+                <option key={client.id} value={client.id}>
+                  {client.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Input
+            label="Data do Evento"
+            name="eventDate"
+            type="date"
+            value={formData.eventDate}
+            onChange={handleInputChange}
+            icon={<Calendar />}
+          />
+        </div>
+
+        <Input
+          label="Local do Evento"
+          name="location"
+          value={formData.location}
+          onChange={handleInputChange}
+          placeholder="Ex: Igreja São José, Centro"
+          icon={<MapPin />}
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">

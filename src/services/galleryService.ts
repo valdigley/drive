@@ -226,8 +226,11 @@ class GalleryService {
         access_count: gallery.accessCount,
         download_count: gallery.downloadCount,
         is_active: gallery.isActive,
+        event_date: gallery.eventDate?.toISOString().split('T')[0],
+        location: gallery.location,
+        client_id: gallery.clientId,
         settings: gallery.settings,
-        user_id: null, // Sem autenticação por enquanto
+        user_id: null,
       };
 
       const { error } = await supabase
@@ -386,6 +389,9 @@ class GalleryService {
       accessCount: dbGallery.access_count,
       downloadCount: dbGallery.download_count,
       isActive: dbGallery.is_active,
+      eventDate: dbGallery.event_date ? new Date(dbGallery.event_date) : undefined,
+      location: dbGallery.location,
+      clientId: dbGallery.client_id,
       settings: dbGallery.settings,
       photos: (dbGallery.photos || []).map((photo: any) => ({
         id: photo.id,

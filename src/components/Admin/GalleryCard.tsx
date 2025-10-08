@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Eye, Download, Lock, Settings, ExternalLink, Camera, Trash2 } from 'lucide-react';
+import { Calendar, Eye, Download, Lock, Settings, ExternalLink, Camera, Trash2, MapPin } from 'lucide-react';
 import { Gallery } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
@@ -76,6 +76,22 @@ export function GalleryCard({ gallery, onManage, viewMode = 'grid' }: GalleryCar
                   )}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">{gallery.clientName}</p>
+                {(gallery.eventDate || gallery.location) && (
+                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {gallery.eventDate && (
+                      <div className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        <span>{formatDate(gallery.eventDate)}</span>
+                      </div>
+                    )}
+                    {gallery.location && (
+                      <div className="flex items-center gap-1">
+                        <MapPin size={12} />
+                        <span className="truncate max-w-[200px]">{gallery.location}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Stats */}
@@ -91,10 +107,6 @@ export function GalleryCard({ gallery, onManage, viewMode = 'grid' }: GalleryCar
                 <div className="flex items-center gap-1.5">
                   <Download size={16} />
                   <span>{gallery.downloadCount}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Calendar size={16} />
-                  <span>{formatDate(gallery.createdDate)}</span>
                 </div>
               </div>
 
