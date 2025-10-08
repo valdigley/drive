@@ -152,47 +152,21 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false, on
                     e.stopPropagation();
                     onTagSupplier(photo.id);
                   }}
-                  className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
+                  className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 text-sm font-medium ${
                     photo.supplierId
                       ? 'bg-purple-600 text-white hover:bg-purple-700'
                       : 'bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-purple-600'
                   }`}
                   title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
                 >
-                  <Tag size={16} />
-                  <span className="hidden sm:inline">Tag</span>
+                  <Tag size={18} />
+                  <span>Tag</span>
                 </button>
               )}
 
               <button
-                onClick={(e) => handlePrintCartToggle(photo.id, e)}
-                className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
-                  isInPrintCart(photo.id)
-                    ? 'bg-green-600 text-white hover:bg-green-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-600'
-                }`}
-                title="Carrinho de impressão"
-              >
-                <Printer size={16} />
-                <span className="hidden sm:inline">Imprimir</span>
-              </button>
-
-              <button
-                onClick={(e) => handleSelectionToggle(photo.id, e)}
-                className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
-                  isSelected(photo.id)
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                }`}
-                title="Selecionar"
-              >
-                <Check size={16} />
-                <span className="hidden sm:inline">Selecionar</span>
-              </button>
-
-              <button
                 onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
+                className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 text-sm font-medium ${
                   isFavorite(photo.id)
                     ? 'bg-red-500 text-white hover:bg-red-600'
                     : 'bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600'
@@ -200,10 +174,10 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false, on
                 title="Favoritar"
               >
                 <Heart
-                  size={16}
+                  size={18}
                   fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
                 />
-                <span className="hidden sm:inline">Favorito</span>
+                <span>Favorito</span>
               </button>
             </div>
           </div>

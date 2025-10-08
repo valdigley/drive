@@ -215,14 +215,14 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick, onTagSupplier }:
 
                               {/* Action Buttons Below Photo */}
                               <div className="p-2 border-t border-gray-100 dark:border-gray-700">
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-2">
                                   {onTagSupplier && (
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         onTagSupplier(photo.id);
                                       }}
-                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                      className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
                                         photo.supplierId
                                           ? 'bg-purple-600 text-white hover:bg-purple-700'
                                           : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600'
@@ -234,32 +234,8 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick, onTagSupplier }:
                                   )}
 
                                   <button
-                                    onClick={(e) => handlePrintCartToggle(photo.id, e)}
-                                    className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
-                                      isInPrintCart(photo.id)
-                                        ? 'bg-green-600 text-white hover:bg-green-700'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:text-green-600'
-                                    }`}
-                                    title="Carrinho de impressão"
-                                  >
-                                    <Printer size={16} />
-                                  </button>
-
-                                  <button
-                                    onClick={(e) => handleSelectionToggle(photo.id, e)}
-                                    className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
-                                      isSelected(photo.id)
-                                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600'
-                                    }`}
-                                    title="Selecionar"
-                                  >
-                                    <Check size={16} />
-                                  </button>
-
-                                  <button
                                     onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                                    className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                    className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
                                       isFavorite(photo.id)
                                         ? 'bg-red-500 text-white hover:bg-red-600'
                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600'
@@ -383,14 +359,14 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick, onTagSupplier }:
 
                                 {/* Action Buttons Below Photo */}
                                 <div className="p-2 border-t border-gray-100 dark:border-gray-700">
-                                  <div className="flex items-center gap-1">
+                                  <div className="flex items-center gap-2">
                                     {onTagSupplier && (
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           onTagSupplier(photo.id);
                                         }}
-                                        className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                        className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
                                           photo.supplierId
                                             ? 'bg-purple-600 text-white hover:bg-purple-700'
                                             : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600'
@@ -402,32 +378,8 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick, onTagSupplier }:
                                     )}
 
                                     <button
-                                      onClick={(e) => handlePrintCartToggle(photo.id, e)}
-                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
-                                        isInPrintCart(photo.id)
-                                          ? 'bg-green-600 text-white hover:bg-green-700'
-                                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:text-green-600'
-                                      }`}
-                                      title="Carrinho de impressão"
-                                    >
-                                      <Printer size={16} />
-                                    </button>
-
-                                    <button
-                                      onClick={(e) => handleSelectionToggle(photo.id, e)}
-                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
-                                        isSelected(photo.id)
-                                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600'
-                                      }`}
-                                      title="Selecionar"
-                                    >
-                                      <Check size={16} />
-                                    </button>
-
-                                    <button
                                       onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                      className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
                                         isFavorite(photo.id)
                                           ? 'bg-red-500 text-white hover:bg-red-600'
                                           : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600'

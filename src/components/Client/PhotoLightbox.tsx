@@ -171,51 +171,25 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
         />
 
         {/* Action Buttons Below Photo */}
-        <div className="flex items-center justify-center gap-3 bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-3">
+        <div className="flex items-center justify-center gap-3 bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-4">
           {onTagSupplier && (
             <button
               onClick={() => onTagSupplier(currentPhoto.id)}
-              className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
+              className={`px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 text-base font-medium ${
                 currentPhoto.supplierId
                   ? 'bg-purple-600 text-white hover:bg-purple-700'
                   : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
               }`}
               title={currentPhoto.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
             >
-              <Tag size={18} />
-              <span>Fornecedor</span>
+              <Tag size={20} />
+              <span>Marcar Fornecedor</span>
             </button>
           )}
 
           <button
-            onClick={handlePrintCartToggle}
-            className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
-              isInPrintCart
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
-            }`}
-            title="Carrinho de impressão"
-          >
-            <Printer size={18} />
-            <span>Imprimir</span>
-          </button>
-
-          <button
-            onClick={handleSelectionToggle}
-            className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
-              isSelected
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
-            }`}
-            title="Selecionar"
-          >
-            <Check size={18} />
-            <span>Selecionar</span>
-          </button>
-
-          <button
             onClick={handleFavoriteToggle}
-            className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
+            className={`px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-200 text-base font-medium ${
               isFavorite
                 ? 'bg-red-500 text-white hover:bg-red-600'
                 : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
@@ -223,10 +197,10 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
             title="Favoritar"
           >
             <Heart
-              size={18}
+              size={20}
               fill={isFavorite ? 'currentColor' : 'none'}
             />
-            <span>Favorito</span>
+            <span>Favoritar</span>
           </button>
         </div>
       </div>
