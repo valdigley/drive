@@ -11,6 +11,8 @@ interface AppState {
   isLoading: boolean;
   error: string | null;
   currentSupplierId: string | null;
+  currentClientId: string | null;
+  currentClientName: string | null;
 }
 
 type AppAction =
@@ -30,7 +32,9 @@ type AppAction =
   | { type: 'TOGGLE_SELECTION'; payload: { photoId: string } }
   | { type: 'TOGGLE_PRINT_CART'; payload: { photoId: string } }
   | { type: 'INCREMENT_DOWNLOAD_COUNT' }
-  | { type: 'SET_CURRENT_SUPPLIER_ID'; payload: string | null };
+  | { type: 'SET_CURRENT_SUPPLIER_ID'; payload: string | null }
+  | { type: 'SET_CURRENT_CLIENT_ID'; payload: string | null }
+  | { type: 'SET_CURRENT_CLIENT_NAME'; payload: string | null };
 
 const initialState: AppState = {
   currentUser: 'admin',
@@ -48,6 +52,8 @@ const initialState: AppState = {
   isLoading: false,
   error: null,
   currentSupplierId: null,
+  currentClientId: null,
+  currentClientName: null,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -155,6 +161,26 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         currentSupplierId: action.payload,
+      };
+    case 'SET_CURRENT_CLIENT_ID':
+      if (action.payload) {
+        localStorage.setItem('currentClientId', action.payload);
+      } else {
+        localStorage.removeItem('currentClientId');
+      }
+      return {
+        ...state,
+        currentClientId: action.payload,
+      };
+    case 'SET_CURRENT_CLIENT_NAME':
+      if (action.payload) {
+        localStorage.setItem('currentClientName', action.payload);
+      } else {
+        localStorage.removeItem('currentClientName');
+      }
+      return {
+        ...state,
+        currentClientName: action.payload,
       };
     default:
       return state;

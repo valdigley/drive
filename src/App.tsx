@@ -4,6 +4,7 @@ import { Button } from './components/UI/Button';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { GalleryManager } from './components/Admin/GalleryManager';
 import { ClientGallery } from './components/Client/ClientGallery';
+import { ClientDashboard } from './components/Client/ClientDashboard';
 import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
@@ -17,7 +18,7 @@ function App() {
   const { state, dispatch } = useAppContext();
   
   // State hooks - must be called unconditionally
-  const [currentView, setCurrentView] = useState<'dashboard' | 'gallery-manager' | 'client-gallery'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'gallery-manager' | 'client-gallery' | 'client-dashboard'>('dashboard');
   const [managingGalleryId, setManagingGalleryId] = useState<string | null>(null);
   const [clientGalleryId, setClientGalleryId] = useState<string | null>(null);
   const [accessGranted, setAccessGranted] = useState<boolean>(false);
@@ -25,6 +26,7 @@ function App() {
   const [loadingGallery, setLoadingGallery] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Extract state values after hooks
   const { currentUser, galleries, theme } = state;
@@ -117,24 +119,17 @@ function App() {
             const client = await clientService.getClientByAccessCode(accessCode);
 
             if (client) {
-              // It's a client - load all their galleries
+              // It's a client - show their dashboard
               console.log('✅ Client found:', client.name);
               const clientGalleries = await clientService.getClientGalleries(client.id);
 
               if (clientGalleries.length > 0) {
-                // Load the first gallery (or show a selection if multiple)
-                const firstGalleryId = clientGalleries[0].id;
-                const photos = await galleryService.getGalleryPhotos(firstGalleryId);
-                const gallery = await galleryService.getGalleryDetails(firstGalleryId);
-
-                if (gallery) {
-                  const completeGallery = { ...gallery, photos };
-                  dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
-                  dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
-                  setClientGalleryId(firstGalleryId);
-                  dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
-                  setAccessGranted(true);
-                }
+                // Set client info and show dashboard
+                dispatch({ type: 'SET_CURRENT_CLIENT_ID', payload: client.id });
+                dispatch({ type: 'SET_CURRENT_CLIENT_NAME', payload: client.name });
+                dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+                setCurrentView('client-dashboard');
+                setAccessGranted(true);
               } else {
                 setError('Este cliente não possui galerias vinculadas');
               }
@@ -227,6 +222,32 @@ function App() {
     setCurrentView('gallery-manager');
   };
 
+  const handleSelectClientGallery = async (galleryId: string) => {
+    try {
+      setLoadingGallery(true);
+      const gallery = await galleryService.getGalleryDetails(galleryId);
+      if (gallery) {
+        const photos = await galleryService.getGalleryPhotos(galleryId);
+        const completeGallery = { ...gallery, photos };
+        dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
+        dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+        setClientGalleryId(galleryId);
+        setCurrentView('client-gallery');
+        setAccessGranted(true);
+      }
+    } catch (error) {
+      console.error('Error loading gallery:', error);
+    } finally {
+      setLoadingGallery(false);
+    }
+  };
+
+  const handleBackToClientDashboard = () => {
+    setCurrentView('client-dashboard');
+    setClientGalleryId(null);
+    dispatch({ type: 'SET_CURRENT_GALLERY', payload: null });
+  };
+
   const handleBackToDashboard = () => {
     setCurrentView('dashboard');
     setManagingGalleryId(null);
@@ -279,6 +300,19 @@ function App() {
     );
   }
 
+  // Client Dashboard view
+  if (currentUser === 'client' && currentView === 'client-dashboard' && state.currentClientId && state.currentClientName) {
+    return (
+      <div className={theme === 'dark' ? 'dark' : ''}>
+        <ClientDashboard
+          clientId={state.currentClientId}
+          clientName={state.currentClientName}
+          onSelectGallery={handleSelectClientGallery}
+        />
+      </div>
+    );
+  }
+
   // Client or Supplier view with gallery access
   if ((currentUser === 'client' || currentUser === 'supplier') && clientGalleryId) {
     const gallery = state.galleries.find(g => g.id === clientGalleryId) || state.currentGallery;
@@ -311,7 +345,28 @@ function App() {
 
     // Show gallery if access granted or no password required
     if (accessGranted || !gallery.password) {
-      return <ClientGallery />;
+      return (
+        <div className={theme === 'dark' ? 'dark' : ''}>
+          {state.currentClientId && (
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToClientDashboard}
+                  className="flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Voltar para Minhas Galerias
+                </Button>
+              </div>
+            </div>
+          )}
+          <ClientGallery />
+        </div>
+      );
     }
 
     // Still loading access verification
