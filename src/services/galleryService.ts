@@ -87,20 +87,20 @@ class GalleryService {
     }
   }
 
-  async getSupplierGalleriesWithPhotos(supplierId: string): Promise<Array<{ galleryId: string; galleryName: string; clientName: string; photoCount: number }>> {
+  async getSupplierGalleriesWithPhotos(supplierId: string): Promise<Array<{ galleryId: string; galleryName: string; clientName: string; photoCount: number; eventDate?: string; createdDate: string }>> {
     try {
       const { data, error } = await supabase
         .from('photo_suppliers')
         .select(`
           gallery_id,
-          galleries!inner(id, name, client_name)
+          galleries!inner(id, name, client_name, event_date, created_date)
         `)
         .eq('supplier_id', supplierId);
 
       if (error) throw error;
 
       // Group by gallery and count photos
-      const galleryMap = new Map<string, { galleryId: string; galleryName: string; clientName: string; photoCount: number }>();
+      const galleryMap = new Map<string, { galleryId: string; galleryName: string; clientName: string; photoCount: number; eventDate?: string; createdDate: string }>();
 
       (data || []).forEach(item => {
         const galleryId = item.gallery_id;
@@ -109,6 +109,8 @@ class GalleryService {
             galleryId,
             galleryName: item.galleries.name,
             clientName: item.galleries.client_name,
+            eventDate: item.galleries.event_date,
+            createdDate: item.galleries.created_date,
             photoCount: 0,
           });
         }
