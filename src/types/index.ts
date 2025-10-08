@@ -3,6 +3,7 @@ export interface Photo {
   url: string;
   thumbnail: string;
   filename: string;
+  photoCode?: string;
   size: number;
   uploadDate: Date;
   r2Key?: string;

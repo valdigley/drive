@@ -2,7 +2,7 @@ import React from 'react';
 import { X, Printer, Trash2, MessageCircle } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
-import { formatFileSize } from '../../utils/fileUtils';
+import { formatFileSize, getPhotoCode } from '../../utils/fileUtils';
 
 interface PrintCartPanelProps {
   isOpen: boolean;
@@ -32,22 +32,25 @@ export function PrintCartPanel({ isOpen, onClose }: PrintCartPanelProps) {
   const generateWhatsAppMessage = () => {
     if (printCartPhotos.length === 0) return;
 
-    const photoNames = printCartPhotos
-      .map(photo => {
-        // Remove extensão do arquivo para ficar apenas o nome
-        return photo.filename.replace(/\.[^/.]+$/, '');
+    const photoCodes = printCartPhotos
+      .map((photo, index) => {
+        const photoIndex = currentGallery.photos.findIndex(p => p.id === photo.id);
+        const code = photo.photoCode || getPhotoCode(photo.filename, photoIndex);
+        return code;
       })
-      .join(' OR ');
+      .join(', ');
 
     const message = `Olá! Gostaria de solicitar a impressão das seguintes fotos da galeria "${currentGallery.name}":
 
-${photoNames}
+Códigos das fotos: ${photoCodes}
 
-Obrigado!`;
+Total: ${printCartPhotos.length} foto${printCartPhotos.length > 1 ? 's' : ''}
+
+Aguardo retorno. Obrigado!`;
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-    
+    const whatsappUrl = `https://wa.me/5511999999999?text=${encodedMessage}`;
+
     window.open(whatsappUrl, '_blank');
   };
 
@@ -85,35 +88,40 @@ Obrigado!`;
               </div>
             ) : (
               <div className="space-y-3">
-                {printCartPhotos.map((photo) => (
-                  <div key={photo.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <img
-                      src={photo.thumbnail}
-                      alt={photo.filename}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                    
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {photo.filename.replace(/\.[^/.]+$/, '')}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatFileSize(photo.size)}
-                        {photo.metadata && (
-                          <span> • {photo.metadata.width} × {photo.metadata.height}</span>
-                        )}
-                      </p>
+                {printCartPhotos.map((photo) => {
+                  const photoIndex = currentGallery.photos.findIndex(p => p.id === photo.id);
+                  const photoCode = photo.photoCode || getPhotoCode(photo.filename, photoIndex);
+
+                  return (
+                    <div key={photo.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <img
+                        src={photo.thumbnail}
+                        alt={photo.filename}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {photoCode}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatFileSize(photo.size)}
+                          {photo.metadata && (
+                            <span> • {photo.metadata.width} × {photo.metadata.height}</span>
+                          )}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => handleRemoveFromCart(photo.id)}
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                        title="Remover do carrinho"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
-                    
-                    <button
-                      onClick={() => handleRemoveFromCart(photo.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
-                      title="Remover do carrinho"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

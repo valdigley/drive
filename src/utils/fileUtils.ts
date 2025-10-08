@@ -100,3 +100,16 @@ export function isGalleryExpired(expirationDate?: Date): boolean {
   if (!expirationDate) return false;
   return new Date() > expirationDate;
 }
+
+export function getPhotoCode(filename: string, index?: number): string {
+  const nameWithoutExtension = filename.replace(/\.[^/.]+$/, '');
+  const cleanName = nameWithoutExtension
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toUpperCase();
+
+  if (index !== undefined) {
+    return `${String(index + 1).padStart(4, '0')}-${cleanName.substring(0, 8)}`;
+  }
+
+  return cleanName.substring(0, 12) || 'PHOTO';
+}

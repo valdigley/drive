@@ -3,7 +3,7 @@ import { X, ChevronLeft, ChevronRight, Heart, Download, Info } from 'lucide-reac
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
-import { downloadFile, formatFileSize } from '../../utils/fileUtils';
+import { downloadFile, formatFileSize, getPhotoCode } from '../../utils/fileUtils';
 
 interface PhotoLightboxProps {
   photos: Photo[];
@@ -60,6 +60,7 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
   if (!isOpen || !currentPhoto) return null;
 
   const isFavorite = clientSession?.favorites.includes(currentPhoto.id) || false;
+  const photoCode = currentPhoto.photoCode || getPhotoCode(currentPhoto.filename, currentIndex);
 
   const handleFavoriteToggle = () => {
     dispatch({ type: 'TOGGLE_FAVORITE', payload: { photoId: currentPhoto.id } });
@@ -78,7 +79,7 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
             <p className="text-sm opacity-80">
               {currentIndex + 1} de {photos.length}
             </p>
-            <p className="font-medium">{currentPhoto.filename}</p>
+            <p className="font-medium font-mono">{photoCode}</p>
           </div>
           
           <div className="flex items-center gap-2">

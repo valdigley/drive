@@ -3,7 +3,7 @@ import { Heart, Download, ZoomIn, Check, Star, Printer } from 'lucide-react';
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
-import { downloadFile } from '../../utils/fileUtils';
+import { downloadFile, getPhotoCode } from '../../utils/fileUtils';
 
 interface PhotoGridProps {
   photos: Photo[];
@@ -95,30 +95,38 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
   };
   return (
     <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-      {photos.map((photo, index) => (
-        <div
-          key={photo.id}
-          className="break-inside-avoid relative group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-          onMouseEnter={() => setHoveredPhoto(photo.id)}
-          onMouseLeave={() => setHoveredPhoto(null)}
-          onClick={() => onPhotoClick(photo, index)}
-        >
-          <div className="relative overflow-hidden">
-            <img
-              src={getThumbnailUrl(photo)}
-              alt={photo.filename}
-              className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-              onError={() => handleThumbnailError(photo.id)}
-            />
-            
-            {/* Cover Photo Indicator */}
-            {isCoverPhoto(photo.id) && (
-              <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-                <Star size={12} />
-                Capa
+      {photos.map((photo, index) => {
+        const photoCode = photo.photoCode || getPhotoCode(photo.filename, index);
+
+        return (
+          <div
+            key={photo.id}
+            className="break-inside-avoid relative group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+            onMouseEnter={() => setHoveredPhoto(photo.id)}
+            onMouseLeave={() => setHoveredPhoto(null)}
+            onClick={() => onPhotoClick(photo, index)}
+          >
+            <div className="relative overflow-hidden">
+              <img
+                src={getThumbnailUrl(photo)}
+                alt={photo.filename}
+                className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+                onError={() => handleThumbnailError(photo.id)}
+              />
+
+              {/* Photo Code Badge */}
+              <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded font-mono">
+                {photoCode}
               </div>
-            )}
+
+              {/* Cover Photo Indicator */}
+              {isCoverPhoto(photo.id) && (
+                <div className="absolute top-10 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                  <Star size={12} />
+                  Capa
+                </div>
+              )}
             
             {/* Overlay */}
             <div className={`absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'}`}>
@@ -181,7 +189,7 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
 
           {/* Photo Info */}
           <div className="p-3">
-            <p className="text-xs text-gray-500 truncate">{photo.filename}</p>
+            <p className="text-xs text-gray-500 truncate">{photoCode}</p>
             {photo.metadata && (
               <p className="text-xs text-gray-400 mt-1">
                 {photo.metadata.width} × {photo.metadata.height}
@@ -189,7 +197,8 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
             )}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
