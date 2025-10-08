@@ -62,7 +62,10 @@ export function PhotoSupplierTag({ photoId, galleryId, onTagged }: PhotoSupplier
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => setShowModal(true)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowModal(true);
+        }}
         className="flex items-center gap-1"
         title="Marcar fornecedores"
       >
