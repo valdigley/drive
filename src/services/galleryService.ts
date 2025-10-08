@@ -59,6 +59,34 @@ class GalleryService {
     }
   }
 
+  async getGalleryByAccessCode(accessCode: string): Promise<Gallery | null> {
+    try {
+      const { data: gallery, error } = await supabase
+        .from('galleries')
+        .select('*')
+        .eq('access_code', accessCode)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Gallery query error:', error);
+        return null;
+      }
+      if (!gallery) {
+        console.log('Gallery not found with access code:', accessCode);
+        return null;
+      }
+
+      return {
+        ...this.transformGalleryFromDB(gallery),
+        photos: [],
+      };
+    } catch (error) {
+      console.error('Error loading gallery by access code:', error);
+      return null;
+    }
+  }
+
   async getGalleryPhotos(galleryId: string): Promise<Photo[]> {
     try {
       const { data: photos, error } = await supabase

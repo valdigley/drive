@@ -81,17 +81,41 @@ function App() {
   useEffect(() => {
     const loadGalleryFromUrl = async () => {
       if (initializing) return;
-      
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessCode = urlParams.get('code');
       const path = window.location.pathname;
       const galleryMatch = path.match(/\/gallery\/(.+)/);
-      
+
+      if (accessCode) {
+        setLoadingGallery(true);
+        try {
+          const gallery = await galleryService.getGalleryByAccessCode(accessCode);
+          if (gallery) {
+            const photos = await galleryService.getGalleryPhotos(gallery.id);
+            const completeGallery = { ...gallery, photos };
+            dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
+            dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+            setClientGalleryId(gallery.id);
+            dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+          } else {
+            console.log('Gallery not found with access code:', accessCode);
+          }
+        } catch (error) {
+          console.log('Error loading gallery by access code:', accessCode, error);
+        } finally {
+          setLoadingGallery(false);
+        }
+        return;
+      }
+
       if (galleryMatch) {
         const galleryId = galleryMatch[1];
         setClientGalleryId(galleryId);
         dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
-        
+
         let gallery = state.galleries.find(g => g.id === galleryId);
-        
+
         if (!gallery) {
           setLoadingGallery(true);
           try {
@@ -114,7 +138,7 @@ function App() {
         }
       }
     };
-    
+
     loadGalleryFromUrl();
   }, [dispatch, initializing, state.galleries]);
 
