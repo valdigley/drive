@@ -91,19 +91,18 @@ class GalleryService {
     try {
       let photoIds: string[] | null = null;
 
-      // If supplierId is provided, filter photos tagged for this supplier
+      // If supplierId is provided, get ALL photos tagged for this supplier from ALL galleries
       if (supplierId) {
-        console.log('🔍 Filtering photos for supplier:', supplierId, 'in gallery:', galleryId);
+        console.log('🔍 Loading ALL photos tagged for supplier:', supplierId);
         const { data: taggedPhotos, error: tagError } = await supabase
           .from('photo_suppliers')
-          .select('photo_id')
-          .eq('supplier_id', supplierId)
-          .eq('gallery_id', galleryId);
+          .select('photo_id, gallery_id')
+          .eq('supplier_id', supplierId);
 
         if (tagError) throw tagError;
 
         photoIds = (taggedPhotos || []).map(tp => tp.photo_id);
-        console.log('📸 Found tagged photos:', photoIds.length, photoIds);
+        console.log('📸 Found tagged photos across all galleries:', photoIds.length, photoIds);
 
         // If no photos are tagged, return empty array
         if (photoIds.length === 0) {
@@ -115,10 +114,14 @@ class GalleryService {
       // Build the query
       let query = supabase
         .from('photos')
-        .select('*')
-        .eq('gallery_id', galleryId);
+        .select('*');
 
-      // Filter by photo IDs if we have them
+      // For suppliers, don't filter by gallery - get all their tagged photos
+      if (!supplierId) {
+        query = query.eq('gallery_id', galleryId);
+      }
+
+      // Filter by photo IDs if we have them (supplier's tagged photos)
       if (photoIds) {
         query = query.in('id', photoIds);
       }
