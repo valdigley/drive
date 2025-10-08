@@ -18,10 +18,19 @@ export function PhotoSupplierTag({ photoId, galleryId, onTagged }: PhotoSupplier
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    loadTaggedSuppliers();
+  }, [photoId]);
+
+  useEffect(() => {
     if (showModal) {
       loadData();
     }
   }, [showModal, photoId]);
+
+  const loadTaggedSuppliers = async () => {
+    const photoSuppliers = await supplierService.getPhotoSuppliers(photoId);
+    setTaggedSuppliers(photoSuppliers);
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -37,15 +46,21 @@ export function PhotoSupplierTag({ photoId, galleryId, onTagged }: PhotoSupplier
   const handleToggleTag = async (supplier: Supplier) => {
     const isTagged = taggedSuppliers.some(s => s.id === supplier.id);
 
-    if (isTagged) {
-      await supplierService.untagPhotoFromSupplier(photoId, supplier.id);
-      setTaggedSuppliers(taggedSuppliers.filter(s => s.id !== supplier.id));
-    } else {
-      await supplierService.tagPhotoWithSupplier(photoId, supplier.id, galleryId);
-      setTaggedSuppliers([...taggedSuppliers, supplier]);
-    }
+    try {
+      if (isTagged) {
+        await supplierService.untagPhotoFromSupplier(photoId, supplier.id);
+        setTaggedSuppliers(taggedSuppliers.filter(s => s.id !== supplier.id));
+      } else {
+        const result = await supplierService.tagPhotoWithSupplier(photoId, supplier.id, galleryId);
+        if (result) {
+          setTaggedSuppliers([...taggedSuppliers, supplier]);
+        }
+      }
 
-    onTagged?.();
+      onTagged?.();
+    } catch (error) {
+      console.error('Error toggling tag:', error);
+    }
   };
 
   const categoryColors: Record<string, string> = {
