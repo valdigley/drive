@@ -123,14 +123,22 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     case 'TOGGLE_SELECTION':
       if (!state.clientSession) return state;
+      const updatedSelectedPhotos = state.clientSession.selectedPhotos.includes(action.payload.photoId)
+        ? state.clientSession.selectedPhotos.filter(id => id !== action.payload.photoId)
+        : [...state.clientSession.selectedPhotos, action.payload.photoId];
+
+      const updatedSessionWithSelection = {
+        ...state.clientSession,
+        selectedPhotos: updatedSelectedPhotos,
+      };
+
+      // Salvar no localStorage
+      const selectionSessionKey = `gallery_session_${state.clientSession.galleryId}`;
+      localStorage.setItem(selectionSessionKey, JSON.stringify(updatedSessionWithSelection));
+
       return {
         ...state,
-        clientSession: {
-          ...state.clientSession,
-          selectedPhotos: state.clientSession.selectedPhotos.includes(action.payload.photoId)
-            ? state.clientSession.selectedPhotos.filter(id => id !== action.payload.photoId)
-            : [...state.clientSession.selectedPhotos, action.payload.photoId],
-        },
+        clientSession: updatedSessionWithSelection,
       };
     case 'TOGGLE_PRINT_CART':
       if (!state.clientSession) return state;

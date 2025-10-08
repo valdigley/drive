@@ -19,6 +19,9 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
   const [hoveredPhoto, setHoveredPhoto] = useState<string | null>(null);
   const [failedThumbnails, setFailedThumbnails] = useState<Set<string>>(new Set());
 
+  console.log('📸 PhotoGrid - Client Session:', clientSession);
+  console.log('📸 PhotoGrid - Current Gallery:', currentGallery?.id);
+
   const isFavorite = (photoId: string) => {
     return clientSession?.favorites.includes(photoId) || false;
   };
@@ -33,16 +36,31 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
 
   const handlePrintCartToggle = (photoId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('🖨️ Toggle Print Cart:', photoId, 'Session exists:', !!clientSession);
+    if (!clientSession) {
+      console.error('❌ No client session available for print cart toggle');
+      return;
+    }
     dispatch({ type: 'TOGGLE_PRINT_CART', payload: { photoId } });
   };
 
   const handleFavoriteToggle = (photoId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('❤️ Toggle Favorite:', photoId, 'Session exists:', !!clientSession);
+    if (!clientSession) {
+      console.error('❌ No client session available for favorite toggle');
+      return;
+    }
     dispatch({ type: 'TOGGLE_FAVORITE', payload: { photoId } });
   };
 
   const handleSelectionToggle = (photoId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('✅ Toggle Selection:', photoId, 'Session exists:', !!clientSession);
+    if (!clientSession) {
+      console.error('❌ No client session available for selection toggle');
+      return;
+    }
     dispatch({ type: 'TOGGLE_SELECTION', payload: { photoId } });
   };
 

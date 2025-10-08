@@ -113,6 +113,20 @@ function App() {
               setClientGalleryId(supplier.galleryId);
               dispatch({ type: 'SET_USER_ROLE', payload: 'supplier' });
               setAccessGranted(true);
+              // Initialize client session for supplier
+              const sessionId = `gallery_session_${supplier.galleryId}`;
+              const existingSession = localStorage.getItem(sessionId);
+              const session = existingSession ? JSON.parse(existingSession) : {
+                galleryId: supplier.galleryId,
+                accessedAt: new Date(),
+                favorites: [],
+                selectedPhotos: [],
+                printCart: [],
+                downloads: 0,
+              };
+              session.accessedAt = new Date();
+              localStorage.setItem(sessionId, JSON.stringify(session));
+              dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
             }
           } else {
             // Check if this is a client access code
@@ -144,9 +158,23 @@ function App() {
                 setClientGalleryId(gallery.id);
                 dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
 
-                // Grant access immediately if no password
+                // Grant access immediately if no password and initialize session
                 if (!gallery.password) {
                   setAccessGranted(true);
+                  // Initialize client session
+                  const sessionId = `gallery_session_${gallery.id}`;
+                  const existingSession = localStorage.getItem(sessionId);
+                  const session = existingSession ? JSON.parse(existingSession) : {
+                    galleryId: gallery.id,
+                    accessedAt: new Date(),
+                    favorites: [],
+                    selectedPhotos: [],
+                    printCart: [],
+                    downloads: 0,
+                  };
+                  session.accessedAt = new Date();
+                  localStorage.setItem(sessionId, JSON.stringify(session));
+                  dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
                 }
               } else {
                 console.log('Gallery not found with access code:', accessCode);
@@ -190,9 +218,23 @@ function App() {
               dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
               dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
 
-              // Grant access immediately if no password
+              // Grant access immediately if no password and initialize session
               if (!gallery.password) {
                 setAccessGranted(true);
+                // Initialize client session
+                const sessionId = `gallery_session_${galleryId}`;
+                const existingSession = localStorage.getItem(sessionId);
+                const session = existingSession ? JSON.parse(existingSession) : {
+                  galleryId: galleryId,
+                  accessedAt: new Date(),
+                  favorites: [],
+                  selectedPhotos: [],
+                  printCart: [],
+                  downloads: 0,
+                };
+                session.accessedAt = new Date();
+                localStorage.setItem(sessionId, JSON.stringify(session));
+                dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
               }
             } else {
               console.log('Gallery not found:', galleryId);
@@ -234,6 +276,20 @@ function App() {
         setClientGalleryId(galleryId);
         setCurrentView('client-gallery');
         setAccessGranted(true);
+        // Initialize client session
+        const sessionId = `gallery_session_${galleryId}`;
+        const existingSession = localStorage.getItem(sessionId);
+        const session = existingSession ? JSON.parse(existingSession) : {
+          galleryId: galleryId,
+          accessedAt: new Date(),
+          favorites: [],
+          selectedPhotos: [],
+          printCart: [],
+          downloads: 0,
+        };
+        session.accessedAt = new Date();
+        localStorage.setItem(sessionId, JSON.stringify(session));
+        dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
       }
     } catch (error) {
       console.error('Error loading gallery:', error);
