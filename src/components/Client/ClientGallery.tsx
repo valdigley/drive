@@ -192,7 +192,10 @@ export function ClientGallery() {
   };
 
   const handleSupplierTagged = async () => {
-    await galleryService.loadGallery(currentGallery.id);
+    const updatedGallery = await galleryService.getGalleryDetails(currentGallery.id);
+    if (updatedGallery) {
+      dispatch({ type: 'SET_CURRENT_GALLERY', payload: updatedGallery });
+    }
   };
 
   const selectedCount = clientSession?.selectedPhotos.length || 0;
