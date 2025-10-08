@@ -134,29 +134,37 @@ export function ClientManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Clientes</h2>
-          <p className="text-gray-600 dark:text-gray-400">Gerencie seus clientes e códigos de acesso</p>
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Clientes</h2>
+            <p className="text-gray-600 dark:text-gray-400">Gerencie seus clientes e códigos de acesso</p>
+          </div>
         </div>
-        <Button onClick={() => handleOpenModal()} className="flex items-center gap-2">
-          <Plus size={20} />
-          Novo Cliente
-        </Button>
-      </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+        {/* Search Bar and Button */}
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex-1 max-w-md">
+            <div className="w-full">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar por nome, email, telefone ou código..."
+                  className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:ring-1 pl-10 pr-3 py-2"
+                />
+              </div>
+            </div>
+          </div>
+          <Button onClick={() => handleOpenModal()} className="flex items-center gap-2">
+            <Plus size={20} />
+            Novo Cliente
+          </Button>
         </div>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Buscar por nome, email, telefone ou código..."
-          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:ring-1 pl-10 pr-3 py-2"
-        />
       </div>
 
       {loading ? (
