@@ -75,6 +75,13 @@ export function VideoPlayer({ videoUrl, videoType, thumbnail, title }: VideoPlay
         onClick={togglePlay}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        crossOrigin="anonymous"
+        playsInline
+        onError={(e) => {
+          console.error('Video error:', e);
+          console.error('Video src:', videoUrl);
+        }}
+        onLoadedMetadata={() => console.log('Video loaded:', videoUrl)}
       />
 
       {showControls && (

@@ -144,13 +144,18 @@ class R2Service {
           Bucket: this.bucketName,
           Key: videoKey,
           Body: videoArrayBuffer,
-          ContentType: videoBlob.type,
+          ContentType: videoBlob.type || 'video/mp4',
+          CacheControl: 'max-age=31536000',
+          Metadata: {
+            'content-type': videoBlob.type || 'video/mp4',
+          }
         })),
         this.client.send(new PutObjectCommand({
           Bucket: this.bucketName,
           Key: thumbnailKey,
           Body: thumbnailArrayBuffer,
           ContentType: 'image/jpeg',
+          CacheControl: 'max-age=31536000',
         }))
       ]);
 
@@ -296,7 +301,10 @@ class R2Service {
         Key: key,
       });
 
-      const signedUrl = await getSignedUrl(this.client, command, { expiresIn: 7200 }); // 2 hours
+      const signedUrl = await getSignedUrl(this.client, command, {
+        expiresIn: 7200,
+        unhoistableHeaders: new Set(['x-amz-user-agent'])
+      });
       return signedUrl;
     } catch (error) {
       console.error('Error generating signed view URL:', error);

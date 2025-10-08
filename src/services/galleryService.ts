@@ -302,6 +302,9 @@ class GalleryService {
         r2_key: photo.r2Key,
         thumbnail_r2_key: photo.thumbnailR2Key,
         metadata: photo.metadata || {},
+        media_type: photo.mediaType || 'photo',
+        video_url: photo.videoUrl,
+        duration: photo.duration,
       }));
 
       const { error } = await supabase
