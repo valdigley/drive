@@ -34,6 +34,8 @@ function App() {
     const sessionId = `gallery_session_${galleryId}`;
     const existingSession = localStorage.getItem(sessionId);
 
+    console.log('🔄 Initializing client session for gallery:', galleryId);
+
     // Load favorites from database
     const favoritesFromDB = await favoriteService.getFavorites(galleryId, sessionId);
     console.log('💾 Favorites loaded from database:', favoritesFromDB.length);
@@ -53,6 +55,7 @@ function App() {
 
     localStorage.setItem(sessionId, JSON.stringify(session));
     dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
+    console.log('✅ Client session initialized:', session);
   };
 
   // Extract state values after hooks
@@ -220,10 +223,12 @@ function App() {
               dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
               dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
 
-              // Grant access immediately if no password and initialize session
+              // Always initialize session regardless of password or user type
+              await initializeClientSession(galleryId);
+
+              // Grant access immediately if no password
               if (!gallery.password) {
                 setAccessGranted(true);
-                await initializeClientSession(galleryId);
               }
             } else {
               console.log('Gallery not found:', galleryId);
@@ -235,6 +240,9 @@ function App() {
           }
         } else {
           dispatch({ type: 'SET_CURRENT_GALLERY', payload: gallery });
+
+          // Always initialize session regardless of password or user type
+          await initializeClientSession(galleryId);
 
           // Grant access immediately if no password
           if (!gallery.password) {
