@@ -156,10 +156,13 @@ class GalleryService {
         }
       }
 
-      // Build the query
+      // Build the query with supplier info
       let query = supabase
         .from('photos')
-        .select('*');
+        .select(`
+          *,
+          photo_suppliers!left(supplier_id)
+        `);
 
       // For suppliers, optionally filter by specific gallery
       if (!supplierId) {
@@ -188,6 +191,7 @@ class GalleryService {
         thumbnailR2Key: photo.thumbnail_r2_key,
         metadata: photo.metadata || {},
         galleryId: photo.gallery_id,
+        supplierId: photo.photo_suppliers?.[0]?.supplier_id || null,
       }));
 
       // Generate signed URLs for R2 photos
@@ -210,6 +214,7 @@ class GalleryService {
         r2Key: photo.r2_key,
         thumbnailR2Key: photo.thumbnail_r2_key,
         metadata: photo.metadata || {},
+        supplierId: photo.supplierId,
       }));
     } catch (error) {
       console.error('Error loading gallery photos:', error);
