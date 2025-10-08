@@ -84,7 +84,8 @@ export function SupplierTagModal({
         setSelectedSupplier(supplierId);
       }
 
-      onTagged();
+      await onTagged();
+      onClose();
     } catch (error) {
       console.error('Error tagging supplier:', error);
     } finally {

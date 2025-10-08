@@ -192,16 +192,23 @@ export function ClientGallery() {
   };
 
   const handleSupplierTagged = async () => {
+    console.log('🔄 Reloading gallery after supplier tagged...');
     const [updatedGallery, photos] = await Promise.all([
       galleryService.getGalleryDetails(currentGallery.id),
       galleryService.getGalleryPhotos(currentGallery.id, currentSupplierId)
     ]);
+
+    console.log('📦 Updated gallery:', updatedGallery);
+    console.log('📷 Updated photos:', photos?.length);
 
     if (updatedGallery && photos) {
       dispatch({
         type: 'SET_CURRENT_GALLERY',
         payload: { ...updatedGallery, photos }
       });
+      console.log('✅ Gallery updated with', photos.length, 'photos');
+    } else {
+      console.error('❌ Failed to reload gallery or photos');
     }
   };
 
