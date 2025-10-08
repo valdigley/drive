@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, Moon, Sun, User } from 'lucide-react';
+import { Moon, Sun, User } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 
@@ -20,8 +20,12 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 dark:bg-blue-500 rounded-lg flex items-center justify-center">
-              <Camera size={24} className="text-white" />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <img
+                src="/valdigley logo-02.png"
+                alt="Valdigley Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">DriVal</h1>
