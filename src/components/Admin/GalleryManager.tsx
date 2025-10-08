@@ -433,21 +433,20 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                 <Button variant="ghost" size="sm" onClick={onBack}>
                   <ArrowLeft size={20} />
                 </Button>
-                
-                {gallery.photos.length > 0 && (
-                  <Button
-                    variant={selectingCover ? "primary" : "secondary"}
-                    size="sm"
-                    onClick={() => setSelectingCover(!selectingCover)}
-                  >
-                    <Star size={16} className="mr-2" />
-                    {selectingCover ? 'Cancelar' : 'Definir Capa'}
-                  </Button>
-                )}
 
-                {/* View Mode Toggle */}
-                {gallery.photos.length > 0 && (
-                  <div className="flex items-center gap-2">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{gallery.name}</h1>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {gallery.clientName} • {filteredPhotos.length} {filter === 'favorites' ? 'favoritas' : 'fotos'}
+                    {filter === 'favorites' && ` de ${gallery.photos.length}`}
+                  </p>
+                </div>
+              </div>
+
+              {gallery.photos.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1">
                     <Button
                       variant={viewMode === 'grid' ? 'primary' : 'ghost'}
                       size="sm"
@@ -465,38 +464,40 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                       Netflix
                     </Button>
                   </div>
-                )}
 
-                {/* Filter Buttons */}
-                {gallery.photos.length > 0 && viewMode === 'grid' && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      variant={filter === 'all' ? 'primary' : 'ghost'}
-                      size="sm"
-                      onClick={() => setFilter('all')}
-                    >
-                      Todas ({gallery.photos.length})
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowFavoritesModal(true)}
-                      className="flex items-center gap-1"
-                    >
-                      <Heart size={16} />
-                      Favoritas {loadingFavorites ? '...' : `(${favoritePhotoIds.length})`}
-                    </Button>
-                  </div>
-                )}
+                  {/* Filter Buttons - Only in Grid Mode */}
+                  {viewMode === 'grid' && (
+                    <>
+                      <Button
+                        variant={selectingCover ? "primary" : "secondary"}
+                        size="sm"
+                        onClick={() => setSelectingCover(!selectingCover)}
+                      >
+                        <Star size={16} className="mr-2" />
+                        {selectingCover ? 'Cancelar' : 'Definir Capa'}
+                      </Button>
 
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{gallery.name}</h1>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {gallery.clientName} • {filteredPhotos.length} {filter === 'favorites' ? 'favoritas' : 'fotos'}
-                    {filter === 'favorites' && ` de ${gallery.photos.length}`}
-                  </p>
+                      <Button
+                        variant={filter === 'all' ? 'primary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setFilter('all')}
+                      >
+                        Todas ({gallery.photos.length})
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowFavoritesModal(true)}
+                        className="flex items-center gap-1"
+                      >
+                        <Heart size={16} />
+                        Favoritas {loadingFavorites ? '...' : `(${favoritePhotoIds.length})`}
+                      </Button>
+                    </>
+                  )}
                 </div>
-              </div>
+              )}
 
               <div className="flex items-center gap-3">
                 <Button
