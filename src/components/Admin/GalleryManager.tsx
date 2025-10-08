@@ -540,6 +540,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
               showCoverIndicator={true}
               isAdmin={true}
               onDeletePhoto={handleDeletePhoto}
+              galleryId={galleryId}
             />
           </div>
         )}

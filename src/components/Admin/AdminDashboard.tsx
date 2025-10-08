@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Camera, Users, Download, Eye, LogOut, Search } from 'lucide-react';
+import { Plus, Camera, Users, Download, Eye, LogOut, Search, Store } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
@@ -7,6 +7,7 @@ import { CreateGalleryModal } from './CreateGalleryModal';
 import { GalleryCard } from './GalleryCard';
 import { StatsCard } from './StatsCard';
 import { StorageStatusCard } from './StorageStatusCard';
+import { SupplierManager } from './SupplierManager';
 import { galleryService } from '../../services/galleryService';
 import { storageService, StorageStats } from '../../services/storageService';
 import { supabase } from '../../lib/supabase';
@@ -21,6 +22,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const [loadingGalleries, setLoadingGalleries] = useState(false);
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'galleries' | 'suppliers'>('galleries');
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -138,21 +140,21 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             icon={<Camera className="text-blue-600" size={24} />}
             trend="+12%"
           />
-          
+
           <StatsCard
             title="Fotos Compartilhadas"
             value={adminStats.totalPhotos}
             icon={<Camera className="text-green-600" size={24} />}
             trend="+8%"
           />
-          
+
           <StatsCard
             title="Visualizações"
             value={adminStats.totalViews}
             icon={<Eye className="text-purple-600" size={24} />}
             trend="+23%"
           />
-          
+
           <StatsCard
             title="Downloads"
             value={adminStats.totalDownloads}
@@ -161,20 +163,54 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
           />
         </div>
 
-        <div>
-          <div className="flex justify-between items-center gap-4 mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Suas Galerias</h2>
-
-            <div className="flex-1 max-w-md">
-              <Input
-                type="text"
-                placeholder="Buscar por nome da galeria ou cliente..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                icon={<Search size={18} />}
-              />
-            </div>
+        {/* Tabs */}
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+          <div className="flex gap-4">
+            <button
+              onClick={() => setActiveTab('galleries')}
+              className={`px-4 py-2 border-b-2 font-medium transition-colors ${
+                activeTab === 'galleries'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Camera size={18} />
+                Galerias
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('suppliers')}
+              className={`px-4 py-2 border-b-2 font-medium transition-colors ${
+                activeTab === 'suppliers'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Store size={18} />
+                Fornecedores
+              </div>
+            </button>
           </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'galleries' ? (
+          <div>
+            <div className="flex justify-between items-center gap-4 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Suas Galerias</h2>
+
+              <div className="flex-1 max-w-md">
+                <Input
+                  type="text"
+                  placeholder="Buscar por nome da galeria ou cliente..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  icon={<Search size={18} />}
+                />
+              </div>
+            </div>
 
           {filteredGalleries.length === 0 && searchQuery.trim() ? (
             <div className="text-center py-8">
@@ -208,7 +244,10 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        ) : (
+          <SupplierManager />
+        )}
       </div>
 
       <CreateGalleryModal

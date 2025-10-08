@@ -3,6 +3,7 @@ import { Heart, Download, ZoomIn, Check, Star, Trash2 } from 'lucide-react';
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { downloadFile } from '../../utils/fileUtils';
+import { PhotoSupplierTag } from './PhotoSupplierTag';
 
 interface PhotoGridProps {
   photos: Photo[];
@@ -10,14 +11,16 @@ interface PhotoGridProps {
   showCoverIndicator?: boolean;
   isAdmin?: boolean;
   onDeletePhoto?: (photoId: string) => void;
+  galleryId?: string;
 }
 
-export function PhotoGrid({ 
-  photos, 
-  onPhotoClick, 
-  showCoverIndicator = false, 
+export function PhotoGrid({
+  photos,
+  onPhotoClick,
+  showCoverIndicator = false,
   isAdmin = false,
-  onDeletePhoto 
+  onDeletePhoto,
+  galleryId
 }: PhotoGridProps) {
   const { state, dispatch } = useAppContext();
   const { clientSession, currentGallery } = state;
@@ -194,11 +197,16 @@ export function PhotoGrid({
           {/* Photo Info */}
           <div className="p-3">
             <p className="text-xs text-gray-500 truncate">{photo.filename}</p>
-            {photo.metadata && (
-              <p className="text-xs text-gray-400 mt-1">
-                {photo.metadata.width} × {photo.metadata.height}
-              </p>
-            )}
+            <div className="flex items-center justify-between mt-2">
+              {photo.metadata && (
+                <p className="text-xs text-gray-400">
+                  {photo.metadata.width} × {photo.metadata.height}
+                </p>
+              )}
+              {isAdmin && galleryId && (
+                <PhotoSupplierTag photoId={photo.id} galleryId={galleryId} />
+              )}
+            </div>
           </div>
         </div>
       ))}

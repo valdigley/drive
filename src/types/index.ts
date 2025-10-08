@@ -56,6 +56,25 @@ export interface AdminStats {
   activeGalleries: number;
 }
 
+export interface Supplier {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  category: 'fotografia' | 'buffet' | 'decoracao' | 'musica' | 'locacao' | 'outros';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PhotoSupplier {
+  id: string;
+  photoId: string;
+  supplierId: string;
+  galleryId: string;
+  taggedAt: Date;
+  supplier?: Supplier;
+}
+
 export type ViewMode = 'grid' | 'masonry' | 'slideshow';
 export type Theme = 'light' | 'dark';
-export type UserRole = 'admin' | 'client';
+export type UserRole = 'admin' | 'client' | 'supplier';
