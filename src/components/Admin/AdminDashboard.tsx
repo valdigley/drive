@@ -28,7 +28,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       setLoadingGalleries(true);
       try {
         const galleries = await galleryService.getAllGalleries();
-        
+
         // Load photos for each gallery
         const galleriesWithPhotos = await Promise.all(
           galleries.map(async (gallery) => {
@@ -36,7 +36,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             return { ...gallery, photos };
           })
         );
-        
+
         dispatch({ type: 'SET_GALLERIES', payload: galleriesWithPhotos });
       } catch (error) {
         console.error('Error loading galleries:', error);
@@ -47,6 +47,23 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
 
     loadGalleriesWithPhotos();
   }, [dispatch]);
+
+  // Load storage stats
+  React.useEffect(() => {
+    const loadStorageStats = async () => {
+      try {
+        const stats = await storageService.getStorageStats();
+        setStorageStats(stats);
+      } catch (error) {
+        console.error('Error loading storage stats:', error);
+      }
+    };
+
+    loadStorageStats();
+    // Reload stats every 30 seconds
+    const interval = setInterval(loadStorageStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -71,8 +88,16 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Storage Status Bar */}
-      {storageStats && <StorageStatusCard storageStats={storageStats} />}
+      {/* Storage Status Bar - Always show */}
+      <StorageStatusCard storageStats={storageStats || {
+        usedBytes: 0,
+        totalBytes: 10 * 1024 * 1024 * 1024,
+        usedPercentage: 0,
+        formattedUsed: '0 GB',
+        formattedTotal: '10 GB',
+        totalPhotos: 0,
+        topGalleries: [],
+      }} />
       
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
