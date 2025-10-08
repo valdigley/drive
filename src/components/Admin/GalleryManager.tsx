@@ -41,6 +41,8 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const [savingDetails, setSavingDetails] = useState(false);
 
+  console.log('📊 GalleryManager state:', { editingDetails, clients: clients.length, gallery: gallery?.name });
+
   const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
 
   useEffect(() => {
@@ -263,6 +265,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   };
 
   const handleEditDetails = () => {
+    console.log('🖊️ Edit details clicked', { gallery, clients });
     if (gallery) {
       setEditedDetails({
         clientId: gallery.clientId || '',
@@ -481,7 +484,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações da Galeria</h3>
-                {!editingDetails && (
+                {!editingDetails ? (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -490,7 +493,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                   >
                     Editar
                   </Button>
-                )}
+                ) : null}
               </div>
 
               {editingDetails ? (
