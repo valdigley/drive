@@ -94,15 +94,16 @@ class R2Service {
     }
   }
 
-  async uploadThumbnail(thumbnailBlob: Blob, galleryId: string, photoId: string): Promise<string> {
+  async uploadThumbnail(thumbnailBlob: Blob, galleryId: string, photoId: string): Promise<{ url: string; key: string }> {
     if (!this.isConfigured || !this.client) {
-      return await this.blobToDataUrl(thumbnailBlob);
+      const dataUrl = await this.blobToDataUrl(thumbnailBlob);
+      return { url: dataUrl, key: `data:thumbnail` };
     }
 
     try {
       const key = `galleries/${galleryId}/thumbnails/${crypto.randomUUID()}.jpg`;
       const arrayBuffer = await this.blobToArrayBuffer(thumbnailBlob);
-      
+
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: key,
@@ -111,10 +112,11 @@ class R2Service {
       });
 
       await this.client.send(command);
-      return this.getPublicUrl(key);
+      return { url: this.getPublicUrl(key), key };
     } catch (error) {
       console.error('Error uploading thumbnail to R2, using data URL:', error);
-      return await this.blobToDataUrl(thumbnailBlob);
+      const dataUrl = await this.blobToDataUrl(thumbnailBlob);
+      return { url: dataUrl, key: `data:thumbnail` };
     }
   }
 
@@ -269,13 +271,18 @@ class R2Service {
       photos.map(async (photo) => {
         try {
           // Generate signed URLs for both main image and thumbnail
-          const signedUrl = photo.r2_key && !photo.r2_key.startsWith('data:') 
+          const signedUrl = photo.r2_key && !photo.r2_key.startsWith('data:')
             ? await this.getSignedViewUrl(photo.r2_key)
             : photo.url;
-            
-          const signedThumbnail = photo.r2_key && !photo.r2_key.startsWith('data:')
-            ? await this.getSignedViewUrl(photo.r2_key.replace('/photos/', '/thumbnails/').replace(/\.[^/.]+$/, '.jpg'))
-            : photo.thumbnail;
+
+          // Use thumbnail_r2_key if available, otherwise fall back to original thumbnail URL
+          let signedThumbnail = photo.thumbnail;
+          if (photo.thumbnail_r2_key && !photo.thumbnail_r2_key.startsWith('data:')) {
+            signedThumbnail = await this.getSignedViewUrl(photo.thumbnail_r2_key);
+          } else if (!photo.thumbnail_r2_key && photo.thumbnail && !photo.thumbnail.startsWith('data:') && !photo.thumbnail.startsWith('blob:')) {
+            // If no thumbnail_r2_key but thumbnail looks like an R2 URL, use it as-is
+            signedThumbnail = photo.thumbnail;
+          }
 
           return {
             ...photo,

@@ -6,6 +6,7 @@ export interface Photo {
   size: number;
   uploadDate: Date;
   r2Key?: string;
+  thumbnailR2Key?: string;
   metadata?: {
     width: number;
     height: number;

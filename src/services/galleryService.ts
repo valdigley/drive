@@ -183,6 +183,7 @@ class GalleryService {
         size: photo.size,
         uploadDate: new Date(photo.upload_date),
         r2Key: photo.r2_key,
+        thumbnailR2Key: photo.thumbnail_r2_key,
         metadata: photo.metadata || {},
         galleryId: photo.gallery_id,
       }));
@@ -193,6 +194,7 @@ class GalleryService {
         mappedPhotos.map(photo => ({
           ...photo,
           r2_key: photo.r2Key,
+          thumbnail_r2_key: photo.thumbnailR2Key,
         }))
       );
 
@@ -204,6 +206,7 @@ class GalleryService {
         size: photo.size,
         uploadDate: photo.uploadDate,
         r2Key: photo.r2_key,
+        thumbnailR2Key: photo.thumbnail_r2_key,
         metadata: photo.metadata || {},
       }));
     } catch (error) {
@@ -284,6 +287,7 @@ class GalleryService {
         size: photo.size,
         upload_date: photo.uploadDate.toISOString(),
         r2_key: photo.r2Key,
+        thumbnail_r2_key: photo.thumbnailR2Key,
         metadata: photo.metadata || {},
       }));
 

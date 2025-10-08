@@ -67,10 +67,10 @@ export function useImageUpload() {
               try {
                 // Upload original photo to R2
                 const { url, key } = await r2Service.uploadPhoto(file, galleryId);
-                
+
                 // Upload thumbnail to R2
-                const thumbnailUrl = await r2Service.uploadThumbnail(thumbnailBlob, galleryId, key);
-                
+                const { url: thumbnailUrl, key: thumbnailKey } = await r2Service.uploadThumbnail(thumbnailBlob, galleryId, key);
+
                 const photo: Photo = {
                   id: crypto.randomUUID(),
                   url,
@@ -79,12 +79,13 @@ export function useImageUpload() {
                   size: file.size,
                   uploadDate: new Date(),
                   r2Key: key,
+                  thumbnailR2Key: thumbnailKey,
                   metadata: {
                     width: img.width,
                     height: img.height,
                   },
                 };
-                
+
                 resolve(photo);
               } catch (error) {
                 reject(error);
