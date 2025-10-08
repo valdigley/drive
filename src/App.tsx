@@ -106,6 +106,7 @@ function App() {
               const completeGallery = { ...gallery, photos };
               dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
               dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+              dispatch({ type: 'SET_CURRENT_SUPPLIER_ID', payload: supplier.id });
               setClientGalleryId(supplier.galleryId);
               dispatch({ type: 'SET_USER_ROLE', payload: 'supplier' });
               setAccessGranted(true);
@@ -140,7 +141,17 @@ function App() {
       if (galleryMatch && !clientGalleryId) {
         const galleryId = galleryMatch[1];
         setClientGalleryId(galleryId);
-        dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+
+        // Check if there's a saved supplierId for supplier access
+        const savedSupplierId = localStorage.getItem('currentSupplierId');
+
+        if (savedSupplierId) {
+          console.log('🔄 Reloading supplier gallery with saved supplier ID:', savedSupplierId);
+          dispatch({ type: 'SET_USER_ROLE', payload: 'supplier' });
+          dispatch({ type: 'SET_CURRENT_SUPPLIER_ID', payload: savedSupplierId });
+        } else {
+          dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+        }
 
         let gallery = state.galleries.find(g => g.id === galleryId);
 
@@ -149,7 +160,9 @@ function App() {
           try {
             gallery = await galleryService.getGalleryDetails(galleryId);
             if (gallery) {
-              const photos = await galleryService.getGalleryPhotos(galleryId);
+              // Load photos filtered by supplier if saved
+              const photos = await galleryService.getGalleryPhotos(galleryId, savedSupplierId || undefined);
+              console.log('✅ Photos loaded on reload:', photos.length);
               const completeGallery = { ...gallery, photos };
               dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
               dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });

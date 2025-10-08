@@ -10,6 +10,7 @@ interface AppState {
   adminStats: AdminStats;
   isLoading: boolean;
   error: string | null;
+  currentSupplierId: string | null;
 }
 
 type AppAction =
@@ -28,7 +29,8 @@ type AppAction =
   | { type: 'TOGGLE_FAVORITE'; payload: { photoId: string } }
   | { type: 'TOGGLE_SELECTION'; payload: { photoId: string } }
   | { type: 'TOGGLE_PRINT_CART'; payload: { photoId: string } }
-  | { type: 'INCREMENT_DOWNLOAD_COUNT' };
+  | { type: 'INCREMENT_DOWNLOAD_COUNT' }
+  | { type: 'SET_CURRENT_SUPPLIER_ID'; payload: string | null };
 
 const initialState: AppState = {
   currentUser: 'admin',
@@ -45,6 +47,7 @@ const initialState: AppState = {
   },
   isLoading: false,
   error: null,
+  currentSupplierId: null,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -142,6 +145,16 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         clientSession: updatedSessionWithPrintCart,
+      };
+    case 'SET_CURRENT_SUPPLIER_ID':
+      if (action.payload) {
+        localStorage.setItem('currentSupplierId', action.payload);
+      } else {
+        localStorage.removeItem('currentSupplierId');
+      }
+      return {
+        ...state,
+        currentSupplierId: action.payload,
       };
     default:
       return state;
