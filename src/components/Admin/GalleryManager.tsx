@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink } from 'lucide-react';
+import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink, MapPin, User } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
@@ -32,8 +32,29 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [editingExpiration, setEditingExpiration] = useState(false);
   const [newExpirationDays, setNewExpirationDays] = useState('');
   const [savingExpiration, setSavingExpiration] = useState(false);
+  const [editingDetails, setEditingDetails] = useState(false);
+  const [editedDetails, setEditedDetails] = useState({
+    clientId: '',
+    eventDate: '',
+    location: ''
+  });
+  const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
+  const [savingDetails, setSavingDetails] = useState(false);
 
   const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
+
+  useEffect(() => {
+    const loadClients = async () => {
+      try {
+        const { clientService } = await import('../../services/clientService');
+        const clientsList = await clientService.getClients();
+        setClients(clientsList.map(c => ({ id: c.id, name: c.name })));
+      } catch (error) {
+        console.error('Error loading clients:', error);
+      }
+    };
+    loadClients();
+  }, []);
 
   useEffect(() => {
     const loadFullGalleryData = async () => {
@@ -241,6 +262,53 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
     setNewExpirationDays('');
   };
 
+  const handleEditDetails = () => {
+    if (gallery) {
+      setEditedDetails({
+        clientId: gallery.clientId || '',
+        eventDate: gallery.eventDate ? new Date(gallery.eventDate).toISOString().split('T')[0] : '',
+        location: gallery.location || ''
+      });
+      setEditingDetails(true);
+    }
+  };
+
+  const handleSaveDetails = async () => {
+    if (!gallery) return;
+
+    setSavingDetails(true);
+    try {
+      const selectedClient = clients.find(c => c.id === editedDetails.clientId);
+
+      const updatedGallery = {
+        ...gallery,
+        clientId: editedDetails.clientId || undefined,
+        clientName: selectedClient?.name || gallery.clientName,
+        eventDate: editedDetails.eventDate ? new Date(editedDetails.eventDate) : undefined,
+        location: editedDetails.location || undefined,
+      };
+
+      await galleryService.saveGallery(updatedGallery);
+      dispatch({ type: 'UPDATE_GALLERY', payload: updatedGallery });
+      setFullGallery(updatedGallery);
+      setEditingDetails(false);
+    } catch (error) {
+      console.error('Error updating gallery details:', error);
+      alert('Erro ao atualizar detalhes da galeria');
+    } finally {
+      setSavingDetails(false);
+    }
+  };
+
+  const handleCancelEditDetails = () => {
+    setEditingDetails(false);
+    setEditedDetails({
+      clientId: '',
+      eventDate: '',
+      location: ''
+    });
+  };
+
   const getTotalFavorites = () => {
     let totalFavorites = 0;
     for (let i = 0; i < localStorage.length; i++) {
@@ -411,13 +479,104 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Informações da Galeria</h3>
-              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <p><span className="font-medium">Cliente:</span> {gallery.clientName}</p>
-                <p><span className="font-medium">Criada em:</span> {formatDate(gallery.createdDate)}</p>
-                <p><span className="font-medium">Acessos:</span> {gallery.accessCount}</p>
-                <p><span className="font-medium">Downloads:</span> {gallery.downloadCount}</p>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações da Galeria</h3>
+                {!editingDetails && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleEditDetails}
+                    className="text-xs"
+                  >
+                    Editar
+                  </Button>
+                )}
               </div>
+
+              {editingDetails ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Cliente
+                    </label>
+                    <select
+                      value={editedDetails.clientId}
+                      onChange={(e) => setEditedDetails({ ...editedDetails, clientId: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="">Selecione um cliente</option>
+                      {clients.map(client => (
+                        <option key={client.id} value={client.id}>{client.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Data do Evento
+                    </label>
+                    <input
+                      type="date"
+                      value={editedDetails.eventDate}
+                      onChange={(e) => setEditedDetails({ ...editedDetails, eventDate: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Localização
+                    </label>
+                    <input
+                      type="text"
+                      value={editedDetails.location}
+                      onChange={(e) => setEditedDetails({ ...editedDetails, location: e.target.value })}
+                      placeholder="Ex: Igreja São José, Centro"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={handleSaveDetails}
+                      disabled={savingDetails}
+                      className="flex-1"
+                    >
+                      {savingDetails ? 'Salvando...' : 'Salvar'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={handleCancelEditDetails}
+                      disabled={savingDetails}
+                      className="flex-1"
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p><span className="font-medium">Cliente:</span> {gallery.clientName}</p>
+                  {gallery.eventDate && (
+                    <p className="flex items-center gap-1">
+                      <Calendar size={14} />
+                      <span className="font-medium">Evento:</span> {formatDate(gallery.eventDate)}
+                    </p>
+                  )}
+                  {gallery.location && (
+                    <p className="flex items-center gap-1">
+                      <MapPin size={14} />
+                      <span className="font-medium">Local:</span> {gallery.location}
+                    </p>
+                  )}
+                  <p><span className="font-medium">Criada em:</span> {formatDate(gallery.createdDate)}</p>
+                  <p><span className="font-medium">Acessos:</span> {gallery.accessCount}</p>
+                  <p><span className="font-medium">Downloads:</span> {gallery.downloadCount}</p>
+                </div>
+              )}
             </div>
             
             <div>
