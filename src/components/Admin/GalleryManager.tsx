@@ -12,6 +12,7 @@ import { galleryService } from '../../services/galleryService';
 import { isValidImageFile, formatDate } from '../../utils/fileUtils';
 import { Gallery } from '../../types';
 import { r2Service } from '../../services/r2Service';
+import { supabase } from '../../lib/supabase';
 
 interface GalleryManagerProps {
   galleryId: string;
