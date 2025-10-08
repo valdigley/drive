@@ -430,6 +430,7 @@ export function ClientGallery() {
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
         onNavigate={setCurrentPhotoIndex}
+        onTagSupplier={handleTagSupplier}
       />
 
       {/* Selection Panel */}

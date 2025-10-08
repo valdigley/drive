@@ -194,85 +194,85 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick, onTagSupplier }:
                           {group.photos.map((photo, photoIndex) => (
                             <div
                               key={photo.id}
-                              className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 hover:ring-2 hover:ring-blue-500 transition-all duration-200"
+                              className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
                               onMouseEnter={() => setHoveredPhoto(photo.id)}
                               onMouseLeave={() => setHoveredPhoto(null)}
                             >
                               <button
                                 onClick={() => onPhotoClick(photo, globalPhotoIndex + photoIndex)}
-                                className="w-full h-full"
+                                className="w-full aspect-square relative overflow-hidden"
                               >
                                 <img
                                   src={photo.thumbnail || photo.url}
                                   alt={photo.filename}
-                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                   loading="lazy"
                                 />
+                                <div className={`absolute inset-0 bg-black transition-all duration-300 pointer-events-none ${
+                                  hoveredPhoto === photo.id ? 'bg-opacity-10' : 'bg-opacity-0'
+                                }`} />
                               </button>
 
-                              {/* Action Buttons - Always Visible */}
-                              <div className="absolute top-1 right-1 flex gap-1">
-                                {onTagSupplier && (
+                              {/* Action Buttons Below Photo */}
+                              <div className="p-2 border-t border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center gap-1">
+                                  {onTagSupplier && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onTagSupplier(photo.id);
+                                      }}
+                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                        photo.supplierId
+                                          ? 'bg-purple-600 text-white hover:bg-purple-700'
+                                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600'
+                                      }`}
+                                      title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                                    >
+                                      <Tag size={16} />
+                                    </button>
+                                  )}
+
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      onTagSupplier(photo.id);
-                                    }}
-                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                      photo.supplierId
-                                        ? 'bg-purple-600 text-white scale-110'
-                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                    onClick={(e) => handlePrintCartToggle(photo.id, e)}
+                                    className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                      isInPrintCart(photo.id)
+                                        ? 'bg-green-600 text-white hover:bg-green-700'
+                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:text-green-600'
                                     }`}
-                                    title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                                    title="Carrinho de impressão"
                                   >
-                                    <Tag size={14} />
+                                    <Printer size={16} />
                                   </button>
-                                )}
 
-                                <button
-                                  onClick={(e) => handlePrintCartToggle(photo.id, e)}
-                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                    isInPrintCart(photo.id)
-                                      ? 'bg-green-600 text-white scale-110'
-                                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                                  }`}
-                                  title="Adicionar ao carrinho de impressão"
-                                >
-                                  <Printer size={14} />
-                                </button>
+                                  <button
+                                    onClick={(e) => handleSelectionToggle(photo.id, e)}
+                                    className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                      isSelected(photo.id)
+                                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600'
+                                    }`}
+                                    title="Selecionar"
+                                  >
+                                    <Check size={16} />
+                                  </button>
 
-                                <button
-                                  onClick={(e) => handleSelectionToggle(photo.id, e)}
-                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                    isSelected(photo.id)
-                                      ? 'bg-blue-600 text-white scale-110'
-                                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                                  }`}
-                                  title="Selecionar foto"
-                                >
-                                  <Check size={14} />
-                                </button>
-
-                                <button
-                                  onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                    isFavorite(photo.id)
-                                      ? 'bg-red-500 text-white shadow-lg scale-110'
-                                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                                  }`}
-                                  title={isFavorite(photo.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                                >
-                                  <Heart
-                                    size={14}
-                                    fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
-                                  />
-                                </button>
+                                  <button
+                                    onClick={(e) => handleFavoriteToggle(photo.id, e)}
+                                    className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                      isFavorite(photo.id)
+                                        ? 'bg-red-500 text-white hover:bg-red-600'
+                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600'
+                                    }`}
+                                    title="Favoritar"
+                                  >
+                                    <Heart
+                                      size={16}
+                                      fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
+                                    />
+                                  </button>
+                                </div>
                               </div>
-
-                              {/* Hover overlay */}
-                              <div className={`absolute inset-0 bg-black transition-all duration-300 pointer-events-none ${
-                                hoveredPhoto === photo.id ? 'bg-opacity-20' : 'bg-opacity-0'
-                              }`} />
                             </div>
                           ))}
                         </div>
@@ -362,85 +362,85 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick, onTagSupplier }:
                             {group.photos.map((photo, photoIndex) => (
                               <div
                                 key={photo.id}
-                                className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 hover:ring-2 hover:ring-gray-500 transition-all duration-200"
+                                className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
                                 onMouseEnter={() => setHoveredPhoto(photo.id)}
                                 onMouseLeave={() => setHoveredPhoto(null)}
                               >
                                 <button
                                   onClick={() => onPhotoClick(photo, globalPhotoIndex + photoIndex)}
-                                  className="w-full h-full"
+                                  className="w-full aspect-square relative overflow-hidden"
                                 >
                                   <img
                                     src={photo.thumbnail || photo.url}
                                     alt={photo.filename}
-                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                     loading="lazy"
                                   />
+                                  <div className={`absolute inset-0 bg-black transition-all duration-300 pointer-events-none ${
+                                    hoveredPhoto === photo.id ? 'bg-opacity-10' : 'bg-opacity-0'
+                                  }`} />
                                 </button>
 
-                                {/* Action Buttons - Always Visible */}
-                                <div className="absolute top-1 right-1 flex gap-1">
-                                  {onTagSupplier && (
+                                {/* Action Buttons Below Photo */}
+                                <div className="p-2 border-t border-gray-100 dark:border-gray-700">
+                                  <div className="flex items-center gap-1">
+                                    {onTagSupplier && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          onTagSupplier(photo.id);
+                                        }}
+                                        className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                          photo.supplierId
+                                            ? 'bg-purple-600 text-white hover:bg-purple-700'
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600'
+                                        }`}
+                                        title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                                      >
+                                        <Tag size={16} />
+                                      </button>
+                                    )}
+
                                     <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        onTagSupplier(photo.id);
-                                      }}
-                                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                        photo.supplierId
-                                          ? 'bg-purple-600 text-white scale-110'
-                                          : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                      onClick={(e) => handlePrintCartToggle(photo.id, e)}
+                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                        isInPrintCart(photo.id)
+                                          ? 'bg-green-600 text-white hover:bg-green-700'
+                                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:text-green-600'
                                       }`}
-                                      title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                                      title="Carrinho de impressão"
                                     >
-                                      <Tag size={14} />
+                                      <Printer size={16} />
                                     </button>
-                                  )}
 
-                                  <button
-                                    onClick={(e) => handlePrintCartToggle(photo.id, e)}
-                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                      isInPrintCart(photo.id)
-                                        ? 'bg-green-600 text-white scale-110'
-                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                                    }`}
-                                    title="Adicionar ao carrinho de impressão"
-                                  >
-                                    <Printer size={14} />
-                                  </button>
+                                    <button
+                                      onClick={(e) => handleSelectionToggle(photo.id, e)}
+                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                        isSelected(photo.id)
+                                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600'
+                                      }`}
+                                      title="Selecionar"
+                                    >
+                                      <Check size={16} />
+                                    </button>
 
-                                  <button
-                                    onClick={(e) => handleSelectionToggle(photo.id, e)}
-                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                      isSelected(photo.id)
-                                        ? 'bg-blue-600 text-white scale-110'
-                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                                    }`}
-                                    title="Selecionar foto"
-                                  >
-                                    <Check size={14} />
-                                  </button>
-
-                                  <button
-                                    onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                                      isFavorite(photo.id)
-                                        ? 'bg-red-500 text-white shadow-lg scale-110'
-                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                                    }`}
-                                    title={isFavorite(photo.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                                  >
-                                    <Heart
-                                      size={14}
-                                      fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
-                                    />
-                                  </button>
+                                    <button
+                                      onClick={(e) => handleFavoriteToggle(photo.id, e)}
+                                      className={`flex-1 p-2 rounded flex items-center justify-center transition-all duration-200 ${
+                                        isFavorite(photo.id)
+                                          ? 'bg-red-500 text-white hover:bg-red-600'
+                                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600'
+                                      }`}
+                                      title="Favoritar"
+                                    >
+                                      <Heart
+                                        size={16}
+                                        fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
+                                      />
+                                    </button>
+                                  </div>
                                 </div>
-
-                                {/* Hover overlay */}
-                                <div className={`absolute inset-0 bg-black transition-all duration-300 pointer-events-none ${
-                                  hoveredPhoto === photo.id ? 'bg-opacity-20' : 'bg-opacity-0'
-                                }`} />
                               </div>
                             ))}
                           </div>

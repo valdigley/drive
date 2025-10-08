@@ -123,103 +123,89 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false, on
 
               {/* Cover Photo Indicator */}
               {isCoverPhoto(photo.id) && (
-                <div className="absolute top-10 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                   <Star size={12} />
                   Capa
                 </div>
               )}
-            
-              {/* Action Buttons - Always Visible */}
-              <div className={`absolute top-2 right-2 flex gap-2 ${isCoverPhoto(photo.id) ? 'mt-8' : ''}`}>
-                {/* Supplier Tag Button */}
-                {onTagSupplier && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onTagSupplier(photo.id);
-                    }}
-                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                      photo.supplierId
-                        ? 'bg-purple-600 text-white scale-110'
-                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                    }`}
-                    title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
-                  >
-                    <Tag size={18} />
-                  </button>
-                )}
 
-                {/* Print Cart Toggle */}
-                <button
-                  onClick={(e) => handlePrintCartToggle(photo.id, e)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                    isInPrintCart(photo.id)
-                      ? 'bg-green-600 text-white scale-110'
-                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                  }`}
-                  title="Adicionar ao carrinho de impressão"
-                >
-                  <Printer size={18} />
-                </button>
-
-                {/* Selection Toggle */}
-                <button
-                  onClick={(e) => handleSelectionToggle(photo.id, e)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
-                    isSelected(photo.id)
-                      ? 'bg-blue-600 text-white scale-110'
-                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                  }`}
-                  title="Selecionar foto"
-                >
-                  <Check size={18} />
-                </button>
-
-                {/* Favorite Toggle */}
-                <button
-                  onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 transform shadow-md ${
-                    isFavorite(photo.id)
-                      ? 'bg-red-500 text-white shadow-lg scale-110'
-                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
-                  }`}
-                  title={isFavorite(photo.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                >
-                  <Heart
-                    size={18}
-                    fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
-                    className={isFavorite(photo.id) ? 'animate-pulse' : ''}
-                  />
-                </button>
-              </div>
-
-              {/* Hover Overlay with Download/Zoom */}
-              <div className={`absolute inset-0 bg-black transition-all duration-300 ${hoveredPhoto === photo.id ? 'bg-opacity-20' : 'bg-opacity-0 pointer-events-none'}`}>
-                <div className={`absolute bottom-2 left-2 right-2 flex justify-between items-end transition-opacity duration-300 ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'}`}>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={(e) => handleDownload(photo, e)}
-                      className="w-8 h-8 rounded-full bg-white bg-opacity-90 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200 shadow-md"
-                    >
-                      <Download size={16} />
-                    </button>
-
-                    <button className="w-8 h-8 rounded-full bg-white bg-opacity-90 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200 shadow-md">
-                      <ZoomIn size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              {/* Hover Overlay */}
+              <div className={`absolute inset-0 bg-black transition-all duration-300 ${hoveredPhoto === photo.id ? 'bg-opacity-10' : 'bg-opacity-0 pointer-events-none'}`} />
           </div>
 
-          {/* Photo Info */}
-          <div className="p-3">
-            <p className="text-xs text-gray-500 truncate">{photoCode}</p>
-            {photo.metadata && (
-              <p className="text-xs text-gray-400 mt-1">
-                {photo.metadata.width} × {photo.metadata.height}
-              </p>
-            )}
+          {/* Photo Info and Action Buttons */}
+          <div className="p-3 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-gray-500 truncate flex-1">{photoCode}</p>
+              {photo.metadata && (
+                <p className="text-xs text-gray-400">
+                  {photo.metadata.width} × {photo.metadata.height}
+                </p>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-center gap-2 pt-2">
+              {onTagSupplier && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTagSupplier(photo.id);
+                  }}
+                  className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
+                    photo.supplierId
+                      ? 'bg-purple-600 text-white hover:bg-purple-700'
+                      : 'bg-gray-100 text-gray-700 hover:bg-purple-50 hover:text-purple-600'
+                  }`}
+                  title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                >
+                  <Tag size={16} />
+                  <span className="hidden sm:inline">Tag</span>
+                </button>
+              )}
+
+              <button
+                onClick={(e) => handlePrintCartToggle(photo.id, e)}
+                className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
+                  isInPrintCart(photo.id)
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-600'
+                }`}
+                title="Carrinho de impressão"
+              >
+                <Printer size={16} />
+                <span className="hidden sm:inline">Imprimir</span>
+              </button>
+
+              <button
+                onClick={(e) => handleSelectionToggle(photo.id, e)}
+                className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
+                  isSelected(photo.id)
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                }`}
+                title="Selecionar"
+              >
+                <Check size={16} />
+                <span className="hidden sm:inline">Selecionar</span>
+              </button>
+
+              <button
+                onClick={(e) => handleFavoriteToggle(photo.id, e)}
+                className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 text-sm font-medium ${
+                  isFavorite(photo.id)
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600'
+                }`}
+                title="Favoritar"
+              >
+                <Heart
+                  size={16}
+                  fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
+                />
+                <span className="hidden sm:inline">Favorito</span>
+              </button>
+            </div>
           </div>
         </div>
         );

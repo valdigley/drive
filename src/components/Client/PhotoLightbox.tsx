@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Heart, Download, Info } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Heart, Download, Info, Tag, Printer, Check } from 'lucide-react';
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
@@ -11,14 +11,18 @@ interface PhotoLightboxProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigate: (index: number) => void;
+  onTagSupplier?: (photoId: string) => void;
 }
 
-export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigate }: PhotoLightboxProps) {
+export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigate, onTagSupplier }: PhotoLightboxProps) {
   const { state, dispatch } = useAppContext();
   const { clientSession } = state;
   const [showInfo, setShowInfo] = useState(false);
-  
+
   const currentPhoto = photos[currentIndex];
+
+  const isInPrintCart = clientSession?.printCart?.includes(currentPhoto?.id) || false;
+  const isSelected = clientSession?.selectedPhotos?.includes(currentPhoto?.id) || false;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,6 +72,16 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
 
   const handleDownload = () => {
     downloadFile(currentPhoto.url, currentPhoto.filename, currentPhoto.r2Key, state.currentGallery?.id);
+  };
+
+  const handlePrintCartToggle = () => {
+    if (!clientSession) return;
+    dispatch({ type: 'TOGGLE_PRINT_CART', payload: { photoId: currentPhoto.id } });
+  };
+
+  const handleSelectionToggle = () => {
+    if (!clientSession) return;
+    dispatch({ type: 'TOGGLE_SELECTION', payload: { photoId: currentPhoto.id } });
   };
 
   return (
@@ -149,12 +163,72 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
       )}
 
       {/* Photo */}
-      <div className="flex items-center justify-center h-full p-16">
+      <div className="flex flex-col items-center justify-center h-full p-16 gap-4">
         <img
           src={currentPhoto.url}
           alt={currentPhoto.filename}
-          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+          className="max-w-full max-h-[calc(100%-120px)] object-contain rounded-lg shadow-2xl"
         />
+
+        {/* Action Buttons Below Photo */}
+        <div className="flex items-center justify-center gap-3 bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-3">
+          {onTagSupplier && (
+            <button
+              onClick={() => onTagSupplier(currentPhoto.id)}
+              className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
+                currentPhoto.supplierId
+                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                  : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+              }`}
+              title={currentPhoto.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+            >
+              <Tag size={18} />
+              <span>Fornecedor</span>
+            </button>
+          )}
+
+          <button
+            onClick={handlePrintCartToggle}
+            className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
+              isInPrintCart
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+            }`}
+            title="Carrinho de impressão"
+          >
+            <Printer size={18} />
+            <span>Imprimir</span>
+          </button>
+
+          <button
+            onClick={handleSelectionToggle}
+            className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
+              isSelected
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+            }`}
+            title="Selecionar"
+          >
+            <Check size={18} />
+            <span>Selecionar</span>
+          </button>
+
+          <button
+            onClick={handleFavoriteToggle}
+            className={`px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all duration-200 text-sm font-medium ${
+              isFavorite
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+            }`}
+            title="Favoritar"
+          >
+            <Heart
+              size={18}
+              fill={isFavorite ? 'currentColor' : 'none'}
+            />
+            <span>Favorito</span>
+          </button>
+        </div>
       </div>
 
       {/* Info Panel */}
