@@ -225,8 +225,17 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Suas Galerias</h2>
-                  <p className="text-gray-600 dark:text-gray-400">Gerencie suas galerias de fotos</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {searchQuery.trim() ? 'Resultados da Busca' : 'Galerias Recentes'}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {searchQuery.trim()
+                      ? `${filteredGalleries.length} galeria${filteredGalleries.length !== 1 ? 's' : ''} encontrada${filteredGalleries.length !== 1 ? 's' : ''}`
+                      : filteredGalleries.length > 0
+                        ? `Exibindo ${Math.min(displayLimit, filteredGalleries.length)} de ${filteredGalleries.length} galerias`
+                        : 'Gerencie suas galerias de fotos'
+                    }
+                  </p>
                 </div>
               </div>
 
@@ -257,18 +266,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
                 </Button>
               </div>
             </div>
-
-            {/* Section Title */}
-            {!searchQuery.trim() && filteredGalleries.length > 0 && (
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Galerias Recentes
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Exibindo {Math.min(displayLimit, filteredGalleries.length)} de {filteredGalleries.length} galerias
-                </p>
-              </div>
-            )}
 
           {filteredGalleries.length === 0 && searchQuery.trim() ? (
             <div className="text-center py-8">
