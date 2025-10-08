@@ -459,7 +459,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
 
                 {/* Filter Buttons */}
                 {gallery.photos.length > 0 && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Button
                       variant={filter === 'all' ? 'primary' : 'ghost'}
                       size="sm"
@@ -476,6 +476,26 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                       <Heart size={16} />
                       Favoritas {loadingFavorites ? '...' : `(${favoritePhotoIds.length})`}
                     </Button>
+
+                    {galleryType === 'client' && getTotalFavorites() > 0 && getFavoritedPhotosText() && (
+                      <div className="flex items-center gap-2 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <code
+                          className="text-xs font-mono text-blue-900 dark:text-blue-100 cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                          onClick={handleCopyFavorites}
+                          title="Clique para copiar"
+                        >
+                          {getFavoritedPhotosText()}
+                        </code>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={handleCopyFavorites}
+                          className="text-xs px-1.5 py-0.5 h-auto text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+                        >
+                          Copiar
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -555,10 +575,9 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Gallery Info and Expiration */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
-            {/* Left Column - Gallery Info and Client Activity */}
-            <div className="space-y-4">
-              {/* Gallery Info */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Gallery Info */}
+            <div>
               <div>
                 <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
                   <h3 className="font-semibold text-gray-900 dark:text-white">Informações da Galeria</h3>
@@ -691,47 +710,6 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                 )}
               </div>
 
-              {/* Client Activity */}
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">Atividade dos Clientes</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                      <Heart className="text-blue-600 dark:text-blue-400" size={16} />
-                    </div>
-                    <div>
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Total de favoritos</div>
-                      <p className="text-xl font-bold text-gray-900 dark:text-white">{getTotalFavorites()}</p>
-                    </div>
-                  </div>
-
-                  {getFavoritedPhotosText() && (
-                    <div>
-                      <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fotos favoritadas</div>
-                      <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">Clique para copiar:</span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleCopyFavorites}
-                            className="text-xs px-2 py-1 h-auto"
-                          >
-                            Copiar
-                          </Button>
-                        </div>
-                        <code
-                          className="text-xs bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-600 block cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100 overflow-x-auto"
-                          onClick={handleCopyFavorites}
-                          title="Clique para copiar"
-                        >
-                          {getFavoritedPhotosText()}
-                        </code>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
 
             {/* Right Column - Expiration */}
