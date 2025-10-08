@@ -41,9 +41,9 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const [savingDetails, setSavingDetails] = useState(false);
 
-  console.log('📊 GalleryManager state:', { editingDetails, clients: clients.length, gallery: gallery?.name });
-
   const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
+
+  console.log('📊 GalleryManager state:', { editingDetails, clients: clients.length, gallery: gallery?.name });
 
   useEffect(() => {
     const loadClients = async () => {
