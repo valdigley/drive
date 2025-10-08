@@ -87,22 +87,65 @@ class GalleryService {
     }
   }
 
-  async getGalleryPhotos(galleryId: string, supplierId?: string): Promise<Photo[]> {
+  async getSupplierGalleriesWithPhotos(supplierId: string): Promise<Array<{ galleryId: string; galleryName: string; clientName: string; photoCount: number }>> {
+    try {
+      const { data, error } = await supabase
+        .from('photo_suppliers')
+        .select(`
+          gallery_id,
+          galleries!inner(id, name, client_name)
+        `)
+        .eq('supplier_id', supplierId);
+
+      if (error) throw error;
+
+      // Group by gallery and count photos
+      const galleryMap = new Map<string, { galleryId: string; galleryName: string; clientName: string; photoCount: number }>();
+
+      (data || []).forEach(item => {
+        const galleryId = item.gallery_id;
+        if (!galleryMap.has(galleryId)) {
+          galleryMap.set(galleryId, {
+            galleryId,
+            galleryName: item.galleries.name,
+            clientName: item.galleries.client_name,
+            photoCount: 0,
+          });
+        }
+        galleryMap.get(galleryId)!.photoCount++;
+      });
+
+      return Array.from(galleryMap.values());
+    } catch (error) {
+      console.error('Error fetching supplier galleries:', error);
+      return [];
+    }
+  }
+
+  async getGalleryPhotos(galleryId: string, supplierId?: string, filterByGalleryId?: string): Promise<Photo[]> {
     try {
       let photoIds: string[] | null = null;
 
-      // If supplierId is provided, get ALL photos tagged for this supplier from ALL galleries
+      // If supplierId is provided, get ALL photos tagged for this supplier
       if (supplierId) {
-        console.log('🔍 Loading ALL photos tagged for supplier:', supplierId);
-        const { data: taggedPhotos, error: tagError } = await supabase
+        console.log('🔍 Loading photos tagged for supplier:', supplierId, filterByGalleryId ? `in gallery: ${filterByGalleryId}` : 'from all galleries');
+
+        let tagQuery = supabase
           .from('photo_suppliers')
           .select('photo_id, gallery_id')
           .eq('supplier_id', supplierId);
 
+        // Filter by specific gallery if requested
+        if (filterByGalleryId) {
+          tagQuery = tagQuery.eq('gallery_id', filterByGalleryId);
+        }
+
+        const { data: taggedPhotos, error: tagError } = await tagQuery;
+
         if (tagError) throw tagError;
 
         photoIds = (taggedPhotos || []).map(tp => tp.photo_id);
-        console.log('📸 Found tagged photos across all galleries:', photoIds.length, photoIds);
+        console.log('📸 Found tagged photos:', photoIds.length);
 
         // If no photos are tagged, return empty array
         if (photoIds.length === 0) {
@@ -116,9 +159,11 @@ class GalleryService {
         .from('photos')
         .select('*');
 
-      // For suppliers, don't filter by gallery - get all their tagged photos
+      // For suppliers, optionally filter by specific gallery
       if (!supplierId) {
         query = query.eq('gallery_id', galleryId);
+      } else if (filterByGalleryId) {
+        query = query.eq('gallery_id', filterByGalleryId);
       }
 
       // Filter by photo IDs if we have them (supplier's tagged photos)

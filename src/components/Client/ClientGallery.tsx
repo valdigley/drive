@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock, Printer } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock, Printer, FolderOpen } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { PhotoGrid } from '../Client/PhotoGrid';
@@ -8,16 +8,55 @@ import { SelectionPanel } from './SelectionPanel';
 import { PrintCartPanel } from './PrintCartPanel';
 import { Photo, ViewMode } from '../../types';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
+import { galleryService } from '../../services/galleryService';
 
 export function ClientGallery() {
-  const { state } = useAppContext();
-  const { currentGallery, clientSession } = state;
+  const { state, dispatch } = useAppContext();
+  const { currentGallery, clientSession, currentUser, currentSupplierId } = state;
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('masonry');
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [showSelection, setShowSelection] = useState(false);
   const [showPrintCart, setShowPrintCart] = useState(false);
+  const [supplierGalleries, setSupplierGalleries] = useState<Array<{ galleryId: string; galleryName: string; clientName: string; photoCount: number }>>([]);
+  const [selectedGalleryFilter, setSelectedGalleryFilter] = useState<string>('all');
+  const [loadingGalleryFilter, setLoadingGalleryFilter] = useState(false);
+
+  const isSupplier = currentUser === 'supplier';
+
+  // Load supplier galleries on mount if supplier
+  useEffect(() => {
+    if (isSupplier && currentSupplierId) {
+      galleryService.getSupplierGalleriesWithPhotos(currentSupplierId).then(galleries => {
+        console.log('📁 Supplier galleries:', galleries);
+        setSupplierGalleries(galleries);
+      });
+    }
+  }, [isSupplier, currentSupplierId]);
+
+  // Handle gallery filter change
+  const handleGalleryFilterChange = async (galleryId: string) => {
+    if (!currentSupplierId || !currentGallery) return;
+
+    setLoadingGalleryFilter(true);
+    setSelectedGalleryFilter(galleryId);
+
+    try {
+      const photos = await galleryService.getGalleryPhotos(
+        currentGallery.id,
+        currentSupplierId,
+        galleryId === 'all' ? undefined : galleryId
+      );
+
+      const updatedGallery = { ...currentGallery, photos };
+      dispatch({ type: 'SET_CURRENT_GALLERY', payload: updatedGallery });
+    } catch (error) {
+      console.error('Error filtering gallery:', error);
+    } finally {
+      setLoadingGalleryFilter(false);
+    }
+  };
 
   if (!currentGallery) {
     return <div>Galeria não encontrada</div>;
@@ -114,26 +153,70 @@ export function ClientGallery() {
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-4">
+            {/* Supplier Gallery Filter */}
+            {isSupplier && supplierGalleries.length > 1 && (
+              <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Filtrar por Galeria
+                </label>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant={selectedGalleryFilter === 'all' ? 'primary' : 'ghost'}
+                    size="sm"
+                    onClick={() => handleGalleryFilterChange('all')}
+                    disabled={loadingGalleryFilter}
+                    className="flex items-center gap-2"
+                  >
+                    <FolderOpen size={16} />
+                    Todas as Galerias
+                  </Button>
+                  {supplierGalleries.map(gallery => (
+                    <Button
+                      key={gallery.galleryId}
+                      variant={selectedGalleryFilter === gallery.galleryId ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleGalleryFilterChange(gallery.galleryId)}
+                      disabled={loadingGalleryFilter}
+                      className="flex items-center gap-2"
+                    >
+                      <FolderOpen size={16} />
+                      <span>{gallery.galleryName}</span>
+                      <span className="text-xs opacity-75">({gallery.photoCount})</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Filters */}
-                <Button
-                  variant={filter === 'all' ? 'primary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('all')}
-                >
-                  Todas ({currentGallery.photos.length})
-                </Button>
-                
-                <Button
-                  variant={filter === 'favorites' ? 'primary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('favorites')}
-                  className="flex items-center gap-1"
-                >
-                  <Heart size={16} />
-                  Favoritas ({favoritesCount})
-                </Button>
+                {!isSupplier && (
+                  <>
+                    <Button
+                      variant={filter === 'all' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setFilter('all')}
+                    >
+                      Todas ({currentGallery.photos.length})
+                    </Button>
+
+                    <Button
+                      variant={filter === 'favorites' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setFilter('favorites')}
+                      className="flex items-center gap-1"
+                    >
+                      <Heart size={16} />
+                      Favoritas ({favoritesCount})
+                    </Button>
+                  </>
+                )}
+                {isSupplier && (
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {currentGallery.photos.length} foto{currentGallery.photos.length !== 1 ? 's' : ''} marcada{currentGallery.photos.length !== 1 ? 's' : ''}
+                  </div>
+                )}
               </div>
 
               {/* Selection Cart */}
