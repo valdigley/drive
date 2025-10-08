@@ -517,13 +517,13 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                   <input
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept="image/*,video/*"
                     onChange={handleFileInputChange}
                     className="hidden"
                   />
                   <span className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-[140px]">
                     <Upload size={20} />
-                    Upload Fotos
+                    Upload Mídia
                   </span>
                 </label>
                 
