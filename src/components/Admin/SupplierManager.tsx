@@ -86,7 +86,9 @@ export function SupplierManager() {
     alert('Código de acesso copiado!');
   };
 
-  const handleCopyGalleryLink = (accessCode: string) => {
+  const handleCopyGalleryLink = (e: React.MouseEvent, accessCode: string) => {
+    e.preventDefault();
+    e.stopPropagation();
     const galleryUrl = `${window.location.origin}/?code=${accessCode}`;
     navigator.clipboard.writeText(galleryUrl);
     alert('Link da galeria copiado!');
@@ -180,7 +182,7 @@ export function SupplierManager() {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => handleCopyGalleryLink(supplier.accessCode!)}
+                    onClick={(e) => handleCopyGalleryLink(e, supplier.accessCode!)}
                     className="flex items-center gap-2"
                   >
                     <Copy size={16} />
