@@ -27,6 +27,11 @@ export function ClientGallery() {
 
   const isSupplier = currentUser === 'supplier';
 
+  // Log filter changes
+  useEffect(() => {
+    console.log('🔄 Filter changed to:', filter);
+  }, [filter]);
+
   // Sync favorites from database when filter changes to favorites
   useEffect(() => {
     const syncFavorites = async () => {
@@ -295,7 +300,10 @@ export function ClientGallery() {
                   <Button
                     variant={filter === 'all' ? 'primary' : 'ghost'}
                     size="sm"
-                    onClick={() => setFilter('all')}
+                    onClick={() => {
+                      console.log('🔘 Clicked "Todas" button');
+                      setFilter('all');
+                    }}
                   >
                     Todas ({currentGallery.photos.length})
                   </Button>
@@ -303,7 +311,10 @@ export function ClientGallery() {
                   <Button
                     variant={filter === 'favorites' ? 'primary' : 'ghost'}
                     size="sm"
-                    onClick={() => setFilter('favorites')}
+                    onClick={() => {
+                      console.log('🔘 Clicked "Favoritas" button, current count:', favoritesCount);
+                      setFilter('favorites');
+                    }}
                     className="flex items-center gap-1"
                   >
                     <Heart size={16} />
