@@ -554,14 +554,14 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Gallery Info and Expiration */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
             {/* Left Column - Gallery Info and Client Activity */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Gallery Info */}
               <div>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações da Galeria</h3>
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Informações da Galeria</h3>
                   {!editingDetails && (
                     <Button
                       size="sm"
@@ -639,8 +639,8 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-2">
                       <div>
                         <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                           <User size={14} />
@@ -670,20 +670,20 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                       )}
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div>
                         <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Criada em</div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{formatDate(gallery.createdDate)}</p>
                       </div>
 
-                      <div className="flex gap-6">
+                      <div className="flex gap-4">
                         <div>
                           <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Acessos</div>
-                          <p className="text-xl font-semibold text-gray-900 dark:text-white">{gallery.accessCount}</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-white">{gallery.accessCount}</p>
                         </div>
                         <div>
                           <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Downloads</div>
-                          <p className="text-xl font-semibold text-gray-900 dark:text-white">{gallery.downloadCount}</p>
+                          <p className="text-lg font-semibold text-gray-900 dark:text-white">{gallery.downloadCount}</p>
                         </div>
                       </div>
                     </div>
@@ -693,22 +693,22 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
 
               {/* Client Activity */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">Atividade dos Clientes</h3>
-                <div className="space-y-4">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">Atividade dos Clientes</h3>
+                <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                      <Heart className="text-blue-600 dark:text-blue-400" size={20} />
+                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <Heart className="text-blue-600 dark:text-blue-400" size={16} />
                     </div>
                     <div>
                       <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Total de favoritos</div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{getTotalFavorites()}</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-white">{getTotalFavorites()}</p>
                     </div>
                   </div>
 
                   {getFavoritedPhotosText() && (
                     <div>
-                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fotos favoritadas</div>
-                      <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                      <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fotos favoritadas</div>
+                      <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-2">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs text-gray-500 dark:text-gray-400">Clique para copiar:</span>
                           <Button
@@ -721,7 +721,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                           </Button>
                         </div>
                         <code
-                          className="text-xs bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 block cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100 overflow-x-auto"
+                          className="text-xs bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-600 block cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100 overflow-x-auto"
                           onClick={handleCopyFavorites}
                           title="Clique para copiar"
                         >
@@ -735,10 +735,10 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
             </div>
 
             {/* Right Column - Expiration */}
-            <div className="lg:border-l lg:border-gray-200 lg:dark:border-gray-700 lg:pl-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">Prazo de Expiração</h3>
+            <div className="lg:border-l lg:border-gray-200 lg:dark:border-gray-700 lg:pl-6">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">Prazo de Expiração</h3>
               {editingExpiration ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <Input
                     label="Dias até expirar"
                     type="number"
@@ -775,21 +775,21 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="flex items-center justify-center w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                        <Clock className="text-orange-600 dark:text-orange-400" size={20} />
+                <div className="space-y-3">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center justify-center w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                        <Clock className="text-orange-600 dark:text-orange-400" size={16} />
                       </div>
                       <div className="flex-1">
                         <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Expira em</div>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
                           {gallery.expirationDate ? formatDate(gallery.expirationDate) : 'Sem expiração'}
                         </p>
                       </div>
                     </div>
                     {gallery.expirationDate && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {Math.ceil((gallery.expirationDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} dias restantes
                       </div>
                     )}
