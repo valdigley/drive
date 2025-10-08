@@ -7,13 +7,15 @@ class R2Service {
   private videosBucketName: string;
   private isConfigured: boolean;
   private endpoint: string;
-  private publicUrl: string;
+  private photosPublicUrl: string;
+  private videosPublicUrl: string;
 
   constructor() {
     this.bucketName = import.meta.env.VITE_R2_BUCKET_NAME || import.meta.env.VITE_R2_BUCKET || 'fotos-clientes';
     this.videosBucketName = import.meta.env.VITE_R2_VIDEOS_BUCKET_NAME || 'videos-clientes';
     this.endpoint = import.meta.env.VITE_R2_ENDPOINT || '';
-    this.publicUrl = import.meta.env.VITE_R2_PUBLIC_URL || 'https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev';
+    this.photosPublicUrl = import.meta.env.VITE_R2_PHOTOS_PUBLIC_URL || import.meta.env.VITE_R2_PUBLIC_URL || 'https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev';
+    this.videosPublicUrl = import.meta.env.VITE_R2_VIDEOS_PUBLIC_URL || this.photosPublicUrl;
     
     // Check if R2 is properly configured
     this.isConfigured = !!(
@@ -27,12 +29,15 @@ class R2Service {
       isConfigured: this.isConfigured,
       endpoint: this.endpoint,
       bucketName: this.bucketName,
-      publicUrl: this.publicUrl,
+      videosBucketName: this.videosBucketName,
+      photosPublicUrl: this.photosPublicUrl,
+      videosPublicUrl: this.videosPublicUrl,
       hasEndpoint: !!this.endpoint,
       hasAccessKey: !!import.meta.env.VITE_R2_ACCESS_KEY_ID,
       hasSecretKey: !!import.meta.env.VITE_R2_SECRET_ACCESS_KEY,
       hasBucketName: !!this.bucketName,
-      hasPublicUrl: !!this.publicUrl,
+      hasPhotosPublicUrl: !!this.photosPublicUrl,
+      hasVideosPublicUrl: !!this.videosPublicUrl,
       // Debug environment variables
       envVars: {
         VITE_R2_ENDPOINT: import.meta.env.VITE_R2_ENDPOINT ? 'SET' : 'NOT SET',
@@ -339,10 +344,10 @@ class R2Service {
     if (key.startsWith('local/') || key.startsWith('blob:') || key.startsWith('data:')) {
       return key;
     }
-    
-    // For private buckets, we'll use signed URLs instead
-    // This method is kept for backward compatibility but should use getSignedViewUrl
-    return `https://pub-355a4912d7bb4cc0bb98db37f5c0c185.r2.dev/${key}`;
+
+    // Use the appropriate public URL based on whether it's a video or photo
+    const publicUrl = this.isVideoKey(key) ? this.videosPublicUrl : this.photosPublicUrl;
+    return `${publicUrl}/${key}`;
   }
 
   async getSignedUrlsForPhotos(photos: any[]): Promise<any[]> {
