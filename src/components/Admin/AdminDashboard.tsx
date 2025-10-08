@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Plus, Camera, Users, Download, Eye, LogOut } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Camera, Users, Download, Eye, LogOut, Search } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
+import { Input } from '../UI/Input';
 import { CreateGalleryModal } from './CreateGalleryModal';
 import { GalleryCard } from './GalleryCard';
 import { StatsCard } from './StatsCard';
@@ -19,6 +20,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loadingGalleries, setLoadingGalleries] = useState(false);
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -55,6 +57,17 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   };
 
   const { galleries, adminStats } = state;
+
+  // Filter galleries based on search query
+  const filteredGalleries = useMemo(() => {
+    if (!searchQuery.trim()) return galleries;
+
+    const query = searchQuery.toLowerCase();
+    return galleries.filter(gallery =>
+      gallery.name.toLowerCase().includes(query) ||
+      gallery.clientName.toLowerCase().includes(query)
+    );
+  }, [galleries, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -124,27 +137,48 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
         </div>
 
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Suas Galerias</h2>
+          <div className="flex justify-between items-center gap-4 mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Suas Galerias</h2>
+
+            <div className="flex-1 max-w-md">
+              <Input
+                type="text"
+                placeholder="Buscar por nome da galeria ou cliente..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                icon={<Search size={18} />}
+              />
+            </div>
           </div>
 
-          {galleries.length === 0 ? (
+          {filteredGalleries.length === 0 && searchQuery.trim() ? (
+            <div className="text-center py-8">
+              <Search size={48} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Nenhuma galeria encontrada
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Tente buscar por outro termo.
+              </p>
+            </div>
+          ) : filteredGalleries.length === 0 ? (
             <div className="text-center py-8">
               <Camera size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 Nenhuma galeria criada ainda
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Comece criando sua primeira galeria para compartilhar fotos com seus clientes.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {galleries.map((gallery) => (
-                <GalleryCard 
-                  key={gallery.id} 
-                  gallery={gallery} 
+            <div className="space-y-3">
+              {filteredGalleries.map((gallery) => (
+                <GalleryCard
+                  key={gallery.id}
+                  gallery={gallery}
                   onManage={onManageGallery}
+                  viewMode="list"
                 />
               ))}
             </div>

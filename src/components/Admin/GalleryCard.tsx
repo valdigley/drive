@@ -9,9 +9,10 @@ import { galleryService } from '../../services/galleryService';
 interface GalleryCardProps {
   gallery: Gallery;
   onManage?: (galleryId: string) => void;
+  viewMode?: 'grid' | 'list';
 }
 
-export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
+export function GalleryCard({ gallery, onManage, viewMode = 'grid' }: GalleryCardProps) {
   const { dispatch } = useAppContext();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingGallery, setDeletingGallery] = useState(false);
@@ -38,6 +39,95 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
       setDeletingGallery(false);
     }
   };
+
+  // List view layout
+  if (viewMode === 'list') {
+    return (
+      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md ${isExpired ? 'opacity-75' : ''}`}>
+        <div className="flex items-center p-4 gap-4">
+          {/* Thumbnail Preview */}
+          <div className="w-20 h-20 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+            {previewPhotos.length > 0 ? (
+              <img
+                src={previewPhotos[0].thumbnail}
+                alt={gallery.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Camera size={24} className="text-gray-400 dark:text-gray-500" />
+              </div>
+            )}
+          </div>
+
+          {/* Gallery Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold text-gray-900 dark:text-white truncate">{gallery.name}</h3>
+                  {gallery.password && (
+                    <Lock size={16} className="text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  )}
+                  {isExpired && (
+                    <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded flex-shrink-0">
+                      Expirada
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{gallery.clientName}</p>
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-1.5">
+                  <Camera size={16} />
+                  <span>{gallery.photos.length}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Eye size={16} />
+                  <span>{gallery.accessCount}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Download size={16} />
+                  <span>{gallery.downloadCount}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={16} />
+                  <span>{formatDate(gallery.createdDate)}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 flex-shrink-0">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleCopyLink}
+                  className="text-xs"
+                >
+                  <ExternalLink size={14} className="mr-1" />
+                  Copiar Link
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => onManage?.(gallery.id)}
+                  className="text-xs"
+                >
+                  <Settings size={14} className="mr-1" />
+                  Gerenciar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Grid view layout (original)
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md ${isExpired ? 'opacity-75' : ''}`}>
       {/* Photo Preview Grid */}
@@ -116,11 +206,11 @@ export function GalleryCard({ gallery, onManage }: GalleryCardProps) {
           
           <Button
             size="sm"
-            variant="ghost"
+            variant="primary"
             onClick={() => onManage?.(gallery.id)}
             className="flex-1 text-xs"
           >
-            <Settings size={16} />
+            <Settings size={14} className="mr-1" />
             Gerenciar
           </Button>
         </div>
