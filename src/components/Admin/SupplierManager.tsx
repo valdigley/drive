@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Store, Mail, Phone, Tag, Key, Copy } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Edit, Trash2, Store, Mail, Phone, Tag, Key, Copy, Search } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Modal } from '../UI/Modal';
@@ -11,6 +11,7 @@ export function SupplierManager() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -118,6 +119,19 @@ export function SupplierManager() {
     outros: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
   };
 
+  const filteredSuppliers = useMemo(() => {
+    if (!searchQuery.trim()) return suppliers;
+
+    const query = searchQuery.toLowerCase();
+    return suppliers.filter(supplier =>
+      supplier.name.toLowerCase().includes(query) ||
+      supplier.email.toLowerCase().includes(query) ||
+      supplier.phone?.toLowerCase().includes(query) ||
+      supplier.accessCode?.toLowerCase().includes(query) ||
+      getCategoryLabel(supplier.category).toLowerCase().includes(query)
+    );
+  }, [suppliers, searchQuery]);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -129,6 +143,20 @@ export function SupplierManager() {
           <Plus size={20} />
           Novo Fornecedor
         </Button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Buscar por nome, email, telefone, código ou categoria..."
+          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:ring-1 pl-10 pr-3 py-2"
+        />
       </div>
 
       {loading ? (
@@ -145,9 +173,19 @@ export function SupplierManager() {
             Comece adicionando seus fornecedores e parceiros
           </p>
         </div>
+      ) : filteredSuppliers.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <Search size={48} className="mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Nenhum fornecedor encontrado
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Tente ajustar sua busca
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
-          {suppliers.map((supplier) => (
+          {filteredSuppliers.map((supplier) => (
             <div
               key={supplier.id}
               className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between"

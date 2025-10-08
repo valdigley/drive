@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { User, Plus, Edit, Trash2, Copy, Mail, Phone, Key, FolderOpen } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { User, Plus, Edit, Trash2, Copy, Mail, Phone, Key, FolderOpen, Search } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Modal } from '../UI/Modal';
@@ -14,6 +14,7 @@ export function ClientManager() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -119,6 +120,18 @@ export function ClientManager() {
     alert('Link de acesso copiado!');
   };
 
+  const filteredClients = useMemo(() => {
+    if (!searchQuery.trim()) return clients;
+
+    const query = searchQuery.toLowerCase();
+    return clients.filter(client =>
+      client.name.toLowerCase().includes(query) ||
+      client.email?.toLowerCase().includes(query) ||
+      client.phone?.toLowerCase().includes(query) ||
+      client.accessCode?.toLowerCase().includes(query)
+    );
+  }, [clients, searchQuery]);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -130,6 +143,20 @@ export function ClientManager() {
           <Plus size={20} />
           Novo Cliente
         </Button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Buscar por nome, email, telefone ou código..."
+          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:ring-1 pl-10 pr-3 py-2"
+        />
       </div>
 
       {loading ? (
@@ -146,9 +173,19 @@ export function ClientManager() {
             Comece adicionando seus clientes
           </p>
         </div>
+      ) : filteredClients.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <Search size={48} className="mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Nenhum cliente encontrado
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Tente ajustar sua busca
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
-          {clients.map((client) => (
+          {filteredClients.map((client) => (
             <div
               key={client.id}
               className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between hover:shadow-md transition-shadow duration-200"
