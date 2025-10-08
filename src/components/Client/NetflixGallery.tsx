@@ -29,6 +29,8 @@ export function NetflixGallery({ photos, onToggleFavorite, favoriteIds = [] }: N
       for (const photo of photos) {
         if (photo.r2Key && !photo.r2Key.startsWith('data:')) {
           urls[photo.id] = await r2Service.getSignedViewUrl(photo.r2Key);
+        } else if (photo.mediaType === 'video' && photo.videoUrl) {
+          urls[photo.id] = photo.videoUrl;
         } else {
           urls[photo.id] = photo.url;
         }
@@ -76,10 +78,10 @@ export function NetflixGallery({ photos, onToggleFavorite, favoriteIds = [] }: N
       {photos.length > 0 && (
         <div className="relative h-[70vh] mb-8">
           <div className="absolute inset-0">
-            {photos[0].mediaType === 'video' && photos[0].videoUrl ? (
+            {photos[0].mediaType === 'video' && signedUrls[photos[0].id] ? (
               <div className="w-full h-full">
                 <VideoPlayer
-                  videoUrl={signedUrls[photos[0].id] || photos[0].videoUrl!}
+                  videoUrl={signedUrls[photos[0].id]}
                   thumbnail={photos[0].thumbnail}
                   title={photos[0].filename}
                 />
@@ -223,9 +225,9 @@ export function NetflixGallery({ photos, onToggleFavorite, favoriteIds = [] }: N
           </button>
 
           <div className="w-full max-w-6xl">
-            {selectedMedia.mediaType === 'video' && selectedMedia.videoUrl ? (
+            {selectedMedia.mediaType === 'video' && signedUrls[selectedMedia.id] ? (
               <VideoPlayer
-                videoUrl={signedUrls[selectedMedia.id] || selectedMedia.videoUrl}
+                videoUrl={signedUrls[selectedMedia.id]}
                 thumbnail={selectedMedia.thumbnail}
                 title={selectedMedia.filename}
               />
