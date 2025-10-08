@@ -477,7 +477,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                       Favoritas {loadingFavorites ? '...' : `(${favoritePhotoIds.length})`}
                     </Button>
 
-                    {galleryType === 'client' && getTotalFavorites() > 0 && getFavoritedPhotosText() && (
+                    {gallery?.type === 'client' && getTotalFavorites() > 0 && getFavoritedPhotosText() && (
                       <div className="flex items-center gap-2 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                         <code
                           className="text-xs font-mono text-blue-900 dark:text-blue-100 cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
