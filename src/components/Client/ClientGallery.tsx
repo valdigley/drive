@@ -172,11 +172,11 @@ export function ClientGallery() {
                       <div className={`flex items-center gap-1 ${isExpired ? 'text-red-300' : daysUntilExpiration <= 7 ? 'text-yellow-300' : 'text-green-300'}`}>
                         <Clock size={16} />
                         <span>
-                          {isExpired 
-                            ? 'Expirada' 
-                            : daysUntilExpiration === 1 
-                              ? '1 dia restante'
-                              : `${daysUntilExpiration} dias restantes`
+                          {isExpired
+                            ? 'Essa galeria expirou'
+                            : daysUntilExpiration === 1
+                              ? 'Essa galeria expira em 1 dia'
+                              : `Essa galeria expira em ${daysUntilExpiration} dias`
                           }
                         </span>
                       </div>
