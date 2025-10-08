@@ -47,9 +47,9 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [loadingFavorites, setLoadingFavorites] = useState(false);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
 
-  const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
-
-  console.log('📊 GalleryManager state:', { editingDetails, clients: clients.length, gallery: gallery?.name });
+  const gallery = React.useMemo(() => {
+    return fullGallery || state.galleries.find(g => g.id === galleryId);
+  }, [fullGallery, state.galleries, galleryId]);
 
   // Load favorites from database
   useEffect(() => {
@@ -93,6 +93,10 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
 
   useEffect(() => {
     const loadFullGalleryData = async () => {
+      if (fullGallery && fullGallery.photos.length > 0) {
+        return;
+      }
+
       const stateGallery = state.galleries.find(g => g.id === galleryId);
 
       // Check if we have complete photo data (photos should have url property)
@@ -110,23 +114,19 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
               photos: photos,
             };
             setFullGallery(completeGallery);
-
-            // Update the global state with complete data
-            dispatch({ type: 'UPDATE_GALLERY', payload: completeGallery });
           }
         } catch (error) {
           console.error('Error loading complete gallery data:', error);
         } finally {
           setLoading(false);
         }
-      } else if (stateGallery) {
-        // Se já temos dados completos, usar do estado global
+      } else if (stateGallery && !fullGallery) {
         setFullGallery(stateGallery);
       }
     };
 
     loadFullGalleryData();
-  }, [galleryId, state.galleries]);
+  }, [galleryId]);
 
   const handleFileUpload = async (files: FileList) => {
     const validFiles = Array.from(files).filter(file => {
