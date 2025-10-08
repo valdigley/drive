@@ -7,6 +7,7 @@ class GalleryService {
       const { data: galleries, error } = await supabase
         .from('galleries')
         .select('*')
+        .eq('gallery_type', 'client')
         .order('created_date', { ascending: false });
 
       if (error) throw error;

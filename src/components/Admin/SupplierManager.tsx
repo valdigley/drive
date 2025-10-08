@@ -86,6 +86,12 @@ export function SupplierManager() {
     alert('Código de acesso copiado!');
   };
 
+  const handleCopyGalleryLink = (accessCode: string) => {
+    const galleryUrl = `${window.location.origin}/?code=${accessCode}`;
+    navigator.clipboard.writeText(galleryUrl);
+    alert('Link da galeria copiado!');
+  };
+
   const categoryColors: Record<string, string> = {
     fotografia: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     buffet: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
@@ -162,21 +168,25 @@ export function SupplierManager() {
                           {supplier.accessCode}
                         </span>
                       </div>
-                      <button
-                        onClick={() => handleCopyAccessCode(supplier.accessCode!)}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        title="Copiar código de acesso"
-                      >
-                        <Copy size={14} />
-                      </button>
                       <span className="text-xs text-gray-500">
-                        (Código de acesso à galeria)
+                        (Galeria do fornecedor)
                       </span>
                     </div>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {supplier.accessCode && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleCopyGalleryLink(supplier.accessCode!)}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy size={16} />
+                    Copiar Link
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
