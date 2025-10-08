@@ -201,6 +201,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
             onChange={handleInputChange}
             placeholder="Ex: Igreja São José, Centro"
             icon={<MapPin />}
+            autoComplete="off"
           />
         </div>
 
