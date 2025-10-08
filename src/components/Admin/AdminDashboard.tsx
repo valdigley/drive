@@ -24,6 +24,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'galleries' | 'suppliers' | 'clients'>('galleries');
+  const [displayLimit, setDisplayLimit] = useState(5);
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -78,6 +79,15 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
 
   const { galleries, adminStats } = state;
 
+  // Reset display limit when search query changes
+  React.useEffect(() => {
+    if (searchQuery.trim()) {
+      setDisplayLimit(galleries.length);
+    } else {
+      setDisplayLimit(5);
+    }
+  }, [searchQuery, galleries.length]);
+
   // Filter galleries based on search query
   const filteredGalleries = useMemo(() => {
     if (!searchQuery.trim()) return galleries;
@@ -88,6 +98,16 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
       gallery.clientName.toLowerCase().includes(query)
     );
   }, [galleries, searchQuery]);
+
+  // Get displayed galleries (limit to displayLimit when not searching)
+  const displayedGalleries = useMemo(() => {
+    if (searchQuery.trim()) {
+      return filteredGalleries;
+    }
+    return filteredGalleries.slice(0, displayLimit);
+  }, [filteredGalleries, displayLimit, searchQuery]);
+
+  const hasMoreGalleries = !searchQuery.trim() && filteredGalleries.length > displayLimit;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -238,6 +258,18 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               </div>
             </div>
 
+            {/* Section Title */}
+            {!searchQuery.trim() && filteredGalleries.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Galerias Recentes
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Exibindo {Math.min(displayLimit, filteredGalleries.length)} de {filteredGalleries.length} galerias
+                </p>
+              </div>
+            )}
+
           {filteredGalleries.length === 0 && searchQuery.trim() ? (
             <div className="text-center py-8">
               <Search size={48} className="mx-auto text-gray-400 mb-4" />
@@ -259,16 +291,31 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {filteredGalleries.map((gallery) => (
-                <GalleryCard
-                  key={gallery.id}
-                  gallery={gallery}
-                  onManage={onManageGallery}
-                  viewMode="list"
-                />
-              ))}
-            </div>
+            <>
+              <div className="space-y-3">
+                {displayedGalleries.map((gallery) => (
+                  <GalleryCard
+                    key={gallery.id}
+                    gallery={gallery}
+                    onManage={onManageGallery}
+                    viewMode="list"
+                  />
+                ))}
+              </div>
+
+              {hasMoreGalleries && (
+                <div className="flex justify-center mt-6">
+                  <Button
+                    onClick={() => setDisplayLimit(prev => prev + 5)}
+                    variant="secondary"
+                    className="flex items-center gap-2"
+                  >
+                    <Plus size={18} />
+                    Carregar mais ({filteredGalleries.length - displayLimit} restantes)
+                  </Button>
+                </div>
+              )}
+            </>
           )}
           </div>
         ) : activeTab === 'clients' ? (
