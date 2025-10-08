@@ -171,19 +171,6 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               </div>
             </button>
             <button
-              onClick={() => setActiveTab('suppliers')}
-              className={`px-4 py-2 border-b-2 font-medium transition-colors ${
-                activeTab === 'suppliers'
-                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Store size={18} />
-                Fornecedores
-              </div>
-            </button>
-            <button
               onClick={() => setActiveTab('clients')}
               className={`px-4 py-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'clients'
@@ -194,6 +181,19 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
               <div className="flex items-center gap-2">
                 <User size={18} />
                 Clientes
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('suppliers')}
+              className={`px-4 py-2 border-b-2 font-medium transition-colors ${
+                activeTab === 'suppliers'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Store size={18} />
+                Fornecedores
               </div>
             </button>
           </div>
@@ -271,10 +271,10 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             </div>
           )}
           </div>
-        ) : activeTab === 'suppliers' ? (
-          <SupplierManager />
-        ) : (
+        ) : activeTab === 'clients' ? (
           <ClientManager />
+        ) : (
+          <SupplierManager />
         )}
       </div>
 
