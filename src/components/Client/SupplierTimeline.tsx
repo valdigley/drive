@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Calendar, Image as ImageIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, Image as ImageIcon, Heart, Check, Printer, Tag } from 'lucide-react';
 import { Photo } from '../../types';
 import { formatDate } from '../../utils/fileUtils';
+import { useAppContext } from '../../contexts/AppContext';
 
 interface GalleryGroup {
   galleryId: string;
@@ -15,10 +16,44 @@ interface GalleryGroup {
 interface SupplierTimelineProps {
   galleryGroups: GalleryGroup[];
   onPhotoClick: (photo: Photo, index: number) => void;
+  onTagSupplier?: (photoId: string) => void;
 }
 
-export function SupplierTimeline({ galleryGroups, onPhotoClick }: SupplierTimelineProps) {
+export function SupplierTimeline({ galleryGroups, onPhotoClick, onTagSupplier }: SupplierTimelineProps) {
+  const { state, dispatch } = useAppContext();
+  const { clientSession } = state;
   const [expandedGalleries, setExpandedGalleries] = useState<Set<string>>(new Set([galleryGroups[0]?.galleryId]));
+  const [hoveredPhoto, setHoveredPhoto] = useState<string | null>(null);
+
+  const isFavorite = (photoId: string) => {
+    return clientSession?.favorites.includes(photoId) || false;
+  };
+
+  const isSelected = (photoId: string) => {
+    return clientSession?.selectedPhotos.includes(photoId) || false;
+  };
+
+  const isInPrintCart = (photoId: string) => {
+    return clientSession?.printCart.includes(photoId) || false;
+  };
+
+  const handlePrintCartToggle = (photoId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!clientSession) return;
+    dispatch({ type: 'TOGGLE_PRINT_CART', payload: { photoId } });
+  };
+
+  const handleFavoriteToggle = (photoId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!clientSession) return;
+    dispatch({ type: 'TOGGLE_FAVORITE', payload: { photoId } });
+  };
+
+  const handleSelectionToggle = (photoId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!clientSession) return;
+    dispatch({ type: 'TOGGLE_SELECTION', payload: { photoId } });
+  };
 
   const toggleGallery = (galleryId: string) => {
     setExpandedGalleries(prev => {
@@ -157,25 +192,88 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick }: SupplierTimeli
                         {/* Photo Grid */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                           {group.photos.map((photo, photoIndex) => (
-                            <button
+                            <div
                               key={photo.id}
-                              onClick={() => onPhotoClick(photo, globalPhotoIndex + photoIndex)}
                               className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 hover:ring-2 hover:ring-blue-500 transition-all duration-200"
+                              onMouseEnter={() => setHoveredPhoto(photo.id)}
+                              onMouseLeave={() => setHoveredPhoto(null)}
                             >
-                              <img
-                                src={photo.thumbnail || photo.url}
-                                alt={photo.filename}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                loading="lazy"
-                              />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="bg-white dark:bg-gray-800 rounded-full p-2 shadow-lg">
-                                    <ImageIcon size={20} className="text-blue-600 dark:text-blue-400" />
-                                  </div>
-                                </div>
+                              <button
+                                onClick={() => onPhotoClick(photo, globalPhotoIndex + photoIndex)}
+                                className="w-full h-full"
+                              >
+                                <img
+                                  src={photo.thumbnail || photo.url}
+                                  alt={photo.filename}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                  loading="lazy"
+                                />
+                              </button>
+
+                              {/* Action Buttons - Always Visible */}
+                              <div className="absolute top-1 right-1 flex gap-1">
+                                {onTagSupplier && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onTagSupplier(photo.id);
+                                    }}
+                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                      photo.supplierId
+                                        ? 'bg-purple-600 text-white scale-110'
+                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                    }`}
+                                    title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                                  >
+                                    <Tag size={14} />
+                                  </button>
+                                )}
+
+                                <button
+                                  onClick={(e) => handlePrintCartToggle(photo.id, e)}
+                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                    isInPrintCart(photo.id)
+                                      ? 'bg-green-600 text-white scale-110'
+                                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                  }`}
+                                  title="Adicionar ao carrinho de impressão"
+                                >
+                                  <Printer size={14} />
+                                </button>
+
+                                <button
+                                  onClick={(e) => handleSelectionToggle(photo.id, e)}
+                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                    isSelected(photo.id)
+                                      ? 'bg-blue-600 text-white scale-110'
+                                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                  }`}
+                                  title="Selecionar foto"
+                                >
+                                  <Check size={14} />
+                                </button>
+
+                                <button
+                                  onClick={(e) => handleFavoriteToggle(photo.id, e)}
+                                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                    isFavorite(photo.id)
+                                      ? 'bg-red-500 text-white shadow-lg scale-110'
+                                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                  }`}
+                                  title={isFavorite(photo.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                                >
+                                  <Heart
+                                    size={14}
+                                    fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
+                                  />
+                                </button>
                               </div>
-                            </button>
+
+                              {/* Hover overlay */}
+                              <div className={`absolute inset-0 bg-black transition-all duration-300 pointer-events-none ${
+                                hoveredPhoto === photo.id ? 'bg-opacity-20' : 'bg-opacity-0'
+                              }`} />
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -262,25 +360,88 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick }: SupplierTimeli
                           {/* Photo Grid */}
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                             {group.photos.map((photo, photoIndex) => (
-                              <button
+                              <div
                                 key={photo.id}
-                                onClick={() => onPhotoClick(photo, globalPhotoIndex + photoIndex)}
                                 className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 hover:ring-2 hover:ring-gray-500 transition-all duration-200"
+                                onMouseEnter={() => setHoveredPhoto(photo.id)}
+                                onMouseLeave={() => setHoveredPhoto(null)}
                               >
-                                <img
-                                  src={photo.thumbnail || photo.url}
-                                  alt={photo.filename}
-                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                  loading="lazy"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div className="bg-white dark:bg-gray-800 rounded-full p-2 shadow-lg">
-                                      <ImageIcon size={20} className="text-gray-600 dark:text-gray-400" />
-                                    </div>
-                                  </div>
+                                <button
+                                  onClick={() => onPhotoClick(photo, globalPhotoIndex + photoIndex)}
+                                  className="w-full h-full"
+                                >
+                                  <img
+                                    src={photo.thumbnail || photo.url}
+                                    alt={photo.filename}
+                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                    loading="lazy"
+                                  />
+                                </button>
+
+                                {/* Action Buttons - Always Visible */}
+                                <div className="absolute top-1 right-1 flex gap-1">
+                                  {onTagSupplier && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onTagSupplier(photo.id);
+                                      }}
+                                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                        photo.supplierId
+                                          ? 'bg-purple-600 text-white scale-110'
+                                          : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                      }`}
+                                      title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                                    >
+                                      <Tag size={14} />
+                                    </button>
+                                  )}
+
+                                  <button
+                                    onClick={(e) => handlePrintCartToggle(photo.id, e)}
+                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                      isInPrintCart(photo.id)
+                                        ? 'bg-green-600 text-white scale-110'
+                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                    }`}
+                                    title="Adicionar ao carrinho de impressão"
+                                  >
+                                    <Printer size={14} />
+                                  </button>
+
+                                  <button
+                                    onClick={(e) => handleSelectionToggle(photo.id, e)}
+                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                      isSelected(photo.id)
+                                        ? 'bg-blue-600 text-white scale-110'
+                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                    }`}
+                                    title="Selecionar foto"
+                                  >
+                                    <Check size={14} />
+                                  </button>
+
+                                  <button
+                                    onClick={(e) => handleFavoriteToggle(photo.id, e)}
+                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                                      isFavorite(photo.id)
+                                        ? 'bg-red-500 text-white shadow-lg scale-110'
+                                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                                    }`}
+                                    title={isFavorite(photo.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                                  >
+                                    <Heart
+                                      size={14}
+                                      fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
+                                    />
+                                  </button>
                                 </div>
-                              </button>
+
+                                {/* Hover overlay */}
+                                <div className={`absolute inset-0 bg-black transition-all duration-300 pointer-events-none ${
+                                  hoveredPhoto === photo.id ? 'bg-opacity-20' : 'bg-opacity-0'
+                                }`} />
+                              </div>
                             ))}
                           </div>
                         </div>
