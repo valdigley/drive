@@ -9,6 +9,7 @@ interface GalleryGroup {
   clientName: string;
   photos: Photo[];
   date?: Date;
+  createdDate?: Date;
 }
 
 interface SupplierTimelineProps {
@@ -43,9 +44,15 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick }: SupplierTimeli
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const recentEvents = galleryGroups.filter(g => g.date && g.date >= thirtyDaysAgo);
-  const oldEvents = galleryGroups.filter(g => g.date && g.date < thirtyDaysAgo);
-  const undatedEvents = galleryGroups.filter(g => !g.date);
+  const recentEvents = galleryGroups.filter(g => {
+    const displayDate = g.date || g.createdDate;
+    return displayDate && displayDate >= thirtyDaysAgo;
+  });
+
+  const oldEvents = galleryGroups.filter(g => {
+    const displayDate = g.date || g.createdDate;
+    return displayDate && displayDate < thirtyDaysAgo;
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -115,9 +122,9 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick }: SupplierTimeli
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             Cliente: {group.clientName}
                           </p>
-                          {group.date && (
+                          {(group.date || group.createdDate) && (
                             <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mt-1">
-                              {formatDate(group.date)}
+                              {group.date ? formatDate(group.date) : `Criada em ${formatDate(group.createdDate!)}`}
                             </p>
                           )}
                           <div className="flex items-center gap-2 mt-1">
@@ -220,9 +227,9 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick }: SupplierTimeli
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               Cliente: {group.clientName}
                             </p>
-                            {group.date && (
+                            {(group.date || group.createdDate) && (
                               <p className="text-sm text-gray-500 dark:text-gray-500 font-medium mt-1">
-                                {formatDate(group.date)}
+                                {group.date ? formatDate(group.date) : `Criada em ${formatDate(group.createdDate!)}`}
                               </p>
                             )}
                             <div className="flex items-center gap-2 mt-1">
@@ -286,15 +293,6 @@ export function SupplierTimeline({ galleryGroups, onPhotoClick }: SupplierTimeli
           </div>
         )}
 
-        {/* Undated Events Warning */}
-        {undatedEvents.length > 0 && (
-          <div className="ml-20 mt-12 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              <strong>Atenção:</strong> {undatedEvents.length} evento(s) sem data não podem ser exibidos na linha do tempo.
-              Por favor, adicione datas aos eventos no painel administrativo.
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Empty State */}

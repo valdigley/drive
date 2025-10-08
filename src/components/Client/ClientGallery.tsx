@@ -82,7 +82,7 @@ export function ClientGallery() {
   const galleryGroups = useMemo(() => {
     if (!isSupplier || !currentGallery) return [];
 
-    const groups = new Map<string, { galleryId: string; galleryName: string; clientName: string; photos: Photo[]; date?: Date }>();
+    const groups = new Map<string, { galleryId: string; galleryName: string; clientName: string; photos: Photo[]; date?: Date; createdDate?: Date }>();
 
     currentGallery.photos.forEach(photo => {
       const photoGalleryId = (photo as any).galleryId;
@@ -92,6 +92,7 @@ export function ClientGallery() {
       const galleryName = matchingGallery?.galleryName || currentGallery.name;
       const clientName = matchingGallery?.clientName || currentGallery.clientName || 'Cliente';
       const eventDate = matchingGallery?.eventDate ? new Date(matchingGallery.eventDate) : undefined;
+      const createdDate = matchingGallery?.createdDate ? new Date(matchingGallery.createdDate) : new Date(currentGallery.createdDate);
 
       if (!groups.has(galleryId)) {
         groups.set(galleryId, {
@@ -100,6 +101,7 @@ export function ClientGallery() {
           clientName,
           photos: [],
           date: eventDate,
+          createdDate: createdDate,
         });
       }
 
@@ -107,12 +109,15 @@ export function ClientGallery() {
     });
 
     return Array.from(groups.values()).sort((a, b) => {
-      // Sort by date (newest first), galleries without dates go to the end
-      if (a.date && b.date) {
-        return b.date.getTime() - a.date.getTime();
+      // Sort by event date or created date (newest first)
+      const dateA = a.date || a.createdDate;
+      const dateB = b.date || b.createdDate;
+
+      if (dateA && dateB) {
+        return dateB.getTime() - dateA.getTime();
       }
-      if (a.date) return -1;
-      if (b.date) return 1;
+      if (dateA) return -1;
+      if (dateB) return 1;
       return b.photos.length - a.photos.length;
     });
   }, [isSupplier, currentGallery, supplierGalleries]);
