@@ -155,18 +155,29 @@ export function ClientGallery() {
   const daysUntilExpiration = getDaysUntilExpiration();
   const isExpired = isGalleryExpired(currentGallery.expirationDate);
 
+  console.log('🖼️ Cover photo:', coverPhoto);
+  console.log('📷 Total photos:', currentGallery.photos.length);
+  console.log('🆔 Cover photo ID:', currentGallery.coverPhotoId);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section with Cover Photo */}
-      {coverPhoto && (
+      {coverPhoto ? (
         <div className="relative h-96 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${coverPhoto.url})` }}
+          <img
+            src={coverPhoto.url}
+            alt="Cover"
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => {
+              console.error('❌ Cover photo failed to load:', coverPhoto.url);
+            }}
+            onLoad={() => {
+              console.log('✅ Cover photo loaded:', coverPhoto.url);
+            }}
           />
           <div className="absolute inset-0 bg-black bg-opacity-40" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-          
+
           <div className="relative h-full flex items-end">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
               <div className="text-white">
@@ -193,6 +204,35 @@ export function ClientGallery() {
                 {currentGallery.description && (
                   <p className="text-lg opacity-90 mt-3 max-w-2xl">{currentGallery.description}</p>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gradient-to-r from-gray-700 to-gray-900 relative h-96 overflow-hidden">
+          <div className="relative h-full flex items-end">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
+              <div className="text-white">
+                <h1 className="text-4xl md:text-5xl font-bold mb-2">{currentGallery.clientName || 'Cliente'}</h1>
+                <div className="flex items-center gap-4 text-lg opacity-90">
+                  <span>{currentGallery.photos.length} fotos</span>
+                  {daysUntilExpiration !== null && (
+                    <>
+                      <span>•</span>
+                      <div className={`flex items-center gap-1 ${isExpired ? 'text-red-300' : daysUntilExpiration <= 7 ? 'text-yellow-300' : 'text-green-300'}`}>
+                        <Clock size={16} />
+                        <span>
+                          {isExpired
+                            ? 'Essa galeria expirou'
+                            : daysUntilExpiration === 1
+                              ? 'Essa galeria expira em 1 dia'
+                              : `Essa galeria expira em ${daysUntilExpiration} dias`
+                          }
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
