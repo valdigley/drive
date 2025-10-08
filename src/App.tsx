@@ -87,7 +87,7 @@ function App() {
       const path = window.location.pathname;
       const galleryMatch = path.match(/\/gallery\/(.+)/);
 
-      if (accessCode) {
+      if (accessCode && !clientGalleryId) {
         setLoadingGallery(true);
         try {
           const gallery = await galleryService.getGalleryByAccessCode(accessCode);
@@ -98,6 +98,11 @@ function App() {
             dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
             setClientGalleryId(gallery.id);
             dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+
+            // Grant access immediately if no password
+            if (!gallery.password) {
+              setAccessGranted(true);
+            }
           } else {
             console.log('Gallery not found with access code:', accessCode);
           }
@@ -109,7 +114,7 @@ function App() {
         return;
       }
 
-      if (galleryMatch) {
+      if (galleryMatch && !clientGalleryId) {
         const galleryId = galleryMatch[1];
         setClientGalleryId(galleryId);
         dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
@@ -125,6 +130,11 @@ function App() {
               const completeGallery = { ...gallery, photos };
               dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
               dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+
+              // Grant access immediately if no password
+              if (!gallery.password) {
+                setAccessGranted(true);
+              }
             } else {
               console.log('Gallery not found:', galleryId);
             }
@@ -135,12 +145,17 @@ function App() {
           }
         } else {
           dispatch({ type: 'SET_CURRENT_GALLERY', payload: gallery });
+
+          // Grant access immediately if no password
+          if (!gallery.password) {
+            setAccessGranted(true);
+          }
         }
       }
     };
 
     loadGalleryFromUrl();
-  }, [dispatch, initializing, state.galleries]);
+  }, [dispatch, initializing]);
 
   // Handler functions
   const handleManageGallery = (galleryId: string) => {
@@ -230,12 +245,17 @@ function App() {
       );
     }
 
-    // If no password or access granted, initialize session and show gallery
-    if (!accessGranted) {
-      setAccessGranted(true);
+    // Show gallery if access granted or no password required
+    if (accessGranted || !gallery.password) {
+      return <ClientGallery />;
     }
 
-    return <ClientGallery />;
+    // Still loading access verification
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
   // Admin views
