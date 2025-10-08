@@ -207,8 +207,8 @@ function App() {
     );
   }
 
-  // Show login screen if not authenticated
-  if (!user) {
+  // Show login screen if not authenticated AND not accessing a gallery
+  if (!user && !clientGalleryId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
@@ -235,8 +235,8 @@ function App() {
     );
   }
 
-  // Client view with gallery access
-  if (currentUser === 'client' && clientGalleryId) {
+  // Client or Supplier view with gallery access
+  if ((currentUser === 'client' || currentUser === 'supplier') && clientGalleryId) {
     const gallery = state.galleries.find(g => g.id === clientGalleryId) || state.currentGallery;
 
     if (!gallery) {
