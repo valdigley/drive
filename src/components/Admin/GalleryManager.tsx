@@ -94,23 +94,23 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   useEffect(() => {
     const loadFullGalleryData = async () => {
       const stateGallery = state.galleries.find(g => g.id === galleryId);
-      
+
       // Check if we have complete photo data (photos should have url property)
       const hasCompleteData = stateGallery?.photos.every(photo => 'url' in photo && photo.url);
-      
+
       if (!hasCompleteData && stateGallery) {
         setLoading(true);
         try {
           const galleryDetails = await galleryService.getGalleryDetails(galleryId);
           const photos = await galleryService.getGalleryPhotos(galleryId);
-          
+
           if (galleryDetails) {
             const completeGallery = {
               ...galleryDetails,
               photos: photos,
             };
             setFullGallery(completeGallery);
-            
+
             // Update the global state with complete data
             dispatch({ type: 'UPDATE_GALLERY', payload: completeGallery });
           }
@@ -127,18 +127,6 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
 
     loadFullGalleryData();
   }, [galleryId, state.galleries]);
-
-  if (!gallery) {
-    return <div>Galeria não encontrada</div>;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
 
   const handleFileUpload = async (files: FileList) => {
     const validFiles = Array.from(files).filter(file => {
@@ -397,9 +385,13 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   }, [gallery, filter, favoritePhotoIds]);
 
   if (!gallery) {
+    return <div>Galeria não encontrada</div>;
+  }
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <LoadingSpinner />
       </div>
     );
   }
