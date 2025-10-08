@@ -164,8 +164,6 @@ export function ClientGallery() {
                 <h1 className="text-4xl md:text-5xl font-bold mb-2">{currentGallery.clientName || 'Cliente'}</h1>
                 <div className="flex items-center gap-4 text-lg opacity-90">
                   <span>{currentGallery.photos.length} fotos</span>
-                  <span>•</span>
-                  <span>{formatDate(currentGallery.createdDate)}</span>
                   {daysUntilExpiration !== null && (
                     <>
                       <span>•</span>
