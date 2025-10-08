@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Gallery, ClientSession } from '../types';
 import { useAppContext } from '../contexts/AppContext';
 import { galleryService } from '../services/galleryService';
+import { favoriteService } from '../services/favoriteService';
 
 export function useGalleryAccess(galleryId: string) {
   const { state, dispatch } = useAppContext();
@@ -52,29 +53,34 @@ export function useGalleryAccess(galleryId: string) {
 
   const initializeClientSession = async (gallery: Gallery) => {
     const sessionId = `gallery_session_${gallery.id}`;
-    
+
     // Carregar sessão existente do localStorage se houver
     const existingSession = localStorage.getItem(sessionId);
     let session: ClientSession;
-    
+
+    // Carregar favoritos do banco de dados
+    const favoritesFromDB = await favoriteService.getFavorites(gallery.id, sessionId);
+    console.log('💾 Favorites loaded from database:', favoritesFromDB.length);
+
     if (existingSession) {
       const parsedSession = JSON.parse(existingSession);
       session = {
         ...parsedSession,
         printCart: parsedSession.printCart || [],
+        favorites: favoritesFromDB, // Usar favoritos do banco de dados
       };
       session.accessedAt = new Date();
     } else {
       session = {
         galleryId: gallery.id,
         accessedAt: new Date(),
-        favorites: [],
+        favorites: favoritesFromDB, // Usar favoritos do banco de dados
         selectedPhotos: [],
         printCart: [],
         downloads: 0,
       };
     }
-    
+
     // Salvar sessão no localStorage
     localStorage.setItem(sessionId, JSON.stringify({
       galleryId: gallery.id,
@@ -84,7 +90,7 @@ export function useGalleryAccess(galleryId: string) {
       printCart: session.printCart || [],
       downloads: session.downloads,
     }));
-    
+
     dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
 
     // Try to increment access count, but don't fail if it errors

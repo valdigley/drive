@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { Gallery, ClientSession, AdminStats, Theme, UserRole } from '../types';
+import { favoriteService } from '../services/favoriteService';
 
 interface AppState {
   currentUser: UserRole;
@@ -104,19 +105,41 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     case 'TOGGLE_FAVORITE':
       if (!state.clientSession) return state;
-      const updatedFavorites = state.clientSession.favorites.includes(action.payload.photoId)
+      const isFavorited = state.clientSession.favorites.includes(action.payload.photoId);
+      const updatedFavorites = isFavorited
         ? state.clientSession.favorites.filter(id => id !== action.payload.photoId)
         : [...state.clientSession.favorites, action.payload.photoId];
-      
+
       const updatedSessionWithFavorites = {
         ...state.clientSession,
         favorites: updatedFavorites,
       };
-      
+
       // Salvar no localStorage
       const sessionKey = `gallery_session_${state.clientSession.galleryId}`;
       localStorage.setItem(sessionKey, JSON.stringify(updatedSessionWithFavorites));
-      
+
+      // Salvar no banco de dados de forma assíncrona
+      const sessionId = sessionKey;
+      const galleryId = state.clientSession.galleryId;
+      const photoId = action.payload.photoId;
+
+      if (isFavorited) {
+        // Remover favorito
+        favoriteService.removeFavorite(photoId, sessionId).then(success => {
+          if (success) {
+            console.log('❤️ Favorite removed from database');
+          }
+        });
+      } else {
+        // Adicionar favorito
+        favoriteService.addFavorite(photoId, galleryId, sessionId).then(success => {
+          if (success) {
+            console.log('❤️ Favorite added to database');
+          }
+        });
+      }
+
       return {
         ...state,
         clientSession: updatedSessionWithFavorites,

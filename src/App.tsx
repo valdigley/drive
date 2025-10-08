@@ -10,13 +10,14 @@ import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
 import { supplierService } from './services/supplierService';
 import { clientService } from './services/clientService';
+import { favoriteService } from './services/favoriteService';
 import { setGlobalDispatch } from './utils/fileUtils';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { supabase } from './lib/supabase';
 
 function App() {
   const { state, dispatch } = useAppContext();
-  
+
   // State hooks - must be called unconditionally
   const [currentView, setCurrentView] = useState<'dashboard' | 'gallery-manager' | 'client-gallery' | 'client-dashboard'>('dashboard');
   const [managingGalleryId, setManagingGalleryId] = useState<string | null>(null);
@@ -27,6 +28,32 @@ function App() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper function to initialize client session with favorites from database
+  const initializeClientSession = async (galleryId: string, clientId?: string) => {
+    const sessionId = `gallery_session_${galleryId}`;
+    const existingSession = localStorage.getItem(sessionId);
+
+    // Load favorites from database
+    const favoritesFromDB = await favoriteService.getFavorites(galleryId, sessionId);
+    console.log('💾 Favorites loaded from database:', favoritesFromDB.length);
+
+    const session = existingSession ? JSON.parse(existingSession) : {
+      galleryId: galleryId,
+      accessedAt: new Date(),
+      favorites: [],
+      selectedPhotos: [],
+      printCart: [],
+      downloads: 0,
+    };
+
+    // Update with favorites from database
+    session.favorites = favoritesFromDB;
+    session.accessedAt = new Date();
+
+    localStorage.setItem(sessionId, JSON.stringify(session));
+    dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
+  };
 
   // Extract state values after hooks
   const { currentUser, galleries, theme } = state;
@@ -114,19 +141,7 @@ function App() {
               dispatch({ type: 'SET_USER_ROLE', payload: 'supplier' });
               setAccessGranted(true);
               // Initialize client session for supplier
-              const sessionId = `gallery_session_${supplier.galleryId}`;
-              const existingSession = localStorage.getItem(sessionId);
-              const session = existingSession ? JSON.parse(existingSession) : {
-                galleryId: supplier.galleryId,
-                accessedAt: new Date(),
-                favorites: [],
-                selectedPhotos: [],
-                printCart: [],
-                downloads: 0,
-              };
-              session.accessedAt = new Date();
-              localStorage.setItem(sessionId, JSON.stringify(session));
-              dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
+              await initializeClientSession(supplier.galleryId);
             }
           } else {
             // Check if this is a client access code
@@ -161,20 +176,7 @@ function App() {
                 // Grant access immediately if no password and initialize session
                 if (!gallery.password) {
                   setAccessGranted(true);
-                  // Initialize client session
-                  const sessionId = `gallery_session_${gallery.id}`;
-                  const existingSession = localStorage.getItem(sessionId);
-                  const session = existingSession ? JSON.parse(existingSession) : {
-                    galleryId: gallery.id,
-                    accessedAt: new Date(),
-                    favorites: [],
-                    selectedPhotos: [],
-                    printCart: [],
-                    downloads: 0,
-                  };
-                  session.accessedAt = new Date();
-                  localStorage.setItem(sessionId, JSON.stringify(session));
-                  dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
+                  await initializeClientSession(gallery.id);
                 }
               } else {
                 console.log('Gallery not found with access code:', accessCode);
@@ -221,20 +223,7 @@ function App() {
               // Grant access immediately if no password and initialize session
               if (!gallery.password) {
                 setAccessGranted(true);
-                // Initialize client session
-                const sessionId = `gallery_session_${galleryId}`;
-                const existingSession = localStorage.getItem(sessionId);
-                const session = existingSession ? JSON.parse(existingSession) : {
-                  galleryId: galleryId,
-                  accessedAt: new Date(),
-                  favorites: [],
-                  selectedPhotos: [],
-                  printCart: [],
-                  downloads: 0,
-                };
-                session.accessedAt = new Date();
-                localStorage.setItem(sessionId, JSON.stringify(session));
-                dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
+                await initializeClientSession(galleryId);
               }
             } else {
               console.log('Gallery not found:', galleryId);
@@ -277,19 +266,7 @@ function App() {
         setCurrentView('client-gallery');
         setAccessGranted(true);
         // Initialize client session
-        const sessionId = `gallery_session_${galleryId}`;
-        const existingSession = localStorage.getItem(sessionId);
-        const session = existingSession ? JSON.parse(existingSession) : {
-          galleryId: galleryId,
-          accessedAt: new Date(),
-          favorites: [],
-          selectedPhotos: [],
-          printCart: [],
-          downloads: 0,
-        };
-        session.accessedAt = new Date();
-        localStorage.setItem(sessionId, JSON.stringify(session));
-        dispatch({ type: 'SET_CLIENT_SESSION', payload: session });
+        await initializeClientSession(galleryId);
       }
     } catch (error) {
       console.error('Error loading gallery:', error);
