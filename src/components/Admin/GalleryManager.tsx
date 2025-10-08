@@ -47,7 +47,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
     const loadClients = async () => {
       try {
         const { clientService } = await import('../../services/clientService');
-        const clientsList = await clientService.getClients();
+        const clientsList = await clientService.getAllClients();
         setClients(clientsList.map(c => ({ id: c.id, name: c.name })));
       } catch (error) {
         console.error('Error loading clients:', error);
