@@ -6,6 +6,7 @@ import { PhotoGrid } from '../Client/PhotoGrid';
 import { PhotoLightbox } from './PhotoLightbox';
 import { SelectionPanel } from './SelectionPanel';
 import { PrintCartPanel } from './PrintCartPanel';
+import { SupplierTimeline } from './SupplierTimeline';
 import { Photo, ViewMode } from '../../types';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
 import { galleryService } from '../../services/galleryService';
@@ -76,6 +77,35 @@ export function ClientGallery() {
     }
     return currentGallery.photos;
   }, [currentGallery.photos, filter, clientSession]);
+
+  // Group photos by gallery for supplier timeline view
+  const galleryGroups = useMemo(() => {
+    if (!isSupplier || !currentGallery) return [];
+
+    const groups = new Map<string, { galleryId: string; galleryName: string; clientName: string; photos: Photo[] }>();
+
+    currentGallery.photos.forEach(photo => {
+      const photoGalleryId = (photo as any).galleryId;
+      const matchingGallery = supplierGalleries.find(g => g.galleryId === photoGalleryId);
+
+      const galleryId = photoGalleryId || currentGallery.id;
+      const galleryName = matchingGallery?.galleryName || currentGallery.name;
+      const clientName = matchingGallery?.clientName || currentGallery.clientName || 'Cliente';
+
+      if (!groups.has(galleryId)) {
+        groups.set(galleryId, {
+          galleryId,
+          galleryName,
+          clientName,
+          photos: [],
+        });
+      }
+
+      groups.get(galleryId)!.photos.push(photo);
+    });
+
+    return Array.from(groups.values()).sort((a, b) => b.photos.length - a.photos.length);
+  }, [isSupplier, currentGallery, supplierGalleries]);
 
   const handlePhotoClick = (photo: Photo, index: number) => {
     setCurrentPhotoIndex(index);
@@ -149,75 +179,32 @@ export function ClientGallery() {
         </div>
       )}
 
-      {/* Navigation Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            {/* Supplier Gallery Filter */}
-            {isSupplier && supplierGalleries.length > 1 && (
-              <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Filtrar por Galeria
-                </label>
-                <div className="flex items-center gap-2 flex-wrap">
+      {/* Navigation Header - Only for clients */}
+      {!isSupplier && (
+        <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {/* Filters */}
                   <Button
-                    variant={selectedGalleryFilter === 'all' ? 'primary' : 'ghost'}
+                    variant={filter === 'all' ? 'primary' : 'ghost'}
                     size="sm"
-                    onClick={() => handleGalleryFilterChange('all')}
-                    disabled={loadingGalleryFilter}
-                    className="flex items-center gap-2"
+                    onClick={() => setFilter('all')}
                   >
-                    <FolderOpen size={16} />
-                    Todas as Galerias
+                    Todas ({currentGallery.photos.length})
                   </Button>
-                  {supplierGalleries.map(gallery => (
-                    <Button
-                      key={gallery.galleryId}
-                      variant={selectedGalleryFilter === gallery.galleryId ? 'primary' : 'ghost'}
-                      size="sm"
-                      onClick={() => handleGalleryFilterChange(gallery.galleryId)}
-                      disabled={loadingGalleryFilter}
-                      className="flex items-center gap-2"
-                    >
-                      <FolderOpen size={16} />
-                      <span>{gallery.galleryName}</span>
-                      <span className="text-xs opacity-75">({gallery.photoCount})</span>
-                    </Button>
-                  ))}
+
+                  <Button
+                    variant={filter === 'favorites' ? 'primary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setFilter('favorites')}
+                    className="flex items-center gap-1"
+                  >
+                    <Heart size={16} />
+                    Favoritas ({favoritesCount})
+                  </Button>
                 </div>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {/* Filters */}
-                {!isSupplier && (
-                  <>
-                    <Button
-                      variant={filter === 'all' ? 'primary' : 'ghost'}
-                      size="sm"
-                      onClick={() => setFilter('all')}
-                    >
-                      Todas ({currentGallery.photos.length})
-                    </Button>
-
-                    <Button
-                      variant={filter === 'favorites' ? 'primary' : 'ghost'}
-                      size="sm"
-                      onClick={() => setFilter('favorites')}
-                      className="flex items-center gap-1"
-                    >
-                      <Heart size={16} />
-                      Favoritas ({favoritesCount})
-                    </Button>
-                  </>
-                )}
-                {isSupplier && (
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {currentGallery.photos.length} foto{currentGallery.photos.length !== 1 ? 's' : ''} marcada{currentGallery.photos.length !== 1 ? 's' : ''}
-                  </div>
-                )}
-              </div>
 
               {/* Selection Cart */}
               <div className="flex items-center gap-3">
@@ -246,36 +233,44 @@ export function ClientGallery() {
                   </Button>
                 )}
               </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Gallery Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {filteredPhotos.length === 0 ? (
-          <div className="text-center py-12">
-            <Heart size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              {filter === 'favorites' ? 'Nenhuma foto favorita ainda' : 'Nenhuma foto encontrada'}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              {filter === 'favorites' 
-                ? 'Marque algumas fotos como favoritas para vê-las aqui.'
-                : 'Esta galeria ainda não possui fotos.'}
-            </p>
-          </div>
-        ) : (
-          <PhotoGrid
-            photos={filteredPhotos}
-            onPhotoClick={handlePhotoClick}
-          />
-        )}
-      </div>
+      {isSupplier ? (
+        <SupplierTimeline
+          galleryGroups={galleryGroups}
+          onPhotoClick={handlePhotoClick}
+        />
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {filteredPhotos.length === 0 ? (
+            <div className="text-center py-12">
+              <Heart size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                {filter === 'favorites' ? 'Nenhuma foto favorita ainda' : 'Nenhuma foto encontrada'}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {filter === 'favorites'
+                  ? 'Marque algumas fotos como favoritas para vê-las aqui.'
+                  : 'Esta galeria ainda não possui fotos.'}
+              </p>
+            </div>
+          ) : (
+            <PhotoGrid
+              photos={filteredPhotos}
+              onPhotoClick={handlePhotoClick}
+            />
+          )}
+        </div>
+      )}
 
       {/* Lightbox */}
       <PhotoLightbox
-        photos={filteredPhotos}
+        photos={isSupplier ? currentGallery.photos : filteredPhotos}
         currentIndex={currentPhotoIndex}
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}

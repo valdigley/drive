@@ -184,6 +184,7 @@ class GalleryService {
         uploadDate: new Date(photo.upload_date),
         r2Key: photo.r2_key,
         metadata: photo.metadata || {},
+        galleryId: photo.gallery_id,
       }));
 
       // Generate signed URLs for R2 photos
