@@ -161,9 +161,9 @@ export function ClientGallery() {
           <div className="relative h-full flex items-end">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
               <div className="text-white">
-                <h1 className="text-4xl md:text-5xl font-bold mb-2">{currentGallery.name}</h1>
+                <h1 className="text-4xl md:text-5xl font-bold mb-2">{currentGallery.clientName || 'Cliente'}</h1>
                 <div className="flex items-center gap-4 text-lg opacity-90">
-                  <span>{currentGallery.clientName}</span>
+                  <span>{currentGallery.name}</span>
                   <span>•</span>
                   <span>{currentGallery.photos.length} fotos</span>
                   <span>•</span>
