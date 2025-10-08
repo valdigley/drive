@@ -35,10 +35,13 @@ export function ClientGallery() {
         const favoritesFromDB = await favoriteService.getFavorites(currentGallery.id, sessionId);
 
         console.log('🔄 Syncing favorites from database:', favoritesFromDB);
+        console.log('📊 Current favorites in session:', clientSession.favorites);
 
-        if (favoritesFromDB.length !== clientSession.favorites.length ||
-            !favoritesFromDB.every(id => clientSession.favorites.includes(id))) {
+        // Compare arrays properly
+        const needsUpdate = favoritesFromDB.length !== clientSession.favorites.length ||
+            !favoritesFromDB.every(id => clientSession.favorites.includes(id));
 
+        if (needsUpdate) {
           const updatedSession = {
             ...clientSession,
             favorites: favoritesFromDB
@@ -46,13 +49,18 @@ export function ClientGallery() {
 
           localStorage.setItem(sessionId, JSON.stringify(updatedSession));
           dispatch({ type: 'SET_CLIENT_SESSION', payload: updatedSession });
-          console.log('✅ Favorites synced with database');
+          console.log('✅ Favorites synced:', {
+            before: clientSession.favorites.length,
+            after: favoritesFromDB.length
+          });
+        } else {
+          console.log('✓ Favorites already in sync');
         }
       }
     };
 
     syncFavorites();
-  }, [filter, clientSession?.galleryId, currentGallery?.id]);
+  }, [filter]);
 
   // Load supplier galleries on mount if supplier
   useEffect(() => {
@@ -173,6 +181,9 @@ export function ClientGallery() {
   const selectedCount = clientSession?.selectedPhotos.length || 0;
   const favoritesCount = clientSession?.favorites.length || 0;
   const printCartCount = clientSession?.printCart?.length || 0;
+
+  console.log('📈 Counts:', { favoritesCount, selectedCount, printCartCount });
+  console.log('💾 Session state:', clientSession);
 
   // Calculate days until expiration
   const getDaysUntilExpiration = () => {
