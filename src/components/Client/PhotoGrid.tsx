@@ -128,68 +128,69 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
                 </div>
               )}
             
-            {/* Overlay */}
-            <div className={`absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'}`}>
+              {/* Action Buttons - Always Visible */}
               <div className={`absolute top-2 right-2 flex gap-2 ${isCoverPhoto(photo.id) ? 'mt-8' : ''}`}>
                 {/* Print Cart Toggle */}
                 <button
                   onClick={(e) => handlePrintCartToggle(photo.id, e)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
                     isInPrintCart(photo.id)
-                      ? 'bg-green-600 text-white'
-                      : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
+                      ? 'bg-green-600 text-white scale-110'
+                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
                   }`}
                   title="Adicionar ao carrinho de impressão"
                 >
-                  <Printer size={16} />
+                  <Printer size={18} />
                 </button>
 
                 {/* Selection Toggle */}
                 <button
                   onClick={(e) => handleSelectionToggle(photo.id, e)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
                     isSelected(photo.id)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
+                      ? 'bg-blue-600 text-white scale-110'
+                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
                   }`}
                   title="Selecionar foto"
                 >
-                  <Check size={16} />
+                  <Check size={18} />
                 </button>
 
                 {/* Favorite Toggle */}
                 <button
                   onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 ${
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 transform shadow-md ${
                     isFavorite(photo.id)
-                      ? 'bg-red-500 text-white shadow-lg'
-                      : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
+                      ? 'bg-red-500 text-white shadow-lg scale-110'
+                      : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
                   }`}
                   title={isFavorite(photo.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                 >
                   <Heart
-                    size={16}
+                    size={18}
                     fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
                     className={isFavorite(photo.id) ? 'animate-pulse' : ''}
                   />
                 </button>
               </div>
 
-              <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end">
-                <div className="flex gap-2">
-                  <button
-                    onClick={(e) => handleDownload(photo, e)}
-                    className="w-8 h-8 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200"
-                  >
-                    <Download size={16} />
-                  </button>
-                  
-                  <button className="w-8 h-8 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200">
-                    <ZoomIn size={16} />
-                  </button>
+              {/* Hover Overlay with Download/Zoom */}
+              <div className={`absolute inset-0 bg-black transition-all duration-300 ${hoveredPhoto === photo.id ? 'bg-opacity-20' : 'bg-opacity-0 pointer-events-none'}`}>
+                <div className={`absolute bottom-2 left-2 right-2 flex justify-between items-end transition-opacity duration-300 ${hoveredPhoto === photo.id ? 'opacity-100' : 'opacity-0'}`}>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => handleDownload(photo, e)}
+                      className="w-8 h-8 rounded-full bg-white bg-opacity-90 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200 shadow-md"
+                    >
+                      <Download size={16} />
+                    </button>
+
+                    <button className="w-8 h-8 rounded-full bg-white bg-opacity-90 hover:bg-opacity-100 flex items-center justify-center text-gray-700 transition-all duration-200 shadow-md">
+                      <ZoomIn size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
           </div>
 
           {/* Photo Info */}
