@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Plus, Edit2, Trash2, Copy, Mail, Phone, Calendar, Link as LinkIcon } from 'lucide-react';
+import { User, Plus, Edit, Trash2, Copy, Mail, Phone, Key, FolderOpen } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Modal } from '../UI/Modal';
@@ -97,13 +97,13 @@ export function ClientManager() {
     }
   };
 
-  const handleDelete = async (client: Client) => {
-    if (!confirm(`Tem certeza que deseja excluir o cliente "${client.name}"?`)) {
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja deletar este cliente?')) {
       return;
     }
 
     try {
-      await clientService.deleteClient(client.id);
+      await clientService.deleteClient(id);
       await loadClients();
     } catch (error) {
       console.error('Error deleting client:', error);
@@ -111,36 +111,20 @@ export function ClientManager() {
     }
   };
 
-  const copyAccessCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    alert('Código copiado!');
-  };
-
-  const copyAccessLink = (code: string) => {
-    const link = `${window.location.origin}?code=${code}`;
+  const handleCopyAccessLink = (e: React.MouseEvent, accessCode: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const link = `${window.location.origin}/?code=${accessCode}`;
     navigator.clipboard.writeText(link);
     alert('Link de acesso copiado!');
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <div className="text-gray-600 dark:text-gray-400">Carregando clientes...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Gerenciamento de Clientes
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Cadastre clientes e gere códigos de acesso
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Clientes</h2>
+          <p className="text-gray-600 dark:text-gray-400">Gerencie seus clientes e códigos de acesso</p>
         </div>
         <Button onClick={() => handleOpenModal()} className="flex items-center gap-2">
           <Plus size={20} />
@@ -148,125 +132,101 @@ export function ClientManager() {
         </Button>
       </div>
 
-      {/* Clients List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {clients.map((client) => (
-          <div
-            key={client.id}
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow duration-200"
-          >
-            {/* Client Info */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <User className="text-blue-600 dark:text-blue-400" size={20} />
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      ) : clients.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <User size={48} className="mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Nenhum cliente cadastrado
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Comece adicionando seus clientes
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {clients.map((client) => (
+            <div
+              key={client.id}
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between hover:shadow-md transition-shadow duration-200"
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                  <User size={24} className="text-green-600 dark:text-green-400" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {client.name}
-                  </h3>
-                  {client.galleryCount !== undefined && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {client.galleryCount} galeria{client.galleryCount !== 1 ? 's' : ''}
-                    </p>
-                  )}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{client.name}</h3>
+                    {client.galleryCount !== undefined && client.galleryCount > 0 && (
+                      <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 flex items-center gap-1">
+                        <FolderOpen size={12} />
+                        {client.galleryCount} galeria{client.galleryCount !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    {client.email && (
+                      <div className="flex items-center gap-1">
+                        <Mail size={14} />
+                        {client.email}
+                      </div>
+                    )}
+                    {client.phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone size={14} />
+                        {client.phone}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-1 text-sm">
+                      <Key size={14} className="text-green-600 dark:text-green-400" />
+                      <span className="font-mono font-semibold text-green-600 dark:text-green-400">
+                        {client.accessCode}
+                      </span>
+                    </div>
+                    {client.notes && (
+                      <span className="text-xs text-gray-500 line-clamp-1">
+                        - {client.notes}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-1">
-                <button
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={(e) => handleCopyAccessLink(e, client.accessCode)}
+                  className="flex items-center gap-2"
+                >
+                  <Copy size={16} />
+                  Copiar Link
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => handleOpenModal(client)}
-                  className="p-1 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                  title="Editar"
+                  className="text-gray-600 dark:text-gray-400"
                 >
-                  <Edit2 size={16} />
-                </button>
-                <button
-                  onClick={() => handleDelete(client)}
-                  className="p-1 text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-                  title="Excluir"
+                  <Edit size={18} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDelete(client.id)}
+                  className="text-red-600 dark:text-red-400"
                 >
-                  <Trash2 size={16} />
-                </button>
+                  <Trash2 size={18} />
+                </Button>
               </div>
             </div>
-
-            {/* Contact Info */}
-            {(client.email || client.phone) && (
-              <div className="space-y-1 mb-3 text-sm">
-                {client.email && (
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <Mail size={14} />
-                    <span className="truncate">{client.email}</span>
-                  </div>
-                )}
-                {client.phone && (
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <Phone size={14} />
-                    <span>{client.phone}</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Access Code */}
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 mb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Código de Acesso</p>
-                  <p className="font-mono font-bold text-lg text-gray-900 dark:text-white">
-                    {client.accessCode}
-                  </p>
-                </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => copyAccessCode(client.accessCode)}
-                    className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                    title="Copiar código"
-                  >
-                    <Copy size={16} />
-                  </button>
-                  <button
-                    onClick={() => copyAccessLink(client.accessCode)}
-                    className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                    title="Copiar link de acesso"
-                  >
-                    <LinkIcon size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes */}
-            {client.notes && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
-                {client.notes}
-              </p>
-            )}
-
-            {/* Created Date */}
-            <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-              <Calendar size={12} />
-              <span>Criado em {client.createdAt.toLocaleDateString()}</span>
-            </div>
-          </div>
-        ))}
-
-        {clients.length === 0 && (
-          <div className="col-span-full text-center py-12">
-            <User size={48} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Nenhum cliente cadastrado
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Comece criando seu primeiro cliente
-            </p>
-            <Button onClick={() => handleOpenModal()}>
-              <Plus size={20} className="mr-2" />
-              Criar Cliente
-            </Button>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Modal */}
       <Modal
