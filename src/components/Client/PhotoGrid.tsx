@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Download, ZoomIn, Check, Star, Printer } from 'lucide-react';
+import { Heart, Download, ZoomIn, Check, Star, Printer, Tag } from 'lucide-react';
 import { Photo } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
@@ -11,9 +11,10 @@ interface PhotoGridProps {
   showCoverIndicator?: boolean;
   isAdmin?: boolean;
   onDeletePhoto?: (photoId: string) => void;
+  onTagSupplier?: (photoId: string) => void;
 }
 
-export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: PhotoGridProps) {
+export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false, onTagSupplier }: PhotoGridProps) {
   const { state, dispatch } = useAppContext();
   const { clientSession, currentGallery } = state;
   const [hoveredPhoto, setHoveredPhoto] = useState<string | null>(null);
@@ -130,6 +131,24 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
             
               {/* Action Buttons - Always Visible */}
               <div className={`absolute top-2 right-2 flex gap-2 ${isCoverPhoto(photo.id) ? 'mt-8' : ''}`}>
+                {/* Supplier Tag Button */}
+                {onTagSupplier && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTagSupplier(photo.id);
+                    }}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-md ${
+                      photo.supplierId
+                        ? 'bg-purple-600 text-white scale-110'
+                        : 'bg-white bg-opacity-90 text-gray-700 hover:bg-opacity-100 hover:scale-105'
+                    }`}
+                    title={photo.supplierId ? 'Fornecedor marcado' : 'Marcar fornecedor'}
+                  >
+                    <Tag size={18} />
+                  </button>
+                )}
+
                 {/* Print Cart Toggle */}
                 <button
                   onClick={(e) => handlePrintCartToggle(photo.id, e)}

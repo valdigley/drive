@@ -7,6 +7,7 @@ import { PhotoLightbox } from './PhotoLightbox';
 import { SelectionPanel } from './SelectionPanel';
 import { PrintCartPanel } from './PrintCartPanel';
 import { SupplierTimeline } from './SupplierTimeline';
+import { SupplierTagModal } from './SupplierTagModal';
 import { Photo, ViewMode } from '../../types';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
 import { galleryService } from '../../services/galleryService';
@@ -24,6 +25,8 @@ export function ClientGallery() {
   const [supplierGalleries, setSupplierGalleries] = useState<Array<{ galleryId: string; galleryName: string; clientName: string; photoCount: number }>>([]);
   const [selectedGalleryFilter, setSelectedGalleryFilter] = useState<string>('all');
   const [loadingGalleryFilter, setLoadingGalleryFilter] = useState(false);
+  const [showSupplierTagModal, setShowSupplierTagModal] = useState(false);
+  const [photoToTag, setPhotoToTag] = useState<string | null>(null);
 
   const isSupplier = currentUser === 'supplier';
 
@@ -181,6 +184,15 @@ export function ClientGallery() {
   const handlePhotoClick = (photo: Photo, index: number) => {
     setCurrentPhotoIndex(index);
     setLightboxOpen(true);
+  };
+
+  const handleTagSupplier = (photoId: string) => {
+    setPhotoToTag(photoId);
+    setShowSupplierTagModal(true);
+  };
+
+  const handleSupplierTagged = async () => {
+    await galleryService.loadGallery(currentGallery.id);
   };
 
   const selectedCount = clientSession?.selectedPhotos.length || 0;
@@ -404,6 +416,7 @@ export function ClientGallery() {
             <PhotoGrid
               photos={filteredPhotos}
               onPhotoClick={handlePhotoClick}
+              onTagSupplier={handleTagSupplier}
             />
           )}
         </div>
@@ -429,6 +442,21 @@ export function ClientGallery() {
         isOpen={showPrintCart}
         onClose={() => setShowPrintCart(false)}
       />
+
+      {/* Supplier Tag Modal */}
+      {photoToTag && (
+        <SupplierTagModal
+          isOpen={showSupplierTagModal}
+          onClose={() => {
+            setShowSupplierTagModal(false);
+            setPhotoToTag(null);
+          }}
+          photoId={photoToTag}
+          galleryId={currentGallery.id}
+          currentSupplierId={currentGallery.photos.find(p => p.id === photoToTag)?.supplierId}
+          onTagged={handleSupplierTagged}
+        />
+      )}
     </div>
   );
 }
