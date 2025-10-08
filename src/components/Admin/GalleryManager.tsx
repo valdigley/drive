@@ -52,7 +52,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   // Load favorites from database
   useEffect(() => {
     const loadFavorites = async () => {
-      if (!galleryId || filter !== 'favorites') return;
+      if (!galleryId) return;
 
       setLoadingFavorites(true);
       try {
@@ -74,7 +74,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
     };
 
     loadFavorites();
-  }, [galleryId, filter]);
+  }, [galleryId]);
 
   useEffect(() => {
     const loadClients = async () => {
@@ -344,46 +344,12 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   };
 
   const getTotalFavorites = () => {
-    let totalFavorites = 0;
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key === `gallery_session_${galleryId}`) {
-        try {
-          const session = JSON.parse(localStorage.getItem(key) || '{}');
-          if (session.favorites) {
-            totalFavorites += session.favorites.length;
-          }
-        } catch (error) {
-          console.error('Error parsing session data:', error);
-        }
-      }
-    }
-    return totalFavorites;
+    return favoritePhotoIds.length;
   };
 
   const getMostFavoritedPhotos = () => {
-    const photoFavoriteCount: Record<string, number> = {};
-    
-    // Buscar sessão específica desta galeria
-    const sessionKey = `gallery_session_${galleryId}`;
-    try {
-      const sessionData = localStorage.getItem(sessionKey);
-      if (sessionData) {
-        const session = JSON.parse(sessionData);
-        if (session.favorites && Array.isArray(session.favorites)) {
-          session.favorites.forEach((photoId: string) => {
-            photoFavoriteCount[photoId] = (photoFavoriteCount[photoId] || 0) + 1;
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error parsing session data:', error);
-    }
-    
-    // Ordenar fotos por número de favoritos
-    return gallery.photos
-      .filter(photo => photoFavoriteCount[photo.id] > 0)
-      .sort((a, b) => (photoFavoriteCount[b.id] || 0) - (photoFavoriteCount[a.id] || 0));
+    if (!gallery) return [];
+    return gallery.photos.filter(photo => favoritePhotoIds.includes(photo.id));
   };
 
   const getFavoritedPhotosText = () => {
