@@ -160,13 +160,18 @@ export function PhotoGrid({ photos, onPhotoClick, showCoverIndicator = false }: 
                 {/* Favorite Toggle */}
                 <button
                   onClick={(e) => handleFavoriteToggle(photo.id, e)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 ${
                     isFavorite(photo.id)
-                      ? 'bg-red-500 text-white'
+                      ? 'bg-red-500 text-white shadow-lg'
                       : 'bg-white bg-opacity-80 text-gray-700 hover:bg-opacity-100'
                   }`}
+                  title={isFavorite(photo.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                 >
-                  <Heart size={16} fill={isFavorite(photo.id) ? 'currentColor' : 'none'} />
+                  <Heart
+                    size={16}
+                    fill={isFavorite(photo.id) ? 'currentColor' : 'none'}
+                    className={isFavorite(photo.id) ? 'animate-pulse' : ''}
+                  />
                 </button>
               </div>
 

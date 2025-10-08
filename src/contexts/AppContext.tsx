@@ -104,11 +104,22 @@ function appReducer(state: AppState, action: AppAction): AppState {
           : state.currentGallery,
       };
     case 'TOGGLE_FAVORITE':
-      if (!state.clientSession) return state;
+      if (!state.clientSession) {
+        console.error('❌ No client session - cannot toggle favorite');
+        return state;
+      }
+
       const isFavorited = state.clientSession.favorites.includes(action.payload.photoId);
       const updatedFavorites = isFavorited
         ? state.clientSession.favorites.filter(id => id !== action.payload.photoId)
         : [...state.clientSession.favorites, action.payload.photoId];
+
+      console.log('❤️ Toggle Favorite:', {
+        photoId: action.payload.photoId,
+        isFavorited,
+        beforeCount: state.clientSession.favorites.length,
+        afterCount: updatedFavorites.length
+      });
 
       const updatedSessionWithFavorites = {
         ...state.clientSession,
@@ -128,15 +139,23 @@ function appReducer(state: AppState, action: AppAction): AppState {
         // Remover favorito
         favoriteService.removeFavorite(photoId, sessionId).then(success => {
           if (success) {
-            console.log('❤️ Favorite removed from database');
+            console.log('✅ Favorite removed from database');
+          } else {
+            console.error('❌ Failed to remove favorite from database');
           }
+        }).catch(err => {
+          console.error('❌ Error removing favorite:', err);
         });
       } else {
         // Adicionar favorito
         favoriteService.addFavorite(photoId, galleryId, sessionId).then(success => {
           if (success) {
-            console.log('❤️ Favorite added to database');
+            console.log('✅ Favorite added to database');
+          } else {
+            console.error('❌ Failed to add favorite to database');
           }
+        }).catch(err => {
+          console.error('❌ Error adding favorite:', err);
         });
       }
 

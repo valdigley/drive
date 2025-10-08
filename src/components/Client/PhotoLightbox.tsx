@@ -96,11 +96,16 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
               variant="ghost"
               size="sm"
               onClick={handleFavoriteToggle}
-              className={`text-white hover:bg-white hover:bg-opacity-20 ${
-                isFavorite ? 'text-red-400' : ''
+              className={`text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200 ${
+                isFavorite ? 'text-red-400 bg-white bg-opacity-20' : ''
               }`}
+              title={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
             >
-              <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
+              <Heart
+                size={20}
+                fill={isFavorite ? 'currentColor' : 'none'}
+                className={isFavorite ? 'animate-pulse' : ''}
+              />
             </Button>
             
             <Button
