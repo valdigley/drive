@@ -7,6 +7,7 @@ import { ClientGallery } from './components/Client/ClientGallery';
 import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
+import { supplierService } from './services/supplierService';
 import { setGlobalDispatch } from './utils/fileUtils';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { supabase } from './lib/supabase';
@@ -90,21 +91,40 @@ function App() {
       if (accessCode && !clientGalleryId) {
         setLoadingGallery(true);
         try {
-          const gallery = await galleryService.getGalleryByAccessCode(accessCode);
-          if (gallery) {
-            const photos = await galleryService.getGalleryPhotos(gallery.id);
-            const completeGallery = { ...gallery, photos };
-            dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
-            dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
-            setClientGalleryId(gallery.id);
-            dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+          // Check if this is a supplier access code
+          const supplier = await supplierService.getSupplierByAccessCode(accessCode);
 
-            // Grant access immediately if no password
-            if (!gallery.password) {
+          if (supplier && supplier.galleryId) {
+            // It's a supplier accessing their gallery
+            const gallery = await galleryService.getGalleryDetails(supplier.galleryId);
+            if (gallery) {
+              // Load only photos tagged for this supplier
+              const photos = await galleryService.getGalleryPhotos(supplier.galleryId, supplier.id);
+              const completeGallery = { ...gallery, photos };
+              dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
+              dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+              setClientGalleryId(supplier.galleryId);
+              dispatch({ type: 'SET_USER_ROLE', payload: 'supplier' });
               setAccessGranted(true);
             }
           } else {
-            console.log('Gallery not found with access code:', accessCode);
+            // Try regular gallery access code
+            const gallery = await galleryService.getGalleryByAccessCode(accessCode);
+            if (gallery) {
+              const photos = await galleryService.getGalleryPhotos(gallery.id);
+              const completeGallery = { ...gallery, photos };
+              dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
+              dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+              setClientGalleryId(gallery.id);
+              dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+
+              // Grant access immediately if no password
+              if (!gallery.password) {
+                setAccessGranted(true);
+              }
+            } else {
+              console.log('Gallery not found with access code:', accessCode);
+            }
           }
         } catch (error) {
           console.log('Error loading gallery by access code:', accessCode, error);

@@ -35,6 +35,40 @@ class SupplierService {
     }
   }
 
+  async getSupplierByAccessCode(accessCode: string): Promise<Supplier | null> {
+    try {
+      const { data, error } = await supabase
+        .from('suppliers')
+        .select('*')
+        .eq('access_code', accessCode)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      return data ? this.mapSupplierFromDB(data) : null;
+    } catch (error) {
+      console.error('Error fetching supplier by access code:', error);
+      return null;
+    }
+  }
+
+  async getSupplierByGalleryId(galleryId: string): Promise<Supplier | null> {
+    try {
+      const { data, error } = await supabase
+        .from('suppliers')
+        .select('*')
+        .eq('gallery_id', galleryId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      return data ? this.mapSupplierFromDB(data) : null;
+    } catch (error) {
+      console.error('Error fetching supplier by gallery:', error);
+      return null;
+    }
+  }
+
   async createSupplier(supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>): Promise<Supplier | null> {
     try {
       const { data, error } = await supabase

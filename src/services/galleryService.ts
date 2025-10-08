@@ -87,13 +87,40 @@ class GalleryService {
     }
   }
 
-  async getGalleryPhotos(galleryId: string): Promise<Photo[]> {
+  async getGalleryPhotos(galleryId: string, supplierId?: string): Promise<Photo[]> {
     try {
-      const { data: photos, error } = await supabase
+      let photoIds: string[] | null = null;
+
+      // If supplierId is provided, filter photos tagged for this supplier
+      if (supplierId) {
+        const { data: taggedPhotos, error: tagError } = await supabase
+          .from('photo_suppliers')
+          .select('photo_id')
+          .eq('supplier_id', supplierId)
+          .eq('gallery_id', galleryId);
+
+        if (tagError) throw tagError;
+
+        photoIds = (taggedPhotos || []).map(tp => tp.photo_id);
+
+        // If no photos are tagged, return empty array
+        if (photoIds.length === 0) {
+          return [];
+        }
+      }
+
+      // Build the query
+      let query = supabase
         .from('photos')
         .select('*')
-        .eq('gallery_id', galleryId)
-        .order('upload_date', { ascending: false });
+        .eq('gallery_id', galleryId);
+
+      // Filter by photo IDs if we have them
+      if (photoIds) {
+        query = query.in('id', photoIds);
+      }
+
+      const { data: photos, error } = await query.order('upload_date', { ascending: false });
 
       if (error) throw error;
 
