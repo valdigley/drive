@@ -64,9 +64,18 @@ export function ClientGallery() {
   }
 
   // Buscar a foto de capa corretamente
-  const coverPhoto = currentGallery.coverPhotoId 
-    ? currentGallery.photos.find(p => p.id === currentGallery.coverPhotoId) || currentGallery.photos[0]
-    : currentGallery.photos[0];
+  const coverPhoto = useMemo(() => {
+    if (!currentGallery.photos.length) return null;
+
+    // Se tem coverPhotoId, procurar essa foto
+    if (currentGallery.coverPhotoId) {
+      const cover = currentGallery.photos.find(p => p.id === currentGallery.coverPhotoId);
+      if (cover) return cover;
+    }
+
+    // Caso contrário, usar a primeira foto
+    return currentGallery.photos[0];
+  }, [currentGallery.photos, currentGallery.coverPhotoId]);
 
   const filteredPhotos = useMemo(() => {
     console.log('🖼️ ClientGallery - Total photos in gallery:', currentGallery.photos.length);
