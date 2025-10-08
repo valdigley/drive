@@ -64,14 +64,29 @@ export function SupplierManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (editingSupplier) {
-      await supplierService.updateSupplier(editingSupplier.id, formData);
-    } else {
-      await supplierService.createSupplier(formData);
-    }
+    try {
+      console.log('📝 Submitting supplier data:', formData);
 
-    await loadSuppliers();
-    handleCloseModal();
+      if (editingSupplier) {
+        const result = await supplierService.updateSupplier(editingSupplier.id, formData);
+        console.log('✅ Supplier updated:', result);
+      } else {
+        const result = await supplierService.createSupplier(formData);
+        console.log('✅ Supplier created:', result);
+
+        if (!result) {
+          console.error('❌ Failed to create supplier - no result returned');
+          alert('Erro ao criar fornecedor. Verifique o console.');
+          return;
+        }
+      }
+
+      await loadSuppliers();
+      handleCloseModal();
+    } catch (error) {
+      console.error('❌ Error submitting supplier:', error);
+      alert(`Erro ao salvar fornecedor: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    }
   };
 
   const handleDelete = async (id: string) => {

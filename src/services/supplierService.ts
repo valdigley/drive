@@ -78,6 +78,13 @@ class SupplierService {
 
   async createSupplier(supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>): Promise<Supplier | null> {
     try {
+      console.log('🔄 Creating supplier in database:', {
+        name: supplier.name,
+        email: supplier.email,
+        phone: supplier.phone,
+        category: supplier.category,
+      });
+
       const { data, error } = await supabase
         .from('suppliers')
         .insert({
@@ -89,12 +96,22 @@ class SupplierService {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase error creating supplier:', error);
 
+        // Check for unique constraint violation
+        if (error.code === '23505' && error.message.includes('suppliers_email_key')) {
+          throw new Error('Já existe um fornecedor cadastrado com este email');
+        }
+
+        throw new Error(error.message || 'Erro ao criar fornecedor');
+      }
+
+      console.log('✅ Supplier created in database:', data);
       return data ? this.mapSupplierFromDB(data) : null;
     } catch (error) {
-      console.error('Error creating supplier:', error);
-      return null;
+      console.error('❌ Error creating supplier:', error);
+      throw error;
     }
   }
 
