@@ -36,13 +36,16 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto">
+    <div className="fixed inset-0 z-[60] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
           onClick={onClose}
         />
-        <div className={`relative bg-white dark:bg-gray-800 rounded-lg shadow-xl ${sizeClasses[size]} w-full`}>
+        <div
+          className={`relative bg-white dark:bg-gray-800 rounded-lg shadow-xl ${sizeClasses[size]} w-full`}
+          onClick={(e) => e.stopPropagation()}
+        >
           {title && (
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>

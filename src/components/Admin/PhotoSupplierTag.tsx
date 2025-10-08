@@ -97,7 +97,10 @@ export function PhotoSupplierTag({ photoId, galleryId, onTagged }: PhotoSupplier
               return (
                 <button
                   key={supplier.id}
-                  onClick={() => handleToggleTag(supplier)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleTag(supplier);
+                  }}
                   className={`w-full p-3 rounded-lg border-2 transition-all text-left flex items-center justify-between ${
                     isTagged
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
@@ -129,7 +132,10 @@ export function PhotoSupplierTag({ photoId, galleryId, onTagged }: PhotoSupplier
         )}
 
         <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-          <Button onClick={() => setShowModal(false)}>
+          <Button onClick={(e) => {
+            e.stopPropagation();
+            setShowModal(false);
+          }}>
             Fechar
           </Button>
         </div>
