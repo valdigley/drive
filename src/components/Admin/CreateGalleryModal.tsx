@@ -27,7 +27,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
     allowDownload: true,
     allowComments: false,
     watermark: true,
-    downloadQuality: 'print' as const,
   });
   const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -112,7 +111,7 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
         allowDownload: formData.allowDownload,
         allowComments: formData.allowComments,
         watermark: formData.watermark,
-        downloadQuality: formData.downloadQuality,
+        downloadQuality: 'original',
       },
     };
 
@@ -131,7 +130,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
       allowDownload: true,
       allowComments: false,
       watermark: true,
-      downloadQuality: 'print',
     });
     
     onClose();
@@ -281,22 +279,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
               />
               <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Adicionar marca d'água</span>
             </label>
-          </div>
-          
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Qualidade de Download
-            </label>
-            <select
-              name="downloadQuality"
-              value={formData.downloadQuality}
-              onChange={handleInputChange}
-              className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="web">Web (otimizada)</option>
-              <option value="print">Print (alta qualidade)</option>
-              <option value="original">Original (sem compressão)</option>
-            </select>
           </div>
         </div>
 
