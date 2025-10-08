@@ -8,6 +8,7 @@ import { GalleryAccess } from './components/Client/GalleryAccess';
 import { Header } from './components/Layout/Header';
 import { galleryService } from './services/galleryService';
 import { supplierService } from './services/supplierService';
+import { clientService } from './services/clientService';
 import { setGlobalDispatch } from './utils/fileUtils';
 import { LoadingSpinner } from './components/UI/LoadingSpinner';
 import { supabase } from './lib/supabase';
@@ -112,22 +113,49 @@ function App() {
               setAccessGranted(true);
             }
           } else {
-            // Try regular gallery access code
-            const gallery = await galleryService.getGalleryByAccessCode(accessCode);
-            if (gallery) {
-              const photos = await galleryService.getGalleryPhotos(gallery.id);
-              const completeGallery = { ...gallery, photos };
-              dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
-              dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
-              setClientGalleryId(gallery.id);
-              dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+            // Check if this is a client access code
+            const client = await clientService.getClientByAccessCode(accessCode);
 
-              // Grant access immediately if no password
-              if (!gallery.password) {
-                setAccessGranted(true);
+            if (client) {
+              // It's a client - load all their galleries
+              console.log('✅ Client found:', client.name);
+              const clientGalleries = await clientService.getClientGalleries(client.id);
+
+              if (clientGalleries.length > 0) {
+                // Load the first gallery (or show a selection if multiple)
+                const firstGalleryId = clientGalleries[0].id;
+                const photos = await galleryService.getGalleryPhotos(firstGalleryId);
+                const gallery = await galleryService.getGalleryDetails(firstGalleryId);
+
+                if (gallery) {
+                  const completeGallery = { ...gallery, photos };
+                  dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
+                  dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+                  setClientGalleryId(firstGalleryId);
+                  dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+                  setAccessGranted(true);
+                }
+              } else {
+                setError('Este cliente não possui galerias vinculadas');
               }
             } else {
-              console.log('Gallery not found with access code:', accessCode);
+              // Try regular gallery access code
+              const gallery = await galleryService.getGalleryByAccessCode(accessCode);
+              if (gallery) {
+                const photos = await galleryService.getGalleryPhotos(gallery.id);
+                const completeGallery = { ...gallery, photos };
+                dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
+                dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });
+                setClientGalleryId(gallery.id);
+                dispatch({ type: 'SET_USER_ROLE', payload: 'client' });
+
+                // Grant access immediately if no password
+                if (!gallery.password) {
+                  setAccessGranted(true);
+                }
+              } else {
+                console.log('Gallery not found with access code:', accessCode);
+              }
             }
           }
         } catch (error) {

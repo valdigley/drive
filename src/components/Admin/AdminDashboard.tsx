@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Camera, Users, Download, Eye, LogOut, Search, Store } from 'lucide-react';
+import { Plus, Camera, Users, Download, Eye, LogOut, Search, Store, User } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
@@ -8,6 +8,7 @@ import { GalleryCard } from './GalleryCard';
 import { StatsCard } from './StatsCard';
 import { StorageStatusCard } from './StorageStatusCard';
 import { SupplierManager } from './SupplierManager';
+import { ClientManager } from './ClientManager';
 import { galleryService } from '../../services/galleryService';
 import { storageService, StorageStats } from '../../services/storageService';
 import { supabase } from '../../lib/supabase';
@@ -22,7 +23,7 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
   const [loadingGalleries, setLoadingGalleries] = useState(false);
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'galleries' | 'suppliers'>('galleries');
+  const [activeTab, setActiveTab] = useState<'galleries' | 'suppliers' | 'clients'>('galleries');
 
   // Reload galleries with photos when component mounts
   React.useEffect(() => {
@@ -192,6 +193,19 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
                 Fornecedores
               </div>
             </button>
+            <button
+              onClick={() => setActiveTab('clients')}
+              className={`px-4 py-2 border-b-2 font-medium transition-colors ${
+                activeTab === 'clients'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <User size={18} />
+                Clientes
+              </div>
+            </button>
           </div>
         </div>
 
@@ -245,8 +259,10 @@ export function AdminDashboard({ onManageGallery }: AdminDashboardProps) {
             </div>
           )}
           </div>
-        ) : (
+        ) : activeTab === 'suppliers' ? (
           <SupplierManager />
+        ) : (
+          <ClientManager />
         )}
       </div>
 
