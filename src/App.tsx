@@ -203,7 +203,7 @@ function App() {
   // Client view with gallery access
   if (currentUser === 'client' && clientGalleryId) {
     const gallery = state.galleries.find(g => g.id === clientGalleryId) || state.currentGallery;
-    
+
     if (!gallery) {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -219,8 +219,9 @@ function App() {
         </div>
       );
     }
-    
-    if (!accessGranted) {
+
+    // If gallery has password and user hasn't provided it, show password screen
+    if (gallery.password && !accessGranted) {
       return (
         <GalleryAccess
           galleryId={clientGalleryId}
@@ -228,7 +229,12 @@ function App() {
         />
       );
     }
-    
+
+    // If no password or access granted, initialize session and show gallery
+    if (!accessGranted) {
+      setAccessGranted(true);
+    }
+
     return <ClientGallery />;
   }
 
