@@ -195,7 +195,7 @@ export function ClientGallery() {
     console.log('🔄 Reloading gallery after supplier tagged...');
     const [updatedGallery, photos] = await Promise.all([
       galleryService.getGalleryDetails(currentGallery.id),
-      galleryService.getGalleryPhotos(currentGallery.id, currentSupplierId)
+      galleryService.getGalleryPhotos(currentGallery.id)
     ]);
 
     console.log('📦 Updated gallery:', updatedGallery);
