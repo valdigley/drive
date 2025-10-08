@@ -62,6 +62,8 @@ export interface Supplier {
   email: string;
   phone?: string;
   category: 'fotografia' | 'buffet' | 'decoracao' | 'musica' | 'locacao' | 'outros';
+  galleryId?: string;
+  accessCode?: string;
   createdAt: Date;
   updatedAt: Date;
 }

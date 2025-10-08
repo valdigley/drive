@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Store, Mail, Phone, Tag } from 'lucide-react';
+import { Plus, Edit, Trash2, Store, Mail, Phone, Tag, Key, Copy } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Modal } from '../UI/Modal';
@@ -81,6 +81,11 @@ export function SupplierManager() {
     }
   };
 
+  const handleCopyAccessCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    alert('Código de acesso copiado!');
+  };
+
   const categoryColors: Record<string, string> = {
     fotografia: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     buffet: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
@@ -149,6 +154,26 @@ export function SupplierManager() {
                       </div>
                     )}
                   </div>
+                  {supplier.accessCode && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-1 text-sm">
+                        <Key size={14} className="text-blue-600 dark:text-blue-400" />
+                        <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">
+                          {supplier.accessCode}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleCopyAccessCode(supplier.accessCode!)}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        title="Copiar código de acesso"
+                      >
+                        <Copy size={14} />
+                      </button>
+                      <span className="text-xs text-gray-500">
+                        (Código de acesso à galeria)
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">

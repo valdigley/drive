@@ -228,6 +228,8 @@ class SupplierService {
       email: data.email,
       phone: data.phone,
       category: data.category,
+      galleryId: data.gallery_id,
+      accessCode: data.access_code,
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at),
     };
