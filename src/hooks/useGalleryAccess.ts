@@ -3,12 +3,14 @@ import { Gallery, ClientSession } from '../types';
 import { useAppContext } from '../contexts/AppContext';
 import { galleryService } from '../services/galleryService';
 import { favoriteService } from '../services/favoriteService';
+import { isGalleryExpired } from '../utils/fileUtils';
 
 export function useGalleryAccess(galleryId: string) {
   const { state, dispatch } = useAppContext();
   const [accessGranted, setAccessGranted] = useState<boolean>(false);
   const [needsPassword, setNeedsPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isExpired, setIsExpired] = useState<boolean>(false);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -16,6 +18,14 @@ export function useGalleryAccess(galleryId: string) {
       const gallery = state.galleries.find(g => g.id === galleryId) || state.currentGallery;
 
       if (!gallery) {
+        setLoading(false);
+        return;
+      }
+
+      // Check if gallery is expired
+      if (isGalleryExpired(gallery.expirationDate)) {
+        setIsExpired(true);
+        setAccessGranted(false);
         setLoading(false);
         return;
       }
@@ -124,6 +134,7 @@ export function useGalleryAccess(galleryId: string) {
     accessGranted,
     needsPassword,
     loading,
+    isExpired,
     verifyPassword,
   };
 }

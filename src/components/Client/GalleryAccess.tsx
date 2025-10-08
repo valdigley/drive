@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Lock, Eye } from 'lucide-react';
 import { useGalleryAccess } from '../../hooks/useGalleryAccess';
+import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { LoadingSpinner } from '../UI/LoadingSpinner';
+import { ExpiredGalleryMessage } from './ExpiredGalleryMessage';
 
 interface GalleryAccessProps {
   galleryId: string;
@@ -11,7 +13,8 @@ interface GalleryAccessProps {
 }
 
 export function GalleryAccess({ galleryId, onAccessGranted }: GalleryAccessProps) {
-  const { accessGranted, needsPassword, loading, verifyPassword } = useGalleryAccess(galleryId);
+  const { state } = useAppContext();
+  const { accessGranted, needsPassword, loading, isExpired, verifyPassword } = useGalleryAccess(galleryId);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -38,6 +41,8 @@ export function GalleryAccess({ galleryId, onAccessGranted }: GalleryAccessProps
     }
   };
 
+  const gallery = state.galleries.find(g => g.id === galleryId) || state.currentGallery;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -46,6 +51,16 @@ export function GalleryAccess({ galleryId, onAccessGranted }: GalleryAccessProps
           <p className="text-gray-600">Carregando galeria...</p>
         </div>
       </div>
+    );
+  }
+
+  if (isExpired && gallery) {
+    return (
+      <ExpiredGalleryMessage
+        galleryName={gallery.name}
+        expirationDate={gallery.expirationDate!}
+        photoCount={gallery.photos.length}
+      />
     );
   }
 
