@@ -18,7 +18,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
   const { dispatch } = useAppContext();
   const [formData, setFormData] = useState({
     name: '',
-    clientName: '',
     description: '',
     password: '',
     expirationDays: '30',
@@ -66,8 +65,8 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
       newErrors.name = 'Nome da galeria é obrigatório';
     }
 
-    if (!formData.clientName.trim()) {
-      newErrors.clientName = 'Nome do cliente é obrigatório';
+    if (!formData.clientId) {
+      newErrors.clientId = 'Selecione um cliente';
     }
 
     if (formData.password && !validatePassword(formData.password)) {
@@ -91,17 +90,20 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + parseInt(formData.expirationDays));
 
+    const selectedClient = clients.find(c => c.id === formData.clientId);
+    if (!selectedClient) return;
+
     const newGallery: Gallery = {
       id: generateSecureId(),
       name: formData.name.trim(),
-      clientName: formData.clientName.trim(),
+      clientName: selectedClient.name,
       description: formData.description.trim() || undefined,
       createdDate: new Date(),
       expirationDate,
       password: formData.password.trim() || undefined,
       eventDate: formData.eventDate ? new Date(formData.eventDate) : undefined,
       location: formData.location.trim() || undefined,
-      clientId: formData.clientId || undefined,
+      clientId: formData.clientId,
       photos: [],
       accessCount: 0,
       downloadCount: 0,
@@ -120,7 +122,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
     // Reset form
     setFormData({
       name: '',
-      clientName: '',
       description: '',
       password: '',
       expirationDays: '30',
@@ -156,39 +157,6 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
           />
 
           <Input
-            label="Nome do Cliente"
-            name="clientName"
-            value={formData.clientName}
-            onChange={handleInputChange}
-            placeholder="Ex: Maria Silva"
-            error={errors.clientName}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <div className="flex items-center gap-2">
-                <User size={16} />
-                Vincular a Cliente (opcional)
-              </div>
-            </label>
-            <select
-              name="clientId"
-              value={formData.clientId}
-              onChange={handleInputChange}
-              className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="">Nenhum cliente vinculado</option>
-              {clients.map(client => (
-                <option key={client.id} value={client.id}>
-                  {client.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <Input
             label="Data do Evento"
             name="eventDate"
             type="date"
@@ -198,14 +166,43 @@ export function CreateGalleryModal({ isOpen, onClose }: CreateGalleryModalProps)
           />
         </div>
 
-        <Input
-          label="Local do Evento"
-          name="location"
-          value={formData.location}
-          onChange={handleInputChange}
-          placeholder="Ex: Igreja São José, Centro"
-          icon={<MapPin />}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div className="flex items-center gap-2">
+                <User size={16} />
+                Cliente
+              </div>
+            </label>
+            <div className="relative">
+              <select
+                name="clientId"
+                value={formData.clientId}
+                onChange={handleInputChange}
+                className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:ring-1 pl-3 pr-3 py-2"
+              >
+                <option value="">Selecione um cliente</option>
+                {clients.map(client => (
+                  <option key={client.id} value={client.id}>
+                    {client.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {errors.clientId && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.clientId}</p>
+            )}
+          </div>
+
+          <Input
+            label="Local do Evento"
+            name="location"
+            value={formData.location}
+            onChange={handleInputChange}
+            placeholder="Ex: Igreja São José, Centro"
+            icon={<MapPin />}
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
