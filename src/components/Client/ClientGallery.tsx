@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock, Printer, FolderOpen } from 'lucide-react';
+import { Heart, Download, Grid, List, Filter, ShoppingCart, Clock, Printer, FolderOpen, Film } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Button } from '../UI/Button';
 import { PhotoGrid } from '../Client/PhotoGrid';
@@ -8,6 +8,7 @@ import { SelectionPanel } from './SelectionPanel';
 import { PrintCartPanel } from './PrintCartPanel';
 import { SupplierTimeline } from './SupplierTimeline';
 import { SupplierTagModal } from './SupplierTagModal';
+import { NetflixGallery } from './NetflixGallery';
 import { Photo, ViewMode } from '../../types';
 import { formatDate, isGalleryExpired } from '../../utils/fileUtils';
 import { galleryService } from '../../services/galleryService';
@@ -19,6 +20,7 @@ export function ClientGallery() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('masonry');
+  const [netflixMode, setNetflixMode] = useState(false);
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [showSelection, setShowSelection] = useState(false);
   const [showPrintCart, setShowPrintCart] = useState(false);
@@ -325,30 +327,54 @@ export function ClientGallery() {
             <div className="py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {/* Filters */}
-                  <Button
-                    variant={filter === 'all' ? 'primary' : 'ghost'}
-                    size="sm"
-                    onClick={() => {
-                      console.log('🔘 Clicked "Todas" button');
-                      setFilter('all');
-                    }}
-                  >
-                    Todas ({currentGallery.photos.length})
-                  </Button>
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center gap-1 border border-gray-200 dark:border-gray-600 rounded-lg p-1">
+                    <Button
+                      variant={!netflixMode ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setNetflixMode(false)}
+                    >
+                      <Grid size={16} className="mr-1" />
+                      Grade
+                    </Button>
+                    <Button
+                      variant={netflixMode ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setNetflixMode(true)}
+                    >
+                      <Film size={16} className="mr-1" />
+                      Netflix
+                    </Button>
+                  </div>
 
-                  <Button
-                    variant={filter === 'favorites' ? 'primary' : 'ghost'}
-                    size="sm"
-                    onClick={() => {
-                      console.log('🔘 Clicked "Favoritas" button, current count:', favoritesCount);
-                      setFilter('favorites');
-                    }}
-                    className="flex items-center gap-1"
-                  >
-                    <Heart size={16} />
-                    Favoritas ({favoritesCount})
-                  </Button>
+                  {/* Filters - Only show in Grid mode */}
+                  {!netflixMode && (
+                    <>
+                      <Button
+                        variant={filter === 'all' ? 'primary' : 'ghost'}
+                        size="sm"
+                        onClick={() => {
+                          console.log('🔘 Clicked "Todas" button');
+                          setFilter('all');
+                        }}
+                      >
+                        Todas ({currentGallery.photos.length})
+                      </Button>
+
+                      <Button
+                        variant={filter === 'favorites' ? 'primary' : 'ghost'}
+                        size="sm"
+                        onClick={() => {
+                          console.log('🔘 Clicked "Favoritas" button, current count:', favoritesCount);
+                          setFilter('favorites');
+                        }}
+                        className="flex items-center gap-1"
+                      >
+                        <Heart size={16} />
+                        Favoritas ({favoritesCount})
+                      </Button>
+                    </>
+                  )}
                 </div>
 
               {/* Selection Cart */}
@@ -415,6 +441,14 @@ export function ClientGallery() {
           galleryGroups={galleryGroups}
           onPhotoClick={handlePhotoClick}
           onTagSupplier={handleTagSupplier}
+        />
+      ) : netflixMode ? (
+        <NetflixGallery
+          photos={filteredPhotos}
+          favorites={clientSession?.favorites || []}
+          onToggleFavorite={(photoId) => {
+            dispatch({ type: 'TOGGLE_FAVORITE', payload: photoId });
+          }}
         />
       ) : (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

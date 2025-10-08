@@ -6,8 +6,8 @@ import { r2Service } from '../../services/r2Service';
 
 interface NetflixGalleryProps {
   photos: Photo[];
+  favorites?: string[];
   onToggleFavorite?: (photoId: string) => void;
-  favoriteIds?: string[];
 }
 
 const categories = [
@@ -17,7 +17,7 @@ const categories = [
   { id: 'outros', label: 'Outros', icon: '📸' },
 ];
 
-export function NetflixGallery({ photos, onToggleFavorite, favoriteIds = [] }: NetflixGalleryProps) {
+export function NetflixGallery({ photos, favorites = [], onToggleFavorite }: NetflixGalleryProps) {
   const [selectedMedia, setSelectedMedia] = useState<Photo | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
@@ -185,7 +185,7 @@ export function NetflixGallery({ photos, onToggleFavorite, favoriteIds = [] }: N
                                 >
                                   <Heart
                                     size={16}
-                                    className={favoriteIds.includes(photo.id) ? 'fill-red-500 text-red-500' : 'text-white'}
+                                    className={favorites.includes(photo.id) ? 'fill-red-500 text-red-500' : 'text-white'}
                                   />
                                 </button>
                               )}
@@ -254,7 +254,7 @@ export function NetflixGallery({ photos, onToggleFavorite, favoriteIds = [] }: N
                   >
                     <Heart
                       size={20}
-                      className={favoriteIds.includes(selectedMedia.id) ? 'fill-red-500 text-red-500' : 'text-white'}
+                      className={favorites.includes(selectedMedia.id) ? 'fill-red-500 text-red-500' : 'text-white'}
                     />
                   </button>
                 )}
