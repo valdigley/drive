@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink, MapPin, User, Heart, Clock } from 'lucide-react';
+import { Upload, ArrowLeft, Star, Trash2, Calendar, Save, ExternalLink, MapPin, User, Heart, Clock, X, Copy } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { LoadingSpinner } from '../UI/LoadingSpinner';
+import { Modal } from '../UI/Modal';
 import { PhotoGrid } from '../Client/PhotoGrid';
 import { PhotoGrid as AdminPhotoGrid } from './PhotoGrid';
 import { PhotoLightbox } from '../Client/PhotoLightbox';
@@ -44,6 +45,7 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [favoritePhotoIds, setFavoritePhotoIds] = useState<string[]>([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
 
   const gallery = fullGallery || state.galleries.find(g => g.id === galleryId);
 
@@ -434,34 +436,14 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
                       Todas ({gallery.photos.length})
                     </Button>
                     <Button
-                      variant={filter === 'favorites' ? 'primary' : 'ghost'}
+                      variant="ghost"
                       size="sm"
-                      onClick={() => setFilter('favorites')}
+                      onClick={() => setShowFavoritesModal(true)}
                       className="flex items-center gap-1"
                     >
                       <Heart size={16} />
                       Favoritas {loadingFavorites ? '...' : `(${favoritePhotoIds.length})`}
                     </Button>
-
-                    {getTotalFavorites() > 0 && getFavoritedPhotosText() && (
-                      <div className="flex items-center gap-2 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                        <code
-                          className="text-xs font-mono text-blue-900 dark:text-blue-100 cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                          onClick={handleCopyFavorites}
-                          title="Clique para copiar"
-                        >
-                          {getFavoritedPhotosText()}
-                        </code>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={handleCopyFavorites}
-                          className="text-xs px-1.5 py-0.5 h-auto text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
-                        >
-                          Copiar
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 )}
 
@@ -877,6 +859,93 @@ export function GalleryManager({ galleryId, onBack }: GalleryManagerProps) {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={showFavoritesModal}
+        onClose={() => setShowFavoritesModal(false)}
+        title="Fotos Favoritadas"
+      >
+        <div className="space-y-6">
+          {loadingFavorites ? (
+            <div className="flex items-center justify-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : favoritePhotoIds.length === 0 ? (
+            <div className="text-center py-8">
+              <Heart className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-gray-600 dark:text-gray-400">
+                Nenhuma foto foi favoritada ainda
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
+                    Resumo
+                  </h3>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {favoritePhotoIds.length} {favoritePhotoIds.length === 1 ? 'foto' : 'fotos'}
+                  </span>
+                </div>
+
+                {getFavoritedPhotosText() && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Códigos das Fotos
+                    </label>
+                    <div className="bg-white dark:bg-gray-900 rounded-md p-3 border border-gray-200 dark:border-gray-700">
+                      <code className="text-sm font-mono text-gray-900 dark:text-gray-100 break-all">
+                        {getFavoritedPhotosText()}
+                      </code>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleCopyFavorites}
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Copy size={16} />
+                      Copiar Códigos
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+                  Fotos Favoritadas
+                </h3>
+                <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto">
+                  {getMostFavoritedPhotos().map((photo) => (
+                    <div
+                      key={photo.id}
+                      className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer hover:opacity-75 transition-opacity"
+                      onClick={() => {
+                        const index = gallery.photos.findIndex(p => p.id === photo.id);
+                        setCurrentPhotoIndex(index);
+                        setLightboxOpen(true);
+                        setShowFavoritesModal(false);
+                      }}
+                    >
+                      <img
+                        src={photo.thumbnailUrl || photo.url}
+                        alt={photo.filename}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <p className="text-xs text-white font-mono truncate">
+                          {photo.filename.replace(/\.[^/.]+$/, '')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }
