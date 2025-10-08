@@ -338,15 +338,40 @@ export function ClientGallery() {
                 )}
                 
                 {selectedCount > 0 && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setShowSelection(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <ShoppingCart size={16} />
-                    {selectedCount} selecionadas
-                  </Button>
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setShowSelection(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <ShoppingCart size={16} />
+                      {selectedCount} selecionadas
+                    </Button>
+
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        if (clientSession && currentGallery) {
+                          const selectedPhotos = currentGallery.photos.filter(photo =>
+                            clientSession.selectedPhotos.includes(photo.id)
+                          );
+
+                          selectedPhotos.forEach(photo => {
+                            dispatch({ type: 'ADD_TO_PRINT_CART', payload: photo.id });
+                          });
+
+                          dispatch({ type: 'CLEAR_SELECTED_PHOTOS' });
+                          setShowPrintCart(true);
+                        }
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <Printer size={16} />
+                      Imprimir Selecionadas
+                    </Button>
+                  </>
                 )}
               </div>
               </div>
