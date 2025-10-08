@@ -82,6 +82,7 @@ export function NetflixGallery({ photos, favorites = [], onToggleFavorite }: Net
               <div className="w-full h-full">
                 <VideoPlayer
                   videoUrl={signedUrls[photos[0].id]}
+                  videoType="mp4"
                   thumbnail={photos[0].thumbnail}
                   title={photos[0].filename}
                 />
@@ -228,6 +229,7 @@ export function NetflixGallery({ photos, favorites = [], onToggleFavorite }: Net
             {selectedMedia.mediaType === 'video' && signedUrls[selectedMedia.id] ? (
               <VideoPlayer
                 videoUrl={signedUrls[selectedMedia.id]}
+                videoType="mp4"
                 thumbnail={selectedMedia.thumbnail}
                 title={selectedMedia.filename}
               />
