@@ -37,6 +37,7 @@ class SupplierService {
 
   async getSupplierByAccessCode(accessCode: string): Promise<Supplier | null> {
     try {
+      console.log('🔍 Looking for supplier with access code:', accessCode);
       const { data, error } = await supabase
         .from('suppliers')
         .select('*')
@@ -44,6 +45,12 @@ class SupplierService {
         .maybeSingle();
 
       if (error) throw error;
+
+      if (data) {
+        console.log('✅ Supplier found:', data.name, 'Gallery ID:', data.gallery_id);
+      } else {
+        console.log('❌ No supplier found with this access code');
+      }
 
       return data ? this.mapSupplierFromDB(data) : null;
     } catch (error) {

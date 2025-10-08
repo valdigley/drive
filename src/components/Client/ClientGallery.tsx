@@ -29,8 +29,9 @@ export function ClientGallery() {
     : currentGallery.photos[0];
 
   const filteredPhotos = useMemo(() => {
+    console.log('🖼️ ClientGallery - Total photos in gallery:', currentGallery.photos.length);
     if (filter === 'favorites' && clientSession) {
-      return currentGallery.photos.filter(photo => 
+      return currentGallery.photos.filter(photo =>
         clientSession.favorites.includes(photo.id)
       );
     }

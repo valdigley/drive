@@ -96,10 +96,13 @@ function App() {
 
           if (supplier && supplier.galleryId) {
             // It's a supplier accessing their gallery
+            console.log('✅ Supplier found:', supplier.name, 'ID:', supplier.id, 'Gallery:', supplier.galleryId);
             const gallery = await galleryService.getGalleryDetails(supplier.galleryId);
             if (gallery) {
+              console.log('✅ Gallery found:', gallery.name);
               // Load only photos tagged for this supplier
               const photos = await galleryService.getGalleryPhotos(supplier.galleryId, supplier.id);
+              console.log('✅ Photos loaded for supplier:', photos.length);
               const completeGallery = { ...gallery, photos };
               dispatch({ type: 'ADD_GALLERY', payload: completeGallery });
               dispatch({ type: 'SET_CURRENT_GALLERY', payload: completeGallery });

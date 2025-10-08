@@ -93,6 +93,7 @@ class GalleryService {
 
       // If supplierId is provided, filter photos tagged for this supplier
       if (supplierId) {
+        console.log('🔍 Filtering photos for supplier:', supplierId, 'in gallery:', galleryId);
         const { data: taggedPhotos, error: tagError } = await supabase
           .from('photo_suppliers')
           .select('photo_id')
@@ -102,9 +103,11 @@ class GalleryService {
         if (tagError) throw tagError;
 
         photoIds = (taggedPhotos || []).map(tp => tp.photo_id);
+        console.log('📸 Found tagged photos:', photoIds.length, photoIds);
 
         // If no photos are tagged, return empty array
         if (photoIds.length === 0) {
+          console.log('⚠️ No photos tagged for this supplier');
           return [];
         }
       }
